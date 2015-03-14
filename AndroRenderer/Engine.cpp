@@ -137,7 +137,7 @@ namespace andro
 			s_shadowMap->EnableVertexAttributes();
 			s_shadowMap->UpdateUniforms();
 
-			s_mainScene->Render(s_shadowMap, true);
+			s_mainScene->Render(s_shadowMap, false);
 		
 			s_shadowMap->DisableVertexAttributes();
 
