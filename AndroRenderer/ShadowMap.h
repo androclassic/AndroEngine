@@ -15,7 +15,7 @@ public:
 	void UpdateUniforms();
 	void EnableVertexAttributes();
 	void DisableVertexAttributes();
-	bool CreateDepthBuffer();
+	bssBool CreateDepthBuffer();
 	void BindFrameBuffer();
 	void BindDepthTexture();
 	
@@ -29,10 +29,10 @@ private:
 	Vector3				m_lightPosition;
 	Vector3				m_lightLookAt;
 
-	float				m_screenWidth;
-	float				m_screenHeight;
-	GLuint				m_renderTexture;
-	GLuint				m_frameBufferName;
+	bssFloat				m_screenWidth;
+	bssFloat				m_screenHeight;
+	bssU32				m_renderTexture;
+	bssU32				m_frameBufferName;
 
 };
 

@@ -27,16 +27,9 @@ void Entity::UpdateVisualObjectTransformMatrix()
 		force::Matrix4 m =  m_physicObject->rigidBody->transformMatrix;
   
 		force::Vector3 v(m.data[0],m.data[1],m.data[2]);
-		m_visualObject->m_WorldMatrix.CRight = ForceToAndro(v);
-		m_visualObject->m_WorldMatrix.Tx = m.data[3];
 
-		force::Vector3 v1(m.data[4],m.data[5],m.data[6]);
-		m_visualObject->m_WorldMatrix.CUp = ForceToAndro(v1);
-		m_visualObject->m_WorldMatrix.Ty = m.data[7];
-
-		force::Vector3 v2(m.data[8],m.data[9],m.data[10]);
-		m_visualObject->m_WorldMatrix.CLook = ForceToAndro(v2);
-		m_visualObject->m_WorldMatrix.Tz = m.data[11];
+		for (bssU32 i = 0; i < 12; i++)
+			m_visualObject->m_WorldMatrix.data[i] = m.data[i];
 
 		force::Vector3 pos = m_physicObject->rigidBody->GetPosition();
 		m_visualObject->SetPosition(ForceToAndro(pos));

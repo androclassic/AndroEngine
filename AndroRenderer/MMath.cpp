@@ -2,13 +2,13 @@
 #include <math.h>
 namespace andro
 {
-	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading)
+	void ComputeFrontAndRight(Vector3& front, Vector3& right, bssFloat pitch, bssFloat heading)
 	{
-		float sinP = sinf(DEG2RAD(pitch));
-		float cosP = cosf(DEG2RAD(pitch));
+		bssFloat sinP = sinf(DEG2RAD(pitch));
+		bssFloat cosP = cosf(DEG2RAD(pitch));
 
-		float sinH = sinf(DEG2RAD(heading));
-		float cosH = cosf(DEG2RAD(heading));
+		bssFloat sinH = sinf(DEG2RAD(heading));
+		bssFloat cosH = cosf(DEG2RAD(heading));
 
 		right.x = cosP;
 		right.y = 0;
@@ -20,7 +20,7 @@ namespace andro
 	}
 
 
-	float Vector2::operator* (const Vector2& rhs) const
+	bssFloat Vector2::operator* (const Vector2& rhs) const
 	{
 		return x*rhs.x + y*rhs.y;
 	}
@@ -36,7 +36,7 @@ namespace andro
 	}
 	void Vector2::Normalize()
 	{
-		float lenght=Lenght();
+		bssFloat lenght=Lenght();
 		x=x/lenght;
 		y=y/lenght;
 	}
@@ -51,12 +51,12 @@ namespace andro
 	}
 
 
-	float Vector2::Lenght() const
+	bssFloat Vector2::Lenght() const
 	{
 		return sqrt(x*x + y*y);
 	}
 
-	float Vector3::operator *(const Vector3& rhs) const
+	bssFloat Vector3::operator *(const Vector3& rhs) const
 	{
 		return x*rhs.x + y*rhs.y + z*rhs.z;
 	}
@@ -78,7 +78,7 @@ namespace andro
 	}
 	void Vector3::Normalize()
 	{
-		float lenght=Lenght();
+		bssFloat lenght=Lenght();
 		x=x/lenght;
 		y=y/lenght;
 		z=z/lenght;
@@ -93,18 +93,18 @@ namespace andro
 		return Vector3(x-rhs.x,y-rhs.y,z-rhs.z);
 	}
 
-	Vector3 Vector3::operator*(float scalar) const
+	Vector3 Vector3::operator*(bssFloat scalar) const
 	{
 		return Vector3(scalar * x,scalar * y,scalar * z);
 	}
 
 
-	float Vector3::Lenght() const
+	bssFloat Vector3::Lenght() const
 	{
 		return sqrt(x*x + y*y + z*z);
 	}
 
-	float Distance(const Vector3& p1, const  Vector3& p2)
+	bssFloat Distance(const Vector3& p1, const  Vector3& p2)
 	{
 	  return	sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2)+pow((p1.z-p2.z),2));
 	}
@@ -115,10 +115,10 @@ namespace andro
 	}
 
 
-	Matrix4::Matrix4(float _m11, float _m12, float _m13, float _m14,
-					 float _m21, float _m22, float _m23, float _m24,
-					 float _m31, float _m32, float _m33, float _m34,
-					 float _m41, float _m42, float _m43, float _m44)
+	Matrix4::Matrix4(bssFloat _m11, bssFloat _m12, bssFloat _m13, bssFloat _m14,
+					 bssFloat _m21, bssFloat _m22, bssFloat _m23, bssFloat _m24,
+					 bssFloat _m31, bssFloat _m32, bssFloat _m33, bssFloat _m34,
+					 bssFloat _m41, bssFloat _m42, bssFloat _m43, bssFloat _m44)
 	{
 		
 	   m11=_m11;m12=_m12;m13=_m13;m14=_m14;
@@ -132,7 +132,7 @@ namespace andro
 		for(unsigned  int i=0;i<4;i++)
 			
 		{
-			for(unsigned int j=0;j<4;j++)
+			for(bssU32 j=0;j<4;j++)
 			{
 				if(j==i)
 					matrix[j][i]=1;
@@ -146,7 +146,7 @@ namespace andro
 		for(unsigned  int i=0;i<4;i++)
 			
 		{
-			for(unsigned int j=0;j<4;j++)
+			for(bssU32 j=0;j<4;j++)
 			{
 				matrix[j][i]=0;
 			}
@@ -194,7 +194,7 @@ namespace andro
 		return *this;
 	}
 
-	void Matrix4::LoadVectorFromMatrix(float vec[]) const
+	void Matrix4::LoadVectorFromMatrix(bssFloat vec[]) const
 	{
 		
 	for(int i=0;i<4;i++)
@@ -203,7 +203,7 @@ namespace andro
 	 
 	}
 
-	void Matrix4::LoadMatrixFromVector(float vec[])
+	void Matrix4::LoadMatrixFromVector(bssFloat vec[])
 	{
 		
 	for(int i=0;i<4;i++)
@@ -211,7 +211,7 @@ namespace andro
 		 matrix[i][j]=vec[i+j*4];
 	 
 	}
-	void RotateYaw(Matrix4 &mat, float angle)
+	void RotateYaw(Matrix4 &mat, bssFloat angle)
 	{
 			angle=DEG2RAD(angle);//convertion
 
@@ -224,7 +224,7 @@ namespace andro
 	mat =(temp*rotate);
 	  
 	}
-	void  RotatePitch(Matrix4& mat, float angle)
+	void  RotatePitch(Matrix4& mat, bssFloat angle)
 	{
 		angle=DEG2RAD(angle);//convertion
 
@@ -238,7 +238,7 @@ namespace andro
 	 
 
 	}
-	void RotateRoll(Matrix4& mat, float angle)
+	void RotateRoll(Matrix4& mat, bssFloat angle)
 	{
 			angle=DEG2RAD(angle);//convertion
 
@@ -250,14 +250,14 @@ namespace andro
 	mat = (temp*rotate);
 	}
 
-	void  Translate(Matrix4& mat, float x, float y, float z)
+	void  Translate(Matrix4& mat, bssFloat x, bssFloat y, bssFloat z)
 	{
 		mat.m41=x;
 		mat.m42=y;
 		mat.m43=z;
 	}
 
-	void  Scale(Matrix4& mat, float x, float y, float z)
+	void  Scale(Matrix4& mat, bssFloat x, bssFloat y, bssFloat z)
 	{
 		Matrix4 scale;
 		scale.LoadIdentity();
@@ -271,7 +271,7 @@ namespace andro
 
 	}
 
-	void SetPos(Matrix4& mat, float x, float y, float z)
+	void SetPos(Matrix4& mat, bssFloat x, bssFloat y, bssFloat z)
 	{
 		mat.m41=x;
 		mat.m42=y;

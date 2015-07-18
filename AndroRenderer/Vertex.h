@@ -6,20 +6,20 @@ namespace andro
 	{
 		public:
 
-			void Set(float x,float y,float z,float r=0,
-					 float g=0,float b=0,float a=0,float s=0,float t=0);
+			void Set(bssFloat x,bssFloat y,bssFloat z,bssFloat r=0,
+					 bssFloat g=0,bssFloat b=0,bssFloat a=0,bssFloat s=0,bssFloat t=0);
 		
-			float x;
-			float y;
-			float z;
+			bssFloat x;
+			bssFloat y;
+			bssFloat z;
 
-			float r;
-			float g;
-			float b;
-			float a;
+			bssFloat r;
+			bssFloat g;
+			bssFloat b;
+			bssFloat a;
 
-			float s;
-			float t;
+			bssFloat s;
+			bssFloat t;
 
 	  
 

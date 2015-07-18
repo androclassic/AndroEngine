@@ -22,19 +22,17 @@ namespace andro
 		RotateYaw(m_CamMatrix,m_yaw);
 		
 		// Tx=POS*Right  Ty=POS*Up  Tz=POS*Look
-		m_CamMatrix.Tx=m_position * m_CamMatrix.CRight;
-		m_CamMatrix.Ty=m_position * m_CamMatrix.CUp;
-		m_CamMatrix.Tz=m_position * m_CamMatrix.CLook;
+		
+		
+		m_CamMatrix.m41 = m_position * GetRight();
+		m_CamMatrix.m42 = m_position * GetUp();
+		m_CamMatrix.m43 = m_position * GetLook();
 	 
-		/*m_CamMatrix->m41=m_CamMatrix->m11*m_position.x+m_CamMatrix->m21*m_position.y+m_CamMatrix->m31*m_position.z;
-		m_CamMatrix->m42=m_CamMatrix->m12*m_position.x+m_CamMatrix->m22*m_position.y+m_CamMatrix->m32*m_position.z;
-		m_CamMatrix->m43=m_CamMatrix->m13*m_position.x+m_CamMatrix->m23*m_position.y+m_CamMatrix->m33*m_position.z;
-	  */
 
 	}
 
 
-	void Camera::SetPosition(float x, float y, float z)
+	void Camera::SetPosition(bssFloat x, bssFloat y, bssFloat z)
 	{
 	  m_position.x=-x;
 	  m_position.y=-y;
@@ -57,14 +55,14 @@ namespace andro
 
 		SetPosition(pos.x,pos.y,pos.z);
 
-		m_CamMatrix.CRight = xaxis *-1;
-		m_CamMatrix.CUp = yaxis*-1;
-		m_CamMatrix.CLook = zaxis*-1;
+		SetRight(xaxis *-1);
+		SetUp(yaxis*-1);
+		SetLook(zaxis*-1);
 
 
-		m_CamMatrix.Tx=m_position * m_CamMatrix.CRight;
-		m_CamMatrix.Ty=m_position * m_CamMatrix.CUp;
-		m_CamMatrix.Tz=m_position * m_CamMatrix.CLook;
+		m_CamMatrix.m41 = m_position * GetRight();
+		m_CamMatrix.m42 = m_position * GetUp();
+		m_CamMatrix.m43 = m_position * GetLook();
 
 
 	}
@@ -76,12 +74,12 @@ namespace andro
 
 	Vector3 Camera::GetOrientation() const
 	{
-		Vector3 o =  m_CamMatrix.CLook;
+		Vector3 o =  GetLook();
 		o.Normalize();
 		return o * -1;
 	}
 
-	void Camera::SetPitch(float pitch)
+	void Camera::SetPitch(bssFloat pitch)
 	{
 	   m_pitch=pitch;
 	   m_pitch = fmod(m_pitch, 360);
@@ -89,30 +87,29 @@ namespace andro
 
 		
 	}
-	void Camera::AddPitch(float pitch)
+	void Camera::AddPitch(bssFloat pitch)
 	{
 	   m_pitch+=pitch;
 	   m_pitch = fmod(m_pitch, 360);
 
 	  
 	}
-	void Camera::SetYaw(float yaw)
+	void Camera::SetYaw(bssFloat yaw)
 	{
 		m_yaw=yaw;
 		m_yaw = fmod(m_yaw, 360);
 	}
-	void Camera::AddYaw(float yaw)
+	void Camera::AddYaw(bssFloat yaw)
 	{
 		m_yaw+=yaw;
 		m_yaw = fmod(m_yaw, 360);
 
 	}
-	void Camera::Move(float dx, float dz)
+	void Camera::Move(bssFloat dx, bssFloat dz)
 	{
 		
 		if(dz)
 		{
-  		 m_CamMatrix.CLook.Normalize();
 		 m_position.x -= m_CamMatrix.m13 * dz;
 		 m_position.y -= m_CamMatrix.m23 * dz;
 		 m_position.z -= m_CamMatrix.m33 * dz;
@@ -122,7 +119,6 @@ namespace andro
 		else if(dx)
 		{
 			
-  		 m_CamMatrix.CRight.Normalize();
 		 m_position.x -= m_CamMatrix.m11*dx;
 		 m_position.y -= m_CamMatrix.m21*dx;
 		 m_position.z -= m_CamMatrix.m31*dx;
@@ -130,7 +126,7 @@ namespace andro
 
 	}
 
-	void  Camera::setOrthoMatrix(float l, float r, float t, float b, float n, float f)
+	void  Camera::setOrthoMatrix(bssFloat l, bssFloat r, bssFloat t, bssFloat b, bssFloat n, bssFloat f)
 	{
 		Matrix4& mat = m_projection;
 

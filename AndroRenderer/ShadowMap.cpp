@@ -16,8 +16,8 @@ namespace andro
 
 	void ShadowMap::UpdateUniforms()
 	{
-		float viewMatrix[16];
-		float projectionMatrix[16];
+		bssFloat viewMatrix[16];
+		bssFloat projectionMatrix[16];
 
 		//Get the current matrices from OpenGL
 
@@ -65,7 +65,7 @@ namespace andro
 		glDisableVertexAttribArray(0); 
 	}
 
-	 bool ShadowMap::CreateDepthBuffer()
+	 bssBool ShadowMap::CreateDepthBuffer()
 	{
 				// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer
 		 glGenFramebuffers(1, &m_frameBufferName);
@@ -85,7 +85,7 @@ namespace andro
 		glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 		glReadBuffer(GL_NONE);
 	
-		GLuint ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		bssU32 ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		// Always check that our framebuffer is ok
 		if(ret != GL_FRAMEBUFFER_COMPLETE)
 			return false;

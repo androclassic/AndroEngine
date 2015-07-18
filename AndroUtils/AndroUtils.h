@@ -3,7 +3,7 @@
 
 #include"Precompiled.h"
 
-
+#include "AndroTypes.h"
 #define ASSERT _ASSERTE
 
 
