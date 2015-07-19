@@ -72,8 +72,6 @@ namespace andro
 	   friend Vector3 operator*(const Vector3& vec, const Matrix4& mat);
 
 	   Matrix4& operator=(const Matrix4& mat);
-	   void LoadVectorFromMatrix(bssFloat vec[]) const;
-	   void LoadMatrixFromVector(bssFloat vec[]);
 	   void LoadIdentity();
 	   void LoadNull();
 

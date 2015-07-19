@@ -16,20 +16,12 @@ namespace andro
 
 	void ShadowMap::UpdateUniforms()
 	{
-		bssFloat viewMatrix[16];
-		bssFloat projectionMatrix[16];
-
-		//Get the current matrices from OpenGL
-
-		
 		Camera lightView;
 		lightView.LookAt(m_lightPosition, m_lightLookAt);
-		lightView.GetTransform().LoadVectorFromMatrix(viewMatrix);
-		Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().LoadVectorFromMatrix(projectionMatrix);
 
 		//Send the modelview and projection matrices to the shaders
-		sendUniform4x4("projectionMatrix", projectionMatrix);
-		sendUniform4x4("viewMatrix", viewMatrix);
+		sendUniform4x4("projectionMatrix", Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().data);
+		sendUniform4x4("viewMatrix", lightView.GetTransform().data);
 
 	}
 

@@ -28,11 +28,8 @@ namespace andro
 			void SetScale(bssFloat x, bssFloat y, bssFloat z);
 			void SetShapeColor(Vector3 color);
 			void SetHeading(bssFloat heading);
-			void SetMatrixData(bssFloat data[]);
 
 			Vector3 GetPosition() const { return m_position; }
-			void GetMatrixData(bssFloat data[]) const;
-
 
 			bssBool loadOBJ(const char * path);
 

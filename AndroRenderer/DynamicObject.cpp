@@ -129,14 +129,8 @@ namespace andro
 
 	void DynamicObject::Render(GLSLProgram *shader, bssBool cullFront) const
 	{
-
-		bssFloat worldMatrix[16];
-
-
-		m_WorldMatrix.LoadVectorFromMatrix(worldMatrix);
-
 		//Send the world_matrix  to the shaders
-		shader->sendUniform4x4("worldMatrix", worldMatrix);
+		shader->sendUniform4x4("worldMatrix", m_WorldMatrix.data);
 
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
@@ -208,15 +202,6 @@ namespace andro
 
 		this->s = s;
 		this->t = t;
-	}
-
-	void DynamicObject::SetMatrixData(bssFloat data[])
-	{
-		m_WorldMatrix.LoadMatrixFromVector(data);
-	}
-	void DynamicObject::GetMatrixData(bssFloat data[]) const
-	{
-		m_WorldMatrix.LoadVectorFromMatrix(data);
 	}
 
 	void DynamicObject::CleanBuffers()
@@ -554,13 +539,8 @@ namespace andro
 	}
 	void Line::Render(GLSLProgram* shader, bssBool cullFront) const
 	{
-
-		bssFloat worldMatrix[16];
-
-		m_WorldMatrix.LoadVectorFromMatrix( worldMatrix);
-	 
 		//Send the world_matrix  to the shaders
-		shader->sendUniform4x4("worldMatrix", worldMatrix);
+		shader->sendUniform4x4("worldMatrix", m_WorldMatrix.data);
 
 		
 		glBindBuffer(GL_ARRAY_BUFFER,m_vertexBuffer);

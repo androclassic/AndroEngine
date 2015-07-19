@@ -226,30 +226,16 @@ namespace andro
 
 	void ProgramType_MV_PR_TEX::UpdateUniforms()
 	{
-		bssFloat viewMatrix[16];
-		bssFloat projectionMatrix[16];
-		bssFloat lightViewMatrix[16];
-
 		Camera lightView;
 		Vector3 lightPosition = Engine::GetInstance()->GetLightPosition();
 		lightView.LookAt(lightPosition,Engine::GetInstance()->GetLightLookAt());
-
-		lightView.GetTransform().LoadVectorFromMatrix(lightViewMatrix);
-		Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().LoadVectorFromMatrix(projectionMatrix);
-
-
-		//Get the current matrices from OpenGL
-
-		Engine::GetInstance()->GetScene()->GetCamera()->GetTransform().LoadVectorFromMatrix(viewMatrix);
-		
-
 		//Send the modelview and projection matrices to the shaders
 		sendUniform("renderTexture", 1);
 		sendUniform("image",  0);
 
-		 sendUniform4x4("projectionMatrix", projectionMatrix);
-		sendUniform4x4("viewMatrix", viewMatrix);
-		sendUniform4x4("lightViewMatrix", lightViewMatrix);
+		sendUniform4x4("projectionMatrix", Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().data);
+		 sendUniform4x4("viewMatrix", Engine::GetInstance()->GetScene()->GetCamera()->GetTransform().data);
+		 sendUniform4x4("lightViewMatrix", lightView.GetTransform().data);
 		
 		sendUniform("vLightPosition",lightPosition.x,lightPosition.y,lightPosition.z);
 		sendUniform("ambientColor", 0.1f, 0.1f, 0.1f, 1.0f);

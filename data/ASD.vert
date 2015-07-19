@@ -26,14 +26,14 @@ smooth out vec4 vOutColor;
 
 void main(void)
 {
-	 mat4 modelview = viewMatrix * worldMatrix ;
+	 mat4 modelview = worldMatrix * viewMatrix;
 		
 	 // Get surface normal in eye coordinates
-	  vVaryingNormal = mat3(modelview)  * vNormal;
+	  vVaryingNormal = vNormal * mat3(modelview);
 	 // Get vertex position in eye coordinates
-	 vec4 vPosition4 = modelview  * vec4(vVertex, 1);
+	 vec4 vPosition4 = vec4(vVertex, 1) * modelview ;
 	 vec3 vPosition3 = vPosition4.xyz / vPosition4.w;
-	 vec3 lightPostition = vec4(viewMatrix * vec4(vLightPosition,1)).xyz;
+	 vec3 lightPostition = vec4(vec4(vLightPosition,1) * viewMatrix).xyz;
 	 
 	 // Get vector to light source
 	  vVaryingLightDir = lightPostition - vPosition3;
@@ -42,13 +42,14 @@ void main(void)
 	//vVaryingColor = vColor;
 	texcoord = vTextCoord;
 
-	mat4 bias =mat4(	vec4(0.5, 0.0, 0.0, 0.0),
-				vec4(0.0, 0.5, 0.0, 0.0),
-				vec4(0.0, 0.0, 0.5, 0.0),
-				vec4(0.5, 0.5, 0.5, 1.0) );
-			
-	vVaryingShadowPos = bias * projectionMatrix * lightViewMatrix * worldMatrix * vec4(vVertex,1);
-		gl_Position = projectionMatrix *  viewMatrix * worldMatrix * vec4(vVertex,1);
-		vOutColor = vColor;
+	mat4 bias =mat4(	vec4(0.5, 0.0, 0.0, 0.5),
+						vec4(0.0, 0.5, 0.0, 0.5),
+						vec4(0.0, 0.0, 0.5, 0.5),
+						vec4(0.0, 0.0, 0.0, 1.0) );
+
+						
+	vVaryingShadowPos =vec4(vVertex,1) * worldMatrix * lightViewMatrix * projectionMatrix * bias ;
+	gl_Position = vec4(vVertex,1) * worldMatrix * viewMatrix * projectionMatrix;
+	vOutColor = vColor;
 
 }

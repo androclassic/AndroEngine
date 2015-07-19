@@ -194,23 +194,6 @@ namespace andro
 		return *this;
 	}
 
-	void Matrix4::LoadVectorFromMatrix(bssFloat vec[]) const
-	{
-		
-	for(int i=0;i<4;i++)
-	  for(int j=0;j<4;j++)
-		  vec[i+j*4]=matrix[i][j];
-	 
-	}
-
-	void Matrix4::LoadMatrixFromVector(bssFloat vec[])
-	{
-		
-	for(int i=0;i<4;i++)
-	  for(int j=0;j<4;j++)
-		 matrix[i][j]=vec[i+j*4];
-	 
-	}
 	void RotateYaw(Matrix4 &mat, bssFloat angle)
 	{
 			angle=DEG2RAD(angle);//convertion
