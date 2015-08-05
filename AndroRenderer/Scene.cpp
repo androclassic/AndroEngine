@@ -38,6 +38,7 @@ namespace andro
 			if (m_dynamicObjects[i].get() == obj.get())
 				{
 					m_dynamicObjects.erase(m_dynamicObjects.begin() + i);
+					return true;
 				}
 		return false;
 	}

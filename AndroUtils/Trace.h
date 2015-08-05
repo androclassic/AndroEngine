@@ -2,7 +2,6 @@
 
 #include "AndroUtils.h"
 
-#if __cplusplus > 199711L &&  defined(_DEBUG)
 namespace androutils
 {
 	struct Tracer
@@ -54,6 +53,3 @@ namespace androutils
 }
 
 	#define TRACE androutils::Tracer(__FILE__, __LINE__)
-#else
-#define TRACE __noop
-#endif

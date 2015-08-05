@@ -320,11 +320,13 @@ namespace andro
 				normalIndices.push_back(normalIndex[1]);
 				normalIndices.push_back(normalIndex[2]);
 			}
-			m_normalsCount = m_verticesCount = vertexIndices.size();
-			m_vertices = new andro::Vertex3fPos4fColor2fTex[m_verticesCount];
-			m_normals = new Vector3[m_normalsCount];
 
 		}
+
+		m_normalsCount = m_verticesCount = vertexIndices.size();
+		m_vertices = new andro::Vertex3fPos4fColor2fTex[m_verticesCount];
+		m_normals = new Vector3[m_normalsCount];
+
 
 		fclose(file);
 
@@ -481,7 +483,6 @@ namespace andro
 		m_vertices[6].Set( target.x+width	, target.y + width	, target.z	,0,0,0,1,1,0);
 		m_vertices[7].Set(  width			, width				, 0			,0,0,0,0,0,1);
 	
-		glGenBuffers(1,&m_vertexBuffer); 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer); //Bind the vertex buffer
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3fPos4fColor2fTex) * m_verticesCount, &m_vertices[0], GL_DYNAMIC_DRAW); //Send the data to OpenGL
 	  

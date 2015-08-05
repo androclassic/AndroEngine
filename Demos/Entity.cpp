@@ -8,7 +8,7 @@ Entity::~Entity()
 {
 	//objects pointers are managed by specific modules
 	if(m_visualObject != NULL && andro::Engine::GetInstance() != NULL)
-		assert(andro::Engine::GetInstance()->GetScene()->RemoveObject(m_visualObject) == false);
+		VERIFY(andro::Engine::GetInstance()->GetScene()->RemoveObject(m_visualObject));
 }
 
 force::Primitive* Entity::GetPhysicObject() const
