@@ -7,5 +7,5 @@ uniform mat4 worldMatrix;
 layout(location = 0) in vec3 vVertex;
  
 void main(){
- gl_Position  = projectionMatrix * viewMatrix * worldMatrix * vec4(vVertex,1);
+ gl_Position  =  vec4(vVertex,1) * worldMatrix * viewMatrix * projectionMatrix;
 }

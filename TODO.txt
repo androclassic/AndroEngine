@@ -1,0 +1,10 @@
+remove object class *
+refactor renderer for easy port
+file system
+material system
+resource manager
+memory pool
+lua script
+deferred renderer
+custom types
+view system

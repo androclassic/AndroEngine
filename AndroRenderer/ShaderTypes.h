@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 
+#include "../AndroUtils/AndroUtils.h"
+
+
 
 using std::string;
 using std::ifstream;
@@ -23,7 +26,7 @@ class GLSLProgram
 public:
     struct GLSLShader
     {
-        unsigned int id;
+        bssU32 id;
         string filename;
         string source;
     };
@@ -35,33 +38,33 @@ public:
     }
 
     void unload();
-    bool initialize();
+    bssBool initialize();
 	void linkProgram();
-    GLuint getUniformLocation(const string& name);
-    GLuint getAttribLocation(const string& name);
+    bssU32 getUniformLocation(const string& name);
+    bssU32 getAttribLocation(const string& name);
     void sendUniform(const string& name, const int id);
-    void sendUniform4x4(const string& name, const float* matrix, bool transpose=false);
-    void sendUniform3x3(const string& name, const float* matrix, bool transpose=false);
-    void sendUniform(const string& name, const float red, const float green,
-                    const float blue, const float alpha);
-    void sendUniform(const string& name, const float x, const float y,
-                     const float z);
-    void sendUniform(const string& name, const float scalar);
-    void bindAttrib(unsigned int index, const string& attribName);
+    void sendUniform4x4(const string& name, const bssFloat* matrix, bssBool transpose=false);
+    void sendUniform3x3(const string& name, const bssFloat* matrix, bssBool transpose=false);
+    void sendUniform(const string& name, const bssFloat red, const bssFloat green,
+                    const bssFloat blue, const bssFloat alpha);
+    void sendUniform(const string& name, const bssFloat x, const bssFloat y,
+                     const bssFloat z);
+    void sendUniform(const string& name, const bssFloat scalar);
+    void bindAttrib(bssU32 index, const string& attribName);
     void bindShader();
    
 private:
     string readFile(const string& filename);
-    bool compileShader(const GLSLShader& shader);
-    void outputShaderLog(unsigned int shaderID);
-    void outputProgramLog(unsigned int programID);
+    bssBool compileShader(const GLSLShader& shader);
+    void outputShaderLog(bssU32 shaderID);
+    void outputProgramLog(bssU32 programID);
 
     GLSLShader m_vertexShader;
     GLSLShader m_fragmentShader;
-    unsigned int m_programID;
+    bssU32 m_programID;
 
-    map<string, GLuint> m_uniformMap;
-    map<string, GLuint> m_attribMap;
+    map<string, bssU32> m_uniformMap;
+    map<string, bssU32> m_attribMap;
 };
 
 class AbstractProgramType: public GLSLProgram

@@ -16,20 +16,12 @@ namespace andro
 
 	void ShadowMap::UpdateUniforms()
 	{
-		float viewMatrix[16];
-		float projectionMatrix[16];
-
-		//Get the current matrices from OpenGL
-
-		
 		Camera lightView;
 		lightView.LookAt(m_lightPosition, m_lightLookAt);
-		lightView.GetTransform().LoadVectorFromMatrix(viewMatrix);
-		Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().LoadVectorFromMatrix(projectionMatrix);
 
 		//Send the modelview and projection matrices to the shaders
-		sendUniform4x4("projectionMatrix", projectionMatrix);
-		sendUniform4x4("viewMatrix", viewMatrix);
+		sendUniform4x4("projectionMatrix", Engine::GetInstance()->GetScene()->GetCamera()->GetProjection().data);
+		sendUniform4x4("viewMatrix", lightView.GetTransform().data);
 
 	}
 
@@ -65,7 +57,7 @@ namespace andro
 		glDisableVertexAttribArray(0); 
 	}
 
-	 bool ShadowMap::CreateDepthBuffer()
+	 bssBool ShadowMap::CreateDepthBuffer()
 	{
 				// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer
 		 glGenFramebuffers(1, &m_frameBufferName);
@@ -85,7 +77,7 @@ namespace andro
 		glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 		glReadBuffer(GL_NONE);
 	
-		GLuint ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		bssU32 ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		// Always check that our framebuffer is ok
 		if(ret != GL_FRAMEBUFFER_COMPLETE)
 			return false;
