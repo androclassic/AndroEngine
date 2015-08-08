@@ -42,4 +42,4 @@ else(PLATFORM STREQUAL "Win32")
 endif(PLATFORM STREQUAL "Win32")
 		
 add_executable (Domino WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
-target_link_libraries(Domino Force EventManager  AndroRenderer ${LINK_FILES})
+target_link_libraries(Domino Force EventManager  AndroRenderer Lua ${LINK_FILES})

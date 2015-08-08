@@ -52,4 +52,4 @@ namespace androutils
 	};
 }
 
-	#define TRACE androutils::Tracer(__FILE__, __LINE__)
+#define TRACE androutils::Tracer(__FILE__, __LINE__)
