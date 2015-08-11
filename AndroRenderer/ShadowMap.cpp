@@ -57,7 +57,7 @@ namespace andro
 		glDisableVertexAttribArray(0); 
 	}
 
-	 bssBool ShadowMap::CreateDepthBuffer()
+	 bool ShadowMap::CreateDepthBuffer()
 	{
 				// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer
 		 glGenFramebuffers(1, &m_frameBufferName);
@@ -77,7 +77,7 @@ namespace andro
 		glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 		glReadBuffer(GL_NONE);
 	
-		bssU32 ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		unsigned int ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		// Always check that our framebuffer is ok
 		if(ret != GL_FRAMEBUFFER_COMPLETE)
 			return false;

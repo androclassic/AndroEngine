@@ -23,7 +23,7 @@ namespace andro
 			glDeleteShader(m_programID);
 		}
 
-		bssBool GLSLProgram::initialize()
+		bool GLSLProgram::initialize()
 		{
 			m_programID = glCreateProgram();
 			m_vertexShader.id = glCreateShader(GL_VERTEX_SHADER);
@@ -63,12 +63,12 @@ namespace andro
 			outputProgramLog(m_programID);
 		}
 
-		bssU32 GLSLProgram::getUniformLocation(const string& name)
+		unsigned int GLSLProgram::getUniformLocation(const string& name)
 		{
-			map<string, bssU32>::iterator i = m_uniformMap.find(name);
+			map<string, unsigned int>::iterator i = m_uniformMap.find(name);
 			if (i == m_uniformMap.end())
 			{
-				bssU32 location = glGetUniformLocation(m_programID, name.c_str());
+				unsigned int location = glGetUniformLocation(m_programID, name.c_str());
 				m_uniformMap.insert(std::make_pair(name, location));
 				return location;
 			}
@@ -76,12 +76,12 @@ namespace andro
 			return (*i).second;
 		}
 
-		bssU32 GLSLProgram::getAttribLocation(const string& name)
+		unsigned int GLSLProgram::getAttribLocation(const string& name)
 		{
-			map<string, bssU32>::iterator i = m_attribMap.find(name);
+			map<string, unsigned int>::iterator i = m_attribMap.find(name);
 			if (i == m_attribMap.end())
 			{
-				bssU32 location = glGetAttribLocation(m_programID, name.c_str());
+				unsigned int location = glGetAttribLocation(m_programID, name.c_str());
 				m_attribMap.insert(std::make_pair(name, location));
 				return location;
 			}
@@ -91,43 +91,43 @@ namespace andro
 
 		void GLSLProgram::sendUniform(const string& name, const int id)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniform1i(location, id);
 		}
 
-		void GLSLProgram::sendUniform4x4(const string& name, const bssFloat* matrix, bssBool transpose)
+		void GLSLProgram::sendUniform4x4(const string& name, const float* matrix, bool transpose)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniformMatrix4fv(location, 1, transpose, matrix);
 		}
 
-		void GLSLProgram::sendUniform3x3(const string& name, const bssFloat* matrix, bssBool transpose)
+		void GLSLProgram::sendUniform3x3(const string& name, const float* matrix, bool transpose)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniformMatrix3fv(location, 1, transpose, matrix);
 		}
 
-		void GLSLProgram::sendUniform(const string& name, const bssFloat red, const bssFloat green,
-						 const bssFloat blue, const bssFloat alpha)
+		void GLSLProgram::sendUniform(const string& name, const float red, const float green,
+						 const float blue, const float alpha)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniform4f(location, red, green, blue, alpha);
 		}
 
-		void GLSLProgram::sendUniform(const string& name, const bssFloat x, const bssFloat y,
-						 const bssFloat z)
+		void GLSLProgram::sendUniform(const string& name, const float x, const float y,
+						 const float z)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniform3f(location, x, y, z);
 		}
 
-		void GLSLProgram::sendUniform(const string& name, const bssFloat scalar)
+		void GLSLProgram::sendUniform(const string& name, const float scalar)
 		{
-			bssU32 location = getUniformLocation(name);
+			unsigned int location = getUniformLocation(name);
 			glUniform1f(location, scalar);
 		}
 
-		void GLSLProgram::bindAttrib(bssU32 index, const string& attribName)
+		void GLSLProgram::bindAttrib(unsigned int index, const string& attribName)
 		{
 			glBindAttribLocation(m_programID, index, attribName.c_str());
 		}
@@ -152,7 +152,7 @@ namespace andro
 			return stringBuffer;
 		}
 
-		bssBool GLSLProgram::compileShader(const GLSLShader& shader)
+		bool GLSLProgram::compileShader(const GLSLShader& shader)
 		{
 			glCompileShader(shader.id);
 			GLint result = 0xDEADBEEF;
@@ -168,7 +168,7 @@ namespace andro
 			return true;
 		}
 
-		void GLSLProgram::outputShaderLog(bssU32 shaderID)
+		void GLSLProgram::outputShaderLog(unsigned int shaderID)
 		{
 			vector<char> infoLog;
 			GLint infoLen;
@@ -181,7 +181,7 @@ namespace andro
 			TRACE(L"%S \n ", string(infoLog.begin(), infoLog.end()).c_str() );
 		}
 
-		void GLSLProgram::outputProgramLog(bssU32 programID)
+		void GLSLProgram::outputProgramLog(unsigned int programID)
 		{
 			vector<char> infoLog;
 			GLint infoLen = 0;

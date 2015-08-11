@@ -16,11 +16,11 @@ class Scene
 		Scene();
 		~Scene();
 	
-		void		Update(bssFloat dt); // update all dynamic objects
-		void		Render(GLSLProgram* shader,bssBool cullFront); // render all object and dynamic objects
+		void		Update(float dt); // update all dynamic objects
+		void		Render(GLSLProgram* shader,bool cullFront); // render all object and dynamic objects
 
 		void		AddDynamicObject(shared_ptr<DynamicObject> obj);
-		bssBool		RemoveObject(shared_ptr<DynamicObject> obj);
+		bool		RemoveObject(shared_ptr<DynamicObject> obj);
 
 
 
@@ -32,15 +32,15 @@ class Scene
 		std::vector<shared_ptr<DynamicObject> > 			m_dynamicObjects;
 		std::shared_ptr<Camera>             m_camera;
 
-		bssU32*								m_vbo;
-		bssU32*								m_indexVbo;
-		bssU32*								m_normalVbo;
-		bssU32*								m_texIDs;
+		unsigned int*								m_vbo;
+		unsigned int*								m_indexVbo;
+		unsigned int*								m_normalVbo;
+		unsigned int*								m_texIDs;
 
 
-		bssU32 CreateVertexBuffer(bssU32 index);
-		bssU32 CreateIndexBuffer(bssU32 index);
-		bssU32 CreateNormalBuffer(bssU32 index);
+		unsigned int CreateVertexBuffer(unsigned int index);
+		unsigned int CreateIndexBuffer(unsigned int index);
+		unsigned int CreateNormalBuffer(unsigned int index);
 	
 };
 

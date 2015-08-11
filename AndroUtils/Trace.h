@@ -2,7 +2,7 @@
 
 #include "AndroUtils.h"
 
-namespace androutils
+namespace andro
 {
 	struct Tracer
 	{
@@ -52,4 +52,4 @@ namespace androutils
 	};
 }
 
-#define TRACE androutils::Tracer(__FILE__, __LINE__)
+#define TRACE andro::Tracer(__FILE__, __LINE__)

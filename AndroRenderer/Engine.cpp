@@ -6,7 +6,7 @@
 namespace andro
 {
 
-	bssBool Engine::Init(const char* vertexShader,const char* fragmentShader)
+	bool Engine::Init(const char* vertexShader,const char* fragmentShader)
 	{
 
 			glEnable(GL_DEPTH_TEST); 
@@ -29,6 +29,7 @@ namespace andro
 
 			glewInit();
 
+			s_resourceManager.Initialise("RendererResourceManager");
 
 			//initialize shader
 			s_GLSLProgram = new ProgramType_MV_PR_TEX(vertexShader, fragmentShader);
@@ -58,7 +59,7 @@ namespace andro
 			s_shadowMap->SetLightPositionDir(pos,dir);
 	}
 
-	bssBool Engine::EnableShadow(bssBool state)
+	bool Engine::EnableShadow(bool state)
 	{
 		  s_ShadowActivated = state;
 		
@@ -109,7 +110,7 @@ namespace andro
 		
 		if(s_ShadowActivated)
 		{
-			s_shadowMap->SetScreenRect(Vector2((bssFloat)width, (bssFloat)height));
+			s_shadowMap->SetScreenRect(Vector2((float)width, (float)height));
 			if (!s_shadowMap->CreateDepthBuffer())
 				TRACE(L"ShadowMap failed to CreateDepthBuffer\n");
 		}
@@ -119,7 +120,7 @@ namespace andro
 
 	}
 
-	void Engine::Update(bssFloat dt)
+	void Engine::Update(float dt)
 	{
 	  s_mainScene->Update(dt);
 	  Render();

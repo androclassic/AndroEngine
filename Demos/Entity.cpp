@@ -28,7 +28,7 @@ void Entity::UpdateVisualObjectTransformMatrix()
   
 		force::Vector3 v(m.data[0],m.data[1],m.data[2]);
 
-		for (bssU32 i = 0; i < 12; i++)
+		for (unsigned int i = 0; i < 12; i++)
 			m_visualObject->m_WorldMatrix.data[i] = m.data[i];
 
 		force::Vector3 pos = m_physicObject->rigidBody->GetPosition();

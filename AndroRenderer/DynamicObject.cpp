@@ -8,6 +8,9 @@
 
 #include <iostream>
 #include "../AndroUtils/Trace.h"
+#include "Engine.h"
+#include "ObjResource.h"
+
 namespace andro
 {
 
@@ -31,7 +34,7 @@ namespace andro
 		m_scale = Vector3(1, 1, 1);
 	}
 
-	DynamicObject::DynamicObject(Vector3 position, bssFloat size)
+	DynamicObject::DynamicObject(Vector3 position, float size)
 		:m_rollSpeed(0)
 		, m_pitchSpeed(0)
 		, m_headingSpeed(0)
@@ -71,7 +74,7 @@ namespace andro
 		SetPos(m_WorldMatrix, m_position.x, m_position.y, m_position.z);
 	}
 
-	void DynamicObject::SetScale(bssFloat x, bssFloat y, bssFloat z)
+	void DynamicObject::SetScale(float x, float y, float z)
 	{
 		m_scale.x = x;
 		m_scale.y = y;
@@ -87,7 +90,7 @@ namespace andro
 	}
 
 
-	void DynamicObject::SetRoll(bssFloat roll)
+	void DynamicObject::SetRoll(float roll)
 	{
 		m_roll = roll;
 		m_roll = fmod(m_roll, 360);
@@ -101,7 +104,7 @@ namespace andro
 
 	}
 
-	void DynamicObject::SetPitch(bssFloat pitch)
+	void DynamicObject::SetPitch(float pitch)
 	{
 		m_pitch = pitch;
 		m_pitch = fmod(m_pitch, 360);
@@ -114,7 +117,7 @@ namespace andro
 		SetPos(m_WorldMatrix, m_position.x, m_position.y, m_position.z);
 
 	}
-	void DynamicObject::SetHeading(bssFloat heading)
+	void DynamicObject::SetHeading(float heading)
 	{
 		m_heading = heading;
 		m_heading = fmod(m_heading, 360);
@@ -127,7 +130,7 @@ namespace andro
 		SetPos(m_WorldMatrix, m_position.x, m_position.y, m_position.z);
 	}
 
-	void DynamicObject::Render(GLSLProgram *shader, bssBool cullFront) const
+	void DynamicObject::Render(GLSLProgram *shader, bool cullFront) const
 	{
 		//Send the world_matrix  to the shaders
 		shader->sendUniform4x4("worldMatrix", m_WorldMatrix.data);
@@ -135,31 +138,37 @@ namespace andro
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 
-		glVertexAttribPointer((GLint)0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), 0);
-		glVertexAttribPointer((GLint)2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(bssFloat) * 3));
-		glVertexAttribPointer((GLint)3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(bssFloat) * 7));
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
-		glVertexAttribPointer((GLint)1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0);
 
 
 		if (m_loadedObj)
 		{
+			glVertexAttribPointer((GLint)0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), 0);
+			glVertexAttribPointer((GLint)2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 3));
+			glVertexAttribPointer((GLint)3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 7));
+			glVertexAttribPointer((GLint)1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(sizeof(float) * 9));
+
+
 			if (cullFront)
 			{
 				glFrontFace(GL_CCW);
-				glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 				glDrawArrays(GL_TRIANGLES, 0, m_verticesCount);
 				glFrontFace(GL_CW);
 			}
 			else
 			{
-				glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 				glDrawArrays(GL_TRIANGLES, 0, m_verticesCount);
 			}
 		}
 		else
 		{
+
+			glVertexAttribPointer((GLint)0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), 0);
+			glVertexAttribPointer((GLint)2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(float) * 3));
+			glVertexAttribPointer((GLint)3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(float) * 7));
+			glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
+			glVertexAttribPointer((GLint)1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0);
+
 			if (cullFront)
 			{
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
@@ -179,17 +188,17 @@ namespace andro
 
 	void DynamicObject::SetShapeColor(Vector3 color)
 	{
-		for (bssU32 i = 0; i < m_verticesCount; i++)
-		{
-			m_vertices[i].r = color.x;
-			m_vertices[i].g = color.y;
-			m_vertices[i].b = color.z;
-		}
-		CleanOpenglBuffers();
-		GenerateOpenglBuffers();
+		//for (unsigned int i = 0; i < m_verticesCount; i++)
+		//{
+		//	m_vertices[i].r = color.x;
+		//	m_vertices[i].g = color.y;
+		//	m_vertices[i].b = color.z;
+		//}
+		//CleanOpenglBuffers();
+		//GenerateOpenglBuffers();
 	}
 
-	void Vertex3fPos4fColor2fTex::Set(bssFloat x, bssFloat y, bssFloat z, bssFloat r, bssFloat g, bssFloat b, bssFloat a, bssFloat s, bssFloat t)
+	void Vertex3fPos4fColor2fTex::Set(float x, float y, float z, float r, float g, float b, float a, float s, float t)
 	{
 		this->x = x;
 		this->y = y;
@@ -225,14 +234,16 @@ namespace andro
 
 	void DynamicObject::CleanOpenglBuffers()
 	{
-		if (m_vertexBuffer)
-			glDeleteBuffers(1, &m_vertexBuffer);
-		if (m_normalBuffer)
-			glDeleteBuffers(1, &m_normalBuffer);
-		if (m_indexBuffer)
-			glDeleteBuffers(1, &m_indexBuffer);
+		if (!m_loadedObj)
+		{
+			if (m_vertexBuffer)
+				glDeleteBuffers(1, &m_vertexBuffer);
+			if (m_normalBuffer)
+				glDeleteBuffers(1, &m_normalBuffer);
+			if (m_indexBuffer)
+				glDeleteBuffers(1, &m_indexBuffer);
+		}
 	}
-
 
 	void DynamicObject::GenerateOpenglBuffers()
 	{
@@ -250,134 +261,32 @@ namespace andro
 		{
 			glGenBuffers(1, &m_indexBuffer);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer); //Bind the index buffer
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bssU32) * m_index.size(), &m_index[0], GL_STATIC_DRAW); //Send the data to OpenGL
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_index.size(), &m_index[0], GL_STATIC_DRAW); //Send the data to OpenGL
 		}
 	}
 
-	bssBool DynamicObject::loadOBJ(const char * path)
+	bool DynamicObject::loadOBJ(const char* filename)
 	{
 
-		CleanBuffers();
+		ObjResource* res =Engine::GetInstance()->GetResoruceManager().Load<ObjResource>(filename, nullptr);
 
-		std::vector< bssU32 > vertexIndices, uvIndices, normalIndices;
-		std::vector< Vector3> temp_vertices;
-		std::vector< Vector2 > temp_uvs;
-		std::vector< Vector3 > temp_normals;
-
-		FILE * file = NULL;
-		VERIFY(fopen_s(&file, path, "r") == 0);
-
-		if (file == NULL)
-		{
-			TRACE(L"Impossible to open the file !\n");
-			return false;
-		}
-
-		while (1)
-		{
-			char lineHeader[128];
-			// read the first word of the line
-			int res = fscanf_s(file, "%s", lineHeader, 128);
-			if (res == EOF)
-				break; // EOF = End Of File. Quit the loop.
-
-			// else : parse lineHeader
-			if (strcmp(lineHeader, "v") == 0)
-			{
-				Vector3 vertex;
-				fscanf_s(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-				temp_vertices.push_back(vertex);
-			}
-			else if (strcmp(lineHeader, "vt") == 0)
-			{
-				Vector2 uv;
-				fscanf_s(file, "%f %f\n", &uv.x, &uv.y);
-				temp_uvs.push_back(uv);
-			}
-			else if (strcmp(lineHeader, "vn") == 0)
-			{
-				Vector3 normal;
-				fscanf_s(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-				temp_normals.push_back(normal);
-			}
-			else if (strcmp(lineHeader, "f") == 0)
-			{
-				std::string vertex1, vertex2, vertex3;
-				bssU32 vertexIndex[3], uvIndex[3], normalIndex[3];
-				int matches = fscanf_s(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-				if (matches != 9)
-				{
-					TRACE(L"File can't be read by our simple parser : ( Try exporting with other options\n");
-					return false;
-				}
-				vertexIndices.push_back(vertexIndex[0]);
-				vertexIndices.push_back(vertexIndex[1]);
-				vertexIndices.push_back(vertexIndex[2]);
-				uvIndices.push_back(uvIndex[0]);
-				uvIndices.push_back(uvIndex[1]);
-				uvIndices.push_back(uvIndex[2]);
-				normalIndices.push_back(normalIndex[0]);
-				normalIndices.push_back(normalIndex[1]);
-				normalIndices.push_back(normalIndex[2]);
-			}
-
-		}
-
-		m_normalsCount = m_verticesCount = vertexIndices.size();
-		m_vertices = new andro::Vertex3fPos4fColor2fTex[m_verticesCount];
-		m_normals = new Vector3[m_normalsCount];
-
-
-		fclose(file);
-
-		// For each vertex of each triangle
-		for (bssU32 i = 0; i<vertexIndices.size(); i++)
-		{
-			bssU32 vertexIndex = vertexIndices[i];
-			Vector3 vertex = temp_vertices[vertexIndex - 1];
-
-			m_vertices[i].x = vertex.x;
-			m_vertices[i].y = vertex.y;
-			m_vertices[i].z = vertex.z;
-
-			m_vertices[i].r = 0;
-			m_vertices[i].g = 0;
-			m_vertices[i].b = 0;
-
-
-		}
-		for (bssU32 i = 0; i < uvIndices.size(); i++)
-		{
-			bssU32 uvIndex = uvIndices[i];
-			Vector2 tex = temp_uvs[uvIndex - 1];
-
-			m_vertices[i].s = tex.x;
-			m_vertices[i].t = tex.y;
-
-		}
-		for (bssU32 i = 0; i<normalIndices.size(); i++)
-		{
-			bssU32 vertexIndex = normalIndices[i];
-			m_normals[i] = temp_normals[vertexIndex - 1];
-		}
-
-
-		GenerateOpenglBuffers();
+		m_verticesCount = res->GetVertexCount();
+		m_vertexBuffer = res->GetVertexBuffer();
 		m_loadedObj = true;
 
 		return true;
 	}
 
 
-	void DynamicObject::SetPitchSpeed(bssFloat speed)
+	void DynamicObject::SetPitchSpeed(float speed)
 	{
 		m_pitchSpeed=speed;
 	}
-	void DynamicObject::SetRollSpeed(bssFloat speed)
+	void DynamicObject::SetRollSpeed(float speed)
 	{
 		m_rollSpeed=speed;
 	}
-	void DynamicObject::SetHeadingSpeed(bssFloat speed)
+	void DynamicObject::SetHeadingSpeed(float speed)
 	{
 		m_headingSpeed=speed;
 	}
@@ -390,13 +299,13 @@ namespace andro
 		m_moveSpeed.z=speed.z;
 	}
 
-	void DynamicObject::UpdateAngle(bssFloat& angle, bssFloat speed)
+	void DynamicObject::UpdateAngle(float& angle, float speed)
 	{
 	  angle += speed;
 	  angle = fmod(angle, 360);
 	}
 
-	void DynamicObject::Update(bssFloat dt)
+	void DynamicObject::Update(float dt)
 	{
 		//update angles
 		UpdateAngle(m_roll,m_rollSpeed*dt);
@@ -418,7 +327,7 @@ namespace andro
 		SetPos(m_WorldMatrix,m_position.x,m_position.y,m_position.z);
 	}
 
-	bssBool DynamicObject::LoadTexture(char* filename)
+	bool DynamicObject::LoadTexture(char* filename)
 	{
 
 
@@ -453,7 +362,7 @@ namespace andro
 		CreateLine(Vector3(1,1,1),1);
   
 	}
-	Line::Line(Vector3 position, Vector3 orientation,bssFloat width)
+	Line::Line(Vector3 position, Vector3 orientation,float width)
 		:DynamicObject(position, width)
 	{
 		m_size =  width;
@@ -471,7 +380,7 @@ namespace andro
 		m_position	  = position;
 
 		Vector3 target =   m_orientation - m_position;
-		bssFloat width =  m_size;
+		float width =  m_size;
 
 		m_vertices[0].Set( 0				,0			, 0			,0,0,0,0,0,1);
 		m_vertices[1].Set( target.x			, target.y	, target.z	,0,0,0,1,1,0);
@@ -489,7 +398,7 @@ namespace andro
 	
 	}
 
-	void Line::CreateLine(Vector3 orientation,bssFloat width)
+	void Line::CreateLine(Vector3 orientation,float width)
 	{
 	Vector3 target =   m_orientation - m_position;
 
@@ -538,7 +447,7 @@ namespace andro
 
 
 	}
-	void Line::Render(GLSLProgram* shader, bssBool cullFront) const
+	void Line::Render(GLSLProgram* shader, bool cullFront) const
 	{
 		//Send the world_matrix  to the shaders
 		shader->sendUniform4x4("worldMatrix", m_WorldMatrix.data);
@@ -547,8 +456,8 @@ namespace andro
 		glBindBuffer(GL_ARRAY_BUFFER,m_vertexBuffer);
 
 		glVertexAttribPointer((GLint)0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), 0);
-		glVertexAttribPointer((GLint)2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(bssFloat) * 3));
-		glVertexAttribPointer((GLint)3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(bssFloat) * 7));
+		glVertexAttribPointer((GLint)2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(float) * 3));
+		glVertexAttribPointer((GLint)3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3fPos4fColor2fTex), (void*)(sizeof(float) * 7));
 		
 
 
@@ -595,7 +504,7 @@ namespace andro
 
 		m_vertices=new Vertex3fPos4fColor2fTex[24];
 		m_verticesCount=24;
-		bssFloat r,g,b;
+		float r,g,b;
 		m_color = color;
 		r =  m_color.x;
 		g =  m_color.y;
@@ -740,11 +649,11 @@ namespace andro
 		m_vertices=new Vertex3fPos4fColor2fTex[8];
 		m_verticesCount=8;
 
-		bssFloat r,g,b;
+		float r,g,b;
 		r =  m_color.x;
 		g =  m_color.y;
 		b =  m_color.z;
-		bssFloat a = 0.0f, d = 1.0f;
+		float a = 0.0f, d = 1.0f;
 
 		m_vertices[0].Set(-size.x, 0,-size.y,r,g,b,0,a,a);
 		m_vertices[1].Set( size.x, 0,-size.y,r,g,b,0,d,a);

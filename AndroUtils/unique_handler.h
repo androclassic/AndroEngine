@@ -3,7 +3,7 @@
 
 #include "Trace.h"
 
-namespace androutils
+namespace andro
 {
 	template <typename Traits>
 	class unique_handle	

@@ -1,7 +1,7 @@
 #pragma once
 
 #include"ShaderTypes.h"
-#include "MMath.h"
+#include "../AndroUtils/MMath.h"
 
 namespace andro
 {
@@ -15,7 +15,7 @@ public:
 	void UpdateUniforms();
 	void EnableVertexAttributes();
 	void DisableVertexAttributes();
-	bssBool CreateDepthBuffer();
+	bool CreateDepthBuffer();
 	void BindFrameBuffer();
 	void BindDepthTexture();
 	
@@ -29,10 +29,10 @@ private:
 	Vector3				m_lightPosition;
 	Vector3				m_lightLookAt;
 
-	bssFloat				m_screenWidth;
-	bssFloat				m_screenHeight;
-	bssU32				m_renderTexture;
-	bssU32				m_frameBufferName;
+	float				m_screenWidth;
+	float				m_screenHeight;
+	unsigned int				m_renderTexture;
+	unsigned int				m_frameBufferName;
 
 };
 

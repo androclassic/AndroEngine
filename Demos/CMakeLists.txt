@@ -1,7 +1,2 @@
 cmake_minimum_required (VERSION 2.8)
-
-ADD_SUBDIRECTORY( Platform)
-ADD_SUBDIRECTORY( Rope)
-ADD_SUBDIRECTORY( RBTest)
-ADD_SUBDIRECTORY( RBAwakeTest)
 ADD_SUBDIRECTORY( Domino)

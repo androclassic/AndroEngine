@@ -4,9 +4,10 @@
 #include<ctime>
 
 #include"ShaderTypes.h"
-#include "MMath.h"
 #include "Vertex.h"
 #include "../AndroUtils/AndroUtils.h"
+#include "../AndroUtils/MMath.h"
+
 using namespace std;
 
 namespace andro
@@ -16,29 +17,29 @@ namespace andro
 	{
 		public:
 			DynamicObject();
-			DynamicObject(Vector3 position,bssFloat size);
+			DynamicObject(Vector3 position,float size);
 			virtual ~DynamicObject();
 			
-			virtual void Render(GLSLProgram *shader, bssBool cullFront) const;
-			virtual void Update(bssFloat dt);
+			virtual void Render(GLSLProgram *shader, bool cullFront) const;
+			virtual void Update(float dt);
 
 			void SetPosition(Vector3 position);
-			void SetRoll(bssFloat roll);
-			void SetPitch(bssFloat pitch);
-			void SetScale(bssFloat x, bssFloat y, bssFloat z);
+			void SetRoll(float roll);
+			void SetPitch(float pitch);
+			void SetScale(float x, float y, float z);
 			void SetShapeColor(Vector3 color);
-			void SetHeading(bssFloat heading);
+			void SetHeading(float heading);
 
 			Vector3 GetPosition() const { return m_position; }
 
-			bssBool loadOBJ(const char * path);
+			bool loadOBJ(const char* filename);
 
 
-			void SetRollSpeed(bssFloat speed);
-			void SetPitchSpeed(bssFloat speed);
-			void SetHeadingSpeed(bssFloat speed);
+			void SetRollSpeed(float speed);
+			void SetPitchSpeed(float speed);
+			void SetHeadingSpeed(float speed);
 			void SetMoveSpeed(const Vector3& speed);
-			bssBool LoadTexture(char* filename);
+			bool LoadTexture(char* filename);
 			void SetTexture() const;
 
 	
@@ -47,36 +48,38 @@ namespace andro
 			void CleanBuffers();
 			void CleanOpenglBuffers();
 			void GenerateOpenglBuffers();
-			void UpdateAngle(bssFloat& angle, bssFloat speed);
+			void UpdateAngle(float& angle, float speed);
 
 
 			Vertex3fPos4fColor2fTex*	m_vertices;
 			Vector3*					m_normals;
-			bssU32						m_verticesCount;
-			bssU32						m_normalsCount;
+			unsigned int						m_verticesCount;
+			unsigned int						m_normalsCount;
 
-			vector<bssU32>		m_index;
+			vector<unsigned int>		m_index;
 
-			bssU32						m_vertexBuffer;
-			bssU32						m_indexBuffer;
-			bssU32						m_normalBuffer;
+			unsigned int						m_vertexBuffer;
+			unsigned int						m_indexBuffer;
+			unsigned int						m_normalBuffer;
 
-			bssFloat						m_roll;
-			bssFloat						m_pitch;
-			bssFloat						m_heading;
+			float						m_roll;
+			float						m_pitch;
+			float						m_heading;
 
 			Vector3						m_position;
 			Vector3						m_lastPosition;
 			Vector3						m_scale;
-			bssFloat						m_size;
-			bssBool						m_loadedObj;
+			float						m_size;
+			bool						m_loadedObj;
 
 
-			bssFloat						m_rollSpeed;
-			bssFloat						m_pitchSpeed;
-			bssFloat						m_headingSpeed;
+			float						m_rollSpeed;
+			float						m_pitchSpeed;
+			float						m_headingSpeed;
 			Vector3						m_moveSpeed;
-			bssU32						m_imageID;	
+			unsigned int						m_imageID;	
+
+			const void*					m_buffer;
 
 	};
 
@@ -86,12 +89,12 @@ namespace andro
 	{
 		public:
 			Line();
-			Line(Vector3 position, Vector3 orientation,bssFloat width);
-			void Render(GLSLProgram *shader, bssBool cullFront) const;
+			Line(Vector3 position, Vector3 orientation,float width);
+			void Render(GLSLProgram *shader, bool cullFront) const;
 			void UpdateLine(Vector3 position, Vector3 orientation);
 			virtual ~Line();
 			
-			void CreateLine(Vector3 orientation,bssFloat width);
+			void CreateLine(Vector3 orientation,float width);
 			void SetOrientation(Vector3 orientation) {m_orientation =  orientation;}
 		
 		protected:

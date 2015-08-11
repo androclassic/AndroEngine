@@ -13,7 +13,7 @@ typedef unsigned short		u16;
 typedef unsigned char		u8;
 
 typedef double				f64;
-typedef bssFloat				f32;
+typedef float				f32;
 
 
 #ifndef foreach

@@ -32,7 +32,7 @@ namespace andro
 	}
 
 
-	void Camera::SetPosition(bssFloat x, bssFloat y, bssFloat z)
+	void Camera::SetPosition(float x, float y, float z)
 	{
 	  m_position.x=-x;
 	  m_position.y=-y;
@@ -79,7 +79,7 @@ namespace andro
 		return o * -1;
 	}
 
-	void Camera::SetPitch(bssFloat pitch)
+	void Camera::SetPitch(float pitch)
 	{
 	   m_pitch=pitch;
 	   m_pitch = fmod(m_pitch, 360);
@@ -87,25 +87,25 @@ namespace andro
 
 		
 	}
-	void Camera::AddPitch(bssFloat pitch)
+	void Camera::AddPitch(float pitch)
 	{
 	   m_pitch+=pitch;
 	   m_pitch = fmod(m_pitch, 360);
 
 	  
 	}
-	void Camera::SetYaw(bssFloat yaw)
+	void Camera::SetYaw(float yaw)
 	{
 		m_yaw=yaw;
 		m_yaw = fmod(m_yaw, 360);
 	}
-	void Camera::AddYaw(bssFloat yaw)
+	void Camera::AddYaw(float yaw)
 	{
 		m_yaw+=yaw;
 		m_yaw = fmod(m_yaw, 360);
 
 	}
-	void Camera::Move(bssFloat dx, bssFloat dz)
+	void Camera::Move(float dx, float dz)
 	{
 		
 		if(dz)
@@ -126,7 +126,7 @@ namespace andro
 
 	}
 
-	void  Camera::setOrthoMatrix(bssFloat l, bssFloat r, bssFloat t, bssFloat b, bssFloat n, bssFloat f)
+	void  Camera::setOrthoMatrix(float l, float r, float t, float b, float n, float f)
 	{
 		Matrix4& mat = m_projection;
 

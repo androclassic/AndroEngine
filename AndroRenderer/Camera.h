@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MMath.h"
+#include "../AndroUtils/MMath.h"
 
 namespace andro
 {
@@ -11,20 +11,20 @@ namespace andro
 
 		void Set();
 		
-		void SetPosition(bssFloat x, bssFloat y, bssFloat z);
+		void SetPosition(float x, float y, float z);
 		void LookAt(Vector3 pos, Vector3 lookAt);
 		Vector3 GetPosition() const;
 		Vector3 GetOrientation() const;
 
-		void Move(bssFloat dx, bssFloat dz);
+		void Move(float dx, float dz);
 		
-		void SetYaw(bssFloat yaw); 
-		void AddYaw(bssFloat yaw); 
+		void SetYaw(float yaw); 
+		void AddYaw(float yaw); 
 		
-		void SetPitch(bssFloat pitch);
-		void AddPitch(bssFloat pitch);
+		void SetPitch(float pitch);
+		void AddPitch(float pitch);
 	
-		void setOrthoMatrix(bssFloat l, bssFloat r, bssFloat t, bssFloat b, bssFloat n, bssFloat f);
+		void setOrthoMatrix(float l, float r, float t, float b, float n, float f);
 		void setPerspectiveMatrix(double fovy, double aspect, double zNear, double zFar);
 
 
@@ -45,8 +45,8 @@ namespace andro
 		Matrix4 m_projection;
 
 		Vector3 m_position;
-		bssFloat m_yaw;
-		bssFloat m_pitch;
+		float m_yaw;
+		float m_pitch;
 		
 	
  };

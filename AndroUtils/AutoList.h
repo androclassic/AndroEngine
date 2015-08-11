@@ -1,26 +1,31 @@
 #pragma once
 
-template <typename T>
-class AutoList
+namespace andro
 {
-public:
-	AutoList()
+	template <typename T>
+	class AutoList
 	{
-		next = Head();
-		Head() = static_cast<const T *>(this);
-	}
+	public:
+		AutoList()
+		{
+			next = Head();
+			Head() = static_cast<const T *>(this);
+		}
 
-	const T *Next(void) const
-	{
-		return next;
-	}
+		const T *Next(void) const
+		{
+			return next;
+		}
 
-	static const T *& Head(void)
-	{
-		static const T *p = 0;
-		return p;
-	}
+		static const T *& Head(void)
+		{
+			static const T *p = 0;
+			return p;
+		}
 
-private:
-	const T *next;
-};
+	private:
+		const T *next;
+	};
+
+
+}
