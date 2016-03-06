@@ -26,7 +26,7 @@
         //-------------------------------
 
         //init glfw
-        glfwSetErrorCallback(Window::ErrorCallback);
+		glfwSetErrorCallback(Window::ErrorCallback);
 
         if (!glfwInit()) {
 			TRACE(L"glfwInit Failed!");

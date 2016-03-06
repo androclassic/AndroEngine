@@ -3,7 +3,7 @@ mkdir build
 cd ./build
 
 ECHO  "Generate Project"
-cmake ../
+"C:\Program Files (x86)\CMake\bin\cmake.exe" ../
 cd ../
 
 ECHO  "Copy dll files"
@@ -28,8 +28,16 @@ for /D %%D in (%SYSTEMROOT%\..\"Program Files"\MSBuild\12.0\*) do (
 	if exist "%%D\MSBuild.exe" goto BuildProject
 )
 
-for /D %%D in (%SYSTEMROOT%\Microsoft.NET\Framework\v*) do set msbuild.exe=%%D\MSBuild.exe
 
+for /D %%D in (%SYSTEMROOT%\Microsoft.NET\Framework\v4*) do (
+	set msbuild.exe=%%D\MSBuild.exe
+	if exist "%%D\MSBuild.exe" goto BuildProject
+)
+
+for /D %%D in (%SYSTEMROOT%\Microsoft.NET\Framework64\v*) do (
+	set msbuild.exe=%%D\MSBuild.exe
+	if exist "%%D\MSBuild.exe" goto BuildProject
+)
 
 if not defined msbuild.exe echo error: can't find MSBuild.exe & goto :eof
 if not exist %msbuild.exe% echo error: %msbuild.exe%: not found & goto :eof

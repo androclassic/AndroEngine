@@ -3,9 +3,9 @@
 #define GLFW_INCLUDE_NONE
 
 #include <GLFW/glfw3.h>
-#include "EventManager/EventManager.h"
-#include "EventManager/WindowsInputEvents.h"
-#include "AndroUtils/Trace.h"
+#include "../../AndroUtils/EventManager/EventManager.h"
+#include "../../AndroUtils/EventManager/WindowsInputEvents.h"
+#include "AndroUtils/Utils/Trace.h"
 
 #include<string>
 
