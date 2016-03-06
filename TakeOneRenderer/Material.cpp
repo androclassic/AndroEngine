@@ -126,3 +126,26 @@ TakeOne::Material::MaterialFormat::MaterialFormat()
 	textureName = "default.jpg";
 	programName = "SimpleColor";
 }
+
+void TakeOne::Material::MaterialFormat::MaterialFromLua(lua_State * L, int index, Variable * ref)
+{
+	ASSERT(lua_istable(L, index));
+
+	TakeOne::Material::MaterialFormat temp;
+	TakeOne::Material::MaterialFormat* ref_mat = new ((TakeOne::Material::MaterialFormat*)ref->GetVoidPtr())TakeOne::Material::MaterialFormat();
+
+	lua_getfield(L, 1, "Texture");
+	lua_getfield(L, 1, "Shader");
+
+	const char *texture = luaL_checkstring(L, -2);
+	const char *shader = luaL_checkstring(L, -1);
+
+	ref_mat->programName = shader;
+	ref_mat->textureName = texture;
+}
+
+void TakeOne::Material::MaterialFormat::MaterialToLua(lua_State * L, Variable & var)
+{
+	lua_pushboolean(L, var.GetValue<bool>()); //TODO
+}
+

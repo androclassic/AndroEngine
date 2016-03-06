@@ -9,6 +9,9 @@
 #include <unordered_map>
 #include "glm/glm.hpp"
 
+#include"../../AndroUtils/Introspection/LuaState.h"
+
+
 namespace TakeOne
 {
     class Material
@@ -47,6 +50,9 @@ namespace TakeOne
 
 			std::string textureName;
 			std::string programName;
+
+			static void MaterialFromLua(lua_State *L, int index, Variable *ref);
+			static void MaterialToLua(lua_State *L, Variable& var);
 		};
 
 		enum MaterialFormatEnum

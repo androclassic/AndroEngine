@@ -1,36 +1,13 @@
 #include "Game.h"
 
-std::vector<GameObject*> GameObject::m_gameObjects;
 
 
-void MaterialFromLua(lua_State *L, int index, Variable *ref)
+
+void Print_C(const char* msg)
 {
-	ASSERT(lua_istable(L, index)); 
-
-	TakeOne::Material::MaterialFormat temp;
-	TakeOne::Material::MaterialFormat* ref_mat = new ((TakeOne::Material::MaterialFormat*)ref->GetVoidPtr())TakeOne::Material::MaterialFormat();
-
-	lua_getfield(L, 1, "Texture");
-	lua_getfield(L, 1, "Shader");
-
-	const char *texture = luaL_checkstring(L, -2);
-	const char *shader = luaL_checkstring(L, -1);
-
-	ref_mat->programName = shader;
-	ref_mat->textureName = texture;
+	printf(msg);
 }
 
-
-void MaterialToLua(lua_State *L, Variable& var)
-{
-	lua_pushboolean(L, var.GetValue<bool>()); //TODO
-}
-
-
-void GetMaterial(TakeOne::Material::MaterialFormat m)
-{
-	printf("comming from lua");
-}
 
 Game::Game()
 	: mWindow( nullptr )
@@ -40,10 +17,7 @@ Game::Game()
 }
 
 
-void Print_C(const char* msg)
-{
-	printf(msg);
-}
+
 
 void Game::Initialise()
 {
@@ -75,7 +49,7 @@ void Game::Initialise()
 
 	REGISTER_USER_TYPE(GameObject);
 	REGISTER_USER_TYPE_REF(GameObject);
-	Introspection::GetInstance().RegisterType<TakeOne::Material::MaterialFormat>(sizeof(TakeOne::Material::MaterialFormat), "MaterialFormat", "MT_MaterialFormat", MaterialToLua, MaterialFromLua);
+	REGISTER_TYPE_EXPLCIT(TakeOne::Material::MaterialFormat, MaterialFormat, TakeOne::Material::MaterialFormat::MaterialToLua, TakeOne::Material::MaterialFormat::MaterialFromLua);
 
 	//initialise Lua
 	Lua_State::GetInstance()->Init();

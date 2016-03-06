@@ -110,7 +110,10 @@ void ObjRefToLua(lua_State *L, Variable& var)
 #define AS_STRING( s ) #s
 
 #define REGISTER_TYPE(T, toLua, fromLua) Introspection::GetInstance().RegisterType<T>(sizeof(T), #T, AS_STRING(MT_##T) ,toLua, fromLua)
+#define REGISTER_TYPE_EXPLCIT(T, NAME, toLua, fromLua) Introspection::GetInstance().RegisterType<T>(sizeof(T), #NAME, AS_STRING(MT_##NAME) ,toLua, fromLua)
+
 #define REGISTER_USER_TYPE( T ) Introspection::GetInstance().RegisterType<T>(sizeof(T), #T, AS_STRING(MT_##T), GenericToLua, GenericFromLua)
+#define REGISTER_USER_TYPE_EXPLICIT( T, NAME ) Introspection::GetInstance().RegisterType<T>(sizeof(T), #NAME, AS_STRING(MT_##NAME), GenericToLua, GenericFromLua)
 
 #define REGISTER_USER_TYPE_REF( T ) Introspection::GetInstance().RegisterType<ObjectRef<T>>(sizeof(ObjectRef<T>), AS_STRING(REF_##T), AS_STRING(MT_REF_##T), ObjRefToLua<T>, GenericFromLua)
 
