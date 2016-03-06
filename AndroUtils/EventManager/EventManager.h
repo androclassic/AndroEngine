@@ -1,8 +1,8 @@
-//Georgescu Andrei 2011//
-
 #ifndef _EV_MAN_H_
 #define _EV_MAN_H_
-#include"EventListener.h"
+
+#include<vector>
+#include<map>
 #include"Singleton.h"
 
 #ifndef ANDRO_EVENT_MANAGER
@@ -27,6 +27,13 @@ namespace andro
 	#endif
 
 
+
+	class EventListener
+	{
+		public:
+			virtual void OnEvent(Event* e) = 0;
+	};
+
 	class EventManager
 	{
 	  SINGLETON(EventManager);
@@ -35,14 +42,9 @@ namespace andro
 	void AddEvent(Event* rhs);
 	void RegisterEventListener(u32 EventID,EventListener* newListner);
 	private:
-		struct listeners
-		{
-			u32 m_id;
-			vector<EventListener*> m_listeners;
-		};
-		vector<listeners> m_listenersList;
-		vector<Event*>    m_newEvents;
-		vector<Event*>    m_oldEvents;
+		std::map<u32, std::vector<EventListener*>> m_listenersMap;
+		std::vector<Event*>    m_newEvents;
+		std::vector<Event*>    m_oldEvents;
 	};
 }
 #endif

@@ -1,5 +1,3 @@
-//Georgescu Andrei 2011//
-
 #include "Event.h"
 namespace andro
 {
