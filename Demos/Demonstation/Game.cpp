@@ -58,6 +58,10 @@ void Game::Initialise()
 	static Function CreateGameObject = make_gen(GameObject::CreateGameObject);
 	BindFunctionToLua(L, &CreateGameObject, "CreateGameObject");
 
+	static Function DestroyGameObject = make_gen(GameObject::DestroyGameObject);
+	BindFunctionToLua(L, &DestroyGameObject, "DestroyGameObject");
+
+
 	lua_bind_member(L, GameObject, SetPosition);
 	lua_bind_member(L, GameObject, SetScale);
 	lua_bind(L, Print_C);
@@ -81,4 +85,5 @@ void Game::Update(float deltaTime)
 
 void Game::End()
 {
+	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptDestroy.lua");
 }

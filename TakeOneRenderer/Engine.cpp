@@ -61,6 +61,18 @@ void TakeOne::Engine::RegisterRenderObject(TakeOne::RenderNode * pNode)
 	m_renderableObjects.push_back(pNode);
 }
 
+void TakeOne::Engine::RemoveRenderObject(TakeOne::RenderNode * pNode)
+{
+	for (std::vector<TakeOne::RenderNode*>::iterator it = m_renderableObjects.begin(); it != m_renderableObjects.end(); it++)
+	{
+		if (*it == pNode)
+		{
+			m_renderableObjects.erase(it);
+			return;
+		}
+	}
+}
+
 void TakeOne::Engine::RegisterLight(Light * pLight)
 {
 	m_light = pLight;

@@ -14,6 +14,20 @@ GameManager.game_loop = function( o )
 end
 
 
+GameManager.DestroyAll = function( o )
+
+	for key, entity in pairs(o.game_entites) do
+	
+		if( entity.OnDestroy ~= nil )then
+			entity:OnDestroy()
+		end
+		
+		DestroyGameObject(entity.__userdata)
+	end
+	o.game_entite = {}
+	
+end
+
 function Entity( o )
 
 	local model = o.Model
@@ -32,7 +46,6 @@ function Entity( o )
 	if GameManager.game_entites[o.Name] ~= nil then
 		error("entity exists")
 	end
-	
 	GameManager.game_entites[o.Name] = entity_lua
 	
 	if( entity_lua.OnInit ~= nil )then
@@ -41,7 +54,18 @@ function Entity( o )
 
 end
 
-function GetEntity( name )
+ GameManager.GetEntity = function( o, name )
 	return GameManager.game_entites[name]
 end
 
+GameManager.DestroyEntity = function( o, name )
+	local entity =  GameManager.game_entites[name]
+	
+	if( entity.OnDestroy ~= nil )then
+		entity:OnDestroy()
+	end
+	
+	DestroyGameObject(entity.__userdata)
+	GameManager.game_entites[name] = nil
+
+end

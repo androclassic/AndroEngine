@@ -18,6 +18,11 @@ GameObject::GameObject(TakeOne::Material::MaterialFormat pMaterialFormat, const 
 
 }
 
+GameObject::~GameObject()
+{
+	TakeOne::Engine::GetInstance()->RemoveRenderObject(&mRenderNode);
+}
+
 void GameObject::SetPosition(float x, float y, float z)
 {
 	mRenderNode.GetTransform().SetPosition(glm::vec3(x, y, z));
@@ -37,5 +42,19 @@ ObjectRef<GameObject> GameObject::CreateGameObject(TakeOne::Material::MaterialFo
 	ref.object = new_obj;
 
 	return ref;
+}
+
+bool GameObject::DestroyGameObject(ObjectRef<GameObject>  pObject)
+{
+	for (std::vector<GameObject*>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+	{
+		if (*it == pObject.object)
+		{
+			delete pObject.object;
+			m_gameObjects.erase(it);
+			return true;
+		}
+	}
+	return false;
 }
 

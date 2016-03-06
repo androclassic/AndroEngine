@@ -23,6 +23,7 @@ namespace TakeOne
 		andro::ResourceManager& GetResoruceManager()  { return mResourceManager; }
 
 		void RegisterRenderObject(TakeOne::RenderNode* pNode);
+		void RemoveRenderObject(TakeOne::RenderNode* pNode);
 		void RegisterLight(Light* pLight);
 		void RegisterCamera(TakeOne::CameraNode* pCamera);
 

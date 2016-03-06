@@ -26,6 +26,10 @@ require "data.lua_src.game_entity"
 		end
 	end,
 	
+	OnDestroy = function( o )
+		Print_C(o.Name.." Destroyed !")
+	end,
+	
 	
 	height =  0.04,
 	grow_dorection = 1,

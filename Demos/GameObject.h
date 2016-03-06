@@ -23,10 +23,12 @@ class GameObject
 
 public:
 	GameObject(TakeOne::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	~GameObject();
 	void SetPosition(float x, float y, float z);
 	void SetScale(float scale);
 
 	static ObjectRef<GameObject> CreateGameObject(TakeOne::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
 
 private:
 	TakeOne::RenderNode mRenderNode;

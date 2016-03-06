@@ -106,6 +106,16 @@ void ObjRefToLua(lua_State *L, Variable& var)
 	GenericToLua(L, reference);
 }
 
+template<typename T>
+void ObjRefFromLua(lua_State *L, int index, Variable *var)
+{
+	Variable* temp = ((Variable *)lua_touserdata(L, index));
+	ObjectRef<T> ref;
+	ref.object = (T*)temp->GetVoidPtr();
+	Variable reference(ref);
+	memcpy(var->GetVoidPtr(), reference.GetVoidPtr(), var->GetType()->Size());
+}
+
 
 #define AS_STRING( s ) #s
 
@@ -115,7 +125,7 @@ void ObjRefToLua(lua_State *L, Variable& var)
 #define REGISTER_USER_TYPE( T ) Introspection::GetInstance().RegisterType<T>(sizeof(T), #T, AS_STRING(MT_##T), GenericToLua, GenericFromLua)
 #define REGISTER_USER_TYPE_EXPLICIT( T, NAME ) Introspection::GetInstance().RegisterType<T>(sizeof(T), #NAME, AS_STRING(MT_##NAME), GenericToLua, GenericFromLua)
 
-#define REGISTER_USER_TYPE_REF( T ) Introspection::GetInstance().RegisterType<ObjectRef<T>>(sizeof(ObjectRef<T>), AS_STRING(REF_##T), AS_STRING(MT_REF_##T), ObjRefToLua<T>, GenericFromLua)
+#define REGISTER_USER_TYPE_REF( T ) Introspection::GetInstance().RegisterType<ObjectRef<T>>(sizeof(ObjectRef<T>), AS_STRING(REF_##T), AS_STRING(MT_REF_##T), ObjRefToLua<T>, ObjRefFromLua<T>)
 
 
 #define GET_TYPE(T) Introspection::GetInstance().GetTypeInfo<T>()
