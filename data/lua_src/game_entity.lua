@@ -1,71 +1,85 @@
+require "data.lua_src.utilities"
+
 
 GameManager = {}
 
 GameManager.game_entites = {}
+GameManager.classsystem = {}
+
+
+-- TODO
+function Entity( class )
+	GameManager.classsystem[class.Name] =  class
+end
 
 
 GameManager.game_loop = function( o )
 
-	for key, entity in pairs(o.game_entites) do
-		if entity.OnUpdate ~= nil then
-			entity:OnUpdate()
-		end	
+	for key, entities in pairs(o.game_entites) do
+		for _k,entity in pairs(entities) do
+			if entity.OnUpdate ~= nil then
+				entity:OnUpdate()
+			end	
+		end
 	end
 end
 
-
 GameManager.DestroyAll = function( o )
 
-	for key, entity in pairs(o.game_entites) do
-	
-		if( entity.OnDestroy ~= nil )then
-			entity:OnDestroy()
+	for key, entities in pairs(o.game_entites) do
+		for _k,entity in pairs(entities) do
+			if( entity.OnDestroy ~= nil )then
+				entity:OnDestroy()
+			end
+			DestroyGameObject(entity.__userdata)
 		end
-		
-		DestroyGameObject(entity.__userdata)
 	end
 	o.game_entite = {}
 	
 end
 
-function Entity( o )
+GameManager.CreateEntity= function (o, name )
 
-	local model = o.Model
-	local material = o.Material
-	local name = o.Name
+	local class = GameManager.classsystem[name]
+
+	local model = class.Model
+	local material = class.Material
+	local name = class.Name
 	
 	local entity = CreateGameObject(material, model)
 	
-	local entity_lua = o
+	local entity_lua = shallowcopy(class)
 	entity_lua.__userdata = entity
 	
 
 	--anything that is not in entity_lua is in entity(which is userdata)
 	setmetatable(entity_lua, getmetatable(entity)) 
 
-	if GameManager.game_entites[o.Name] ~= nil then
-		error("entity exists")
+	if GameManager.game_entites[class.Name] == nil then
+		 GameManager.game_entites[class.Name] = {}
 	end
-	GameManager.game_entites[o.Name] = entity_lua
+	table.insert(GameManager.game_entites[class.Name],entity_lua)
 	
 	if( entity_lua.OnInit ~= nil )then
 		entity_lua:OnInit()
 	end
 
+	return entity_lua
 end
 
- GameManager.GetEntity = function( o, name )
+ GameManager.GetEntities = function( o, name )
 	return GameManager.game_entites[name]
 end
 
-GameManager.DestroyEntity = function( o, name )
-	local entity =  GameManager.game_entites[name]
+GameManager.DestroyEntities = function( o, name )
+	local entities =  GameManager.game_entites[name]
 	
-	if( entity.OnDestroy ~= nil )then
-		entity:OnDestroy()
+	for _k,entity in pairs(entities) do
+		if( entity.OnDestroy ~= nil )then
+			entity:OnDestroy()
+		end
+		
+		DestroyGameObject(entity.__userdata)
+		GameManager.game_entites[name] = nil
 	end
-	
-	DestroyGameObject(entity.__userdata)
-	GameManager.game_entites[name] = nil
-
 end
