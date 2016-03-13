@@ -55,13 +55,8 @@ void Game::Initialise()
 	Lua_State::GetInstance()->Init();
 	lua_State* L = *Lua_State::GetInstance();
 
-	static Function CreateGameObject = make_gen(GameObject::CreateGameObject);
-	BindFunctionToLua(L, &CreateGameObject, "CreateGameObject");
-
-	static Function DestroyGameObject = make_gen(GameObject::DestroyGameObject);
-	BindFunctionToLua(L, &DestroyGameObject, "DestroyGameObject");
-
-
+	lua_bind_member(L, GameObject, CreateGameObject);
+	lua_bind_member(L, GameObject, DestroyGameObject);
 	lua_bind_member(L, GameObject, SetPosition);
 	lua_bind_member(L, GameObject, SetScale);
 	lua_bind(L, Print_C);
@@ -79,7 +74,6 @@ void Game::Update(float deltaTime)
 	TakeOne::Engine::GetInstance()->Update();
 	mWindow->Update(deltaTime);
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptUpdate.lua");
-
 
 }
 
