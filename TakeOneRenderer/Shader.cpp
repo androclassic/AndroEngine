@@ -1,7 +1,7 @@
 #include "Shader.h"
-#include "FileLoader.h"
 #include "Log.h"
 #include "GL/glew.h"
+#include "../AndroUtils/Utils/TextFileLoader.h"
 
 TakeOne::Shader::Shader(const std::string &pShaderPath, ShaderType pShaderType)
         : mShaderPath(pShaderPath), mShaderType(pShaderType), mShaderId(0)
@@ -38,7 +38,8 @@ TakeOne::Shader::~Shader()
 
 void TakeOne::Shader::Reload()
 {
-    Compile(TakeOne::FileLoader::LoadTextFile(mShaderPath));
+	andro::TextFile file(mShaderPath);
+    Compile(file.GetContent());
 }
 
 unsigned int TakeOne::Shader::GetShaderId() const

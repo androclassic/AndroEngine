@@ -3,6 +3,8 @@
 #include<map>
 #include "LuaBinding.h"
 #include "../Utils/Singleton.h"
+#include "../Utils/ResourceManager.h"
+#include "../Utils/TextFileLoader.h"
 
 class Lua_State
 {
@@ -22,16 +24,10 @@ public:
 
 	int execute_program(const std::string& program)
 	{
-		int status = luaL_loadfile(L, program.c_str());
-		if (status == 0)
-		{
-			status = lua_pcall(L, 0, LUA_MULTRET, 0);
-			report_errors(status);
-		}
-		else
-        {
-			report_errors(status);
-	    }
+
+		auto file = m_luaResourceManager.Load<andro::TextFile>(program, NULL);
+		int status = luaL_dostring(L, file->GetContent().c_str());
+		report_errors(status);
 
 		return status;
     }
@@ -53,6 +49,7 @@ private:
 
 private:
 	lua_State *L;
+	andro::ResourceManager m_luaResourceManager;
 
 };
 

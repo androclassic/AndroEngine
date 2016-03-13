@@ -62,7 +62,7 @@ radius =  15;
 		local x = radius * math.cos(angle * o.index)
 		local y = radius * math.sin(angle * o.index)
 
-		o:SetPosition(x , -10 , y)
+		o:SetPosition(x ,-10 , y)
 		o:SetScale(0.08)
 	end,
 	
@@ -71,7 +71,7 @@ radius =  15;
 
 		local x = radius * math.cos(angle * (o.index + o.timestep))
 		local y = radius * math.sin(angle * (o.index + o.timestep))
-		o:SetPosition(x , -10 , y)
+		o:SetPosition(x ,(o.index - 35) / 2 , y)
 	end,
 	
 	OnDestroy = function( o )
