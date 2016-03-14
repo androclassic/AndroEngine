@@ -119,7 +119,7 @@ void GenericFromLua(lua_State *L, int index, Variable *var)
 	if (lua_istable(L, index))
 	{
 		lua_getfield(L, 1, "__userdata");
-		if (lua_isuserdata(L, -1));
+		if (lua_isuserdata(L, -1))
 		{
 			*var = *((Variable *)lua_touserdata(L, -1));
 			lua_pop(L, 1);
