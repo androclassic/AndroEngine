@@ -1,11 +1,3 @@
-////out vec4 fragColor;
-//
-//in vec4 fragmentColor;
-//void main(){
-//
-//    fragColor = fragmentColor;
-//}
-
 #version 330
 
 uniform mat4 model;

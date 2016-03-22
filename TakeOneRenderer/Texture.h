@@ -41,12 +41,12 @@ namespace TakeOne
             TEXTURE_RECTANGLE = 512 //uses ARB_texture_rectangle ; pixel indexed & no repeat or MIPmaps or cubemaps
         };
 
-    private:
+		unsigned int mTextureId;
+	private:
         void Load(unsigned int pTextureId = 0);
 
         std::string mTexturePath;
         unsigned int mTextureFlags;
-        unsigned int mTextureId;
 
         //unordered_map< TexturPath, pair< TextureId, RefCount> >
         static std::unordered_map<std::string, std::pair<int, int>> mUsedTextures;
