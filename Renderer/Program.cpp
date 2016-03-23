@@ -6,43 +6,28 @@ unsigned int TakeTwo::Program::sLoadCounter = 0;
 
 
 
-TakeTwo::Program::Program(const std::string& pVertexPath, const std::string& pFragmentPath)
-	:Resource(std::string(pVertexPath + pFragmentPath).c_str(), NULL)
+TakeTwo::Program::Program(const std::string& pVertexCode, const std::string& pFragmentCode)
 {
-    Load(pVertexPath, pFragmentPath);
+    Load(pVertexCode, pFragmentCode);
 }
-
-TakeTwo::Program::Program(const std::string& pResource_key, void *pArgs)
-	: Resource(pResource_key.c_str(), NULL)
-{
-	ProgramArgs* args = (ProgramArgs*)pArgs;
-	Load(args->mVertexPath, args->mFragmentPath);
-}
-
 
 TakeTwo::Program::~Program()
 {
     Unload();
 }
 
-void TakeTwo::Program::Load(const std::string& pVertexPath, const std::string& pFragmentPath)
+void TakeTwo::Program::Load(const std::string& pVertexCode, const std::string& pFragmentCode)
 {
     Unload();
     //Load shaders
-    mFragment = std::make_unique<Shader>(pVertexPath, ShaderType::VERTEX);
-    mVertex = std::make_unique<Shader>(pFragmentPath, ShaderType::FRAGMENT);
+    mFragment = std::make_unique<Shader>(pVertexCode, ShaderType::VERTEX);
+    mVertex = std::make_unique<Shader>(pFragmentCode, ShaderType::FRAGMENT);
 
     //Create and link program
     Link();
 }
 
-void TakeTwo::Program::Reload()
-{
-    Unload();
-    mVertex->Reload();
-    mFragment->Reload();
-    Link();
-}
+
 
 void TakeTwo::Program::Unload()
 {

@@ -7,6 +7,7 @@
 #include "RenderNode.h"
 #include "CameraNode.h"
 #include "PD_CommandBuffer.h"
+#include "EffectLib.h"
 #include "../AndroUtils/Utils/Singleton.h"
 #include "../AndroUtils/Utils/ResourceManager.h"
 

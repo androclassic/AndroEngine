@@ -44,12 +44,23 @@ void Game::Initialise()
 
 	engine.RegisterLight(mMainLight.get());
 	engine.RegisterCamera(mCamera->GetCamera().get());
+//-----------------------------------------------------------
+//------ engine types
+//-----------------------------------------------------------
 
+	REGISTER_TYPE_EXPLCIT(TakeTwo::Material::MaterialFormat, MaterialFormat, TakeTwo::Material::MaterialFormat::MaterialToLua, TakeTwo::Material::MaterialFormat::MaterialFromLua);
+	REGISTER_TYPE_EXPLCIT(TakeTwo::EffectDesc, EffectDesc, TakeTwo::EffectDesc::ToLua, TakeTwo::EffectDesc::FromLua);
+
+
+//-----------------------------------------------------------
+//------ game types
+//-----------------------------------------------------------
 
 
 	REGISTER_USER_TYPE(GameObject);
 	REGISTER_USER_TYPE_REF(GameObject);
-	REGISTER_TYPE_EXPLCIT(TakeTwo::Material::MaterialFormat, MaterialFormat, TakeTwo::Material::MaterialFormat::MaterialToLua, TakeTwo::Material::MaterialFormat::MaterialFromLua);
+//-----------------------------------------------------------
+
 
 	//initialise Lua
 	Lua_State::GetInstance()->Init();
@@ -60,6 +71,7 @@ void Game::Initialise()
 	lua_bind_member(L, GameObject, SetPosition);
 	lua_bind_member(L, GameObject, SetScale);
 	lua_bind(L, Print_C);
+	lua_bind_explicit(L, TakeTwo::EffectLibrary::AddEffect, AddEffectLib);
 
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptInit.lua");
 

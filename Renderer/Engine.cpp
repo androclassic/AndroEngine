@@ -3,7 +3,6 @@
 #include "GL/glew.h"
 #include "../../AndroUtils/Introspection/LuaState.h"
 
-
 //-----------------------------------------------------------------------------------------------------------------------
 
 bool TakeTwo::Engine::Init(int pWidth, int pHeight, std::string pTitle)
@@ -77,6 +76,8 @@ void TakeTwo::Engine::Update()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+	//hacky hack temp don`t look
+	unsigned index = 0;
 	for (auto object : m_renderableObjects)
 	{
 		if (strcmp(object->GetRenderObject().GetResourceFileName().c_str(), "data/cube2.obj_simpletexturemap_dwarf.jpg") == 0)
@@ -89,7 +90,7 @@ void TakeTwo::Engine::Update()
 			object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransform().GetTransformMatrix());
 
 			TakeTwo::Texture texture; //hack
-			texture.mTextureId = m_multipleRenderTarget->m_rt[0]->m_texture.m_textureID;
+			texture.mTextureId = m_multipleRenderTarget->m_rt[index++]->m_texture.m_textureID;
 			object->GetRenderObject().GetMaterial().SetTexture(std::move(texture));
 			object->GetRenderObject().Render();
 		}

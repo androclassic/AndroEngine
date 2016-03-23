@@ -36,18 +36,10 @@ void TakeTwo::Material::Use()
 
 void TakeTwo::Material::Apply()
 {
-	std::stringstream vertex,fragment, texture;
-	vertex   << "data/shaders/" << mMaterialFormat.programName << "/vertex.glsl";
-	fragment << "data/shaders/" << mMaterialFormat.programName << "/fragment.glsl";
+	std::stringstream texture;
 	texture << "data/" << mMaterialFormat.textureName;
 
-	const std::string vertex_shader = vertex.str();
-	const std::string fragment_shader = fragment.str();
-
-	Program::ProgramArgs args(vertex_shader, fragment_shader);
-	std::string resource_key = vertex_shader + fragment_shader;
-
-	mProgram = Engine::GetInstance()->GetResoruceManager().Load<Program>(resource_key.c_str(), &args); 
+	mProgram = EffectLibrary::GetInstance()->GetEffect(mMaterialFormat.programName);
 
 	SetTexture(Texture(texture.str(), Texture::INVERT_Y | Texture::COMPRESS_TO_DXT | Texture::TEXTURE_REPEATS | Texture::MIPMAPS));
 
@@ -90,12 +82,6 @@ void TakeTwo::Material::Apply()
 
 }
 
-void TakeTwo::Material::Reload()
-{
-    assert(mProgram != nullptr && "The program from material must be set!");
-
-    mProgram->Reload();
-}
 
 int TakeTwo::Material::GetTexturesCount()
 {
@@ -146,6 +132,6 @@ void TakeTwo::Material::MaterialFormat::MaterialFromLua(lua_State * L, int index
 
 void TakeTwo::Material::MaterialFormat::MaterialToLua(lua_State * L, Variable & var)
 {
-	lua_pushboolean(L, var.GetValue<bool>()); //TODO
+	ASSERT(false); //not implemented
 }
 

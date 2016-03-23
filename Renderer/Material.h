@@ -24,7 +24,6 @@ namespace TakeTwo
         void SetTexture(Texture&& pTexture);
         void SetProgram(Program* pProgram);
         void Use();
-        void Reload();
 		void Apply();
 
         int GetTexturesCount();
@@ -36,10 +35,10 @@ namespace TakeTwo
 			MaterialFormat();
 			
 			glm::vec4 color_ambient;
-			glm::vec4 color_diffuse;
-			glm::vec4 color_emissive;
+			glm::vec4 color_diffuse; // *
+			glm::vec4 color_emissive; // *
 			glm::vec4 color_reflective;
-			glm::vec4 color_specular;
+			glm::vec4 color_specular; // *
 			glm::vec4 color_transparent;
 
 			float opacity;

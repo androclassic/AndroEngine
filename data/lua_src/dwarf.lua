@@ -12,35 +12,63 @@ radius =  15;
 
  Entity
  {
-	Name  = "Dwarf1",
+	Name  = "CubeNormal",
 	Model = "data/cube2.obj",
 	Material = 	{
 					Texture = "dwarf.jpg",
 					Shader  = "SimpleTextureMap",
 				},
-				
 	OnInit = function( o )			
 		o:SetPosition(0, -10, 0)
-		o:SetScale(1)
-	end,
-	
-	OnUpdate = function( o )
-		o:SetScale(o.height)
-		o.height = o.height + o.grow_speed * o.grow_dorection
-
-		if o.height > 20 or o.height  < 4 then
-			o.grow_dorection = o.grow_dorection * -1
-		end
+		o:SetScale(5)
 	end,
 	
 	OnDestroy = function( o )
 		Print_C(o.Name.." Destroyed !")
 	end,
+
+}
+---------------------------------------------
 	
+
+ Entity
+ {
+	Name  = "CubeDiffuse",
+	Model = "data/cube2.obj",
+	Material = 	{
+					Texture = "dwarf.jpg",
+					Shader  = "SimpleTextureMap",
+				},
+	OnInit = function( o )			
+		o:SetPosition(5, -10, 0)
+		o:SetScale(5)
+	end,
 	
-	height =  4,
-	grow_dorection = 1,
-	grow_speed = 0.0001,
+	OnDestroy = function( o )
+		Print_C(o.Name.." Destroyed !")
+	end,
+
+}
+---------------------------------------------
+	
+
+ Entity
+ {
+	Name  = "CubeSpecular",
+	Model = "data/cube2.obj",
+	Material = 	{
+					Texture = "dwarf.jpg",
+					Shader  = "SimpleTextureMap",
+				},
+	OnInit = function( o )			
+		o:SetPosition(10, -10, 0)
+		o:SetScale(5)
+	end,
+	
+	OnDestroy = function( o )
+		Print_C(o.Name.." Destroyed !")
+	end,
+
 }
 
 ----------------------------------------------------------------
@@ -51,7 +79,7 @@ radius =  15;
 	Model = "data/dwarf.obj",
 	Material = 	{
 					Texture = "dwarf2.jpg",
-					Shader  = "deferredshading",
+					Shader  = "Deferred",
 				},
 				
 	OnInit = function( o )			

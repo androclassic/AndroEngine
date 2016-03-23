@@ -1,16 +1,15 @@
 #include "Shader.h"
 #include "Log.h"
 #include "GL/glew.h"
-#include "../AndroUtils/Utils/TextFileLoader.h"
 
-TakeTwo::Shader::Shader(const std::string &pShaderPath, ShaderType pShaderType)
-        : mShaderPath(pShaderPath), mShaderType(pShaderType), mShaderId(0)
+TakeTwo::Shader::Shader(const std::string &pShaderCode, ShaderType pShaderType)
+        : mShaderType(pShaderType), mShaderId(0)
 {
-    Reload();
+	Compile(pShaderCode);
 }
 
 TakeTwo::Shader::Shader(Shader&& pOther)
-        : mShaderPath(std::move(pOther.mShaderPath)), mShaderType(std::move(pOther.mShaderType)),
+        : mShaderType(std::move(pOther.mShaderType)),
           mShaderId(std::move(pOther.mShaderId))
 {
     pOther.mShaderId = 0;
@@ -20,9 +19,6 @@ TakeTwo::Shader& TakeTwo::Shader::operator=(Shader&& pOther)
 {
     if(this != &pOther)
     {
-        Unload();
-
-        mShaderPath = std::move(pOther.mShaderPath);
         mShaderType = std::move(pOther.mShaderType);
         mShaderId = std::move(pOther.mShaderId);
 
@@ -33,13 +29,6 @@ TakeTwo::Shader& TakeTwo::Shader::operator=(Shader&& pOther)
 
 TakeTwo::Shader::~Shader()
 {
-    Unload();
-}
-
-void TakeTwo::Shader::Reload()
-{
-	andro::TextFile file(mShaderPath);
-    Compile(file.GetContent());
 }
 
 unsigned int TakeTwo::Shader::GetShaderId() const
@@ -54,8 +43,6 @@ TakeTwo::ShaderType TakeTwo::Shader::GetShaderType() const
 
 void TakeTwo::Shader::Compile(const std::string& pShaderSource)
 {
-    Unload();
-
     //Create Shder
     unsigned int type = GL_VERTEX_SHADER;
     if(mShaderType == ShaderType::FRAGMENT)
@@ -88,11 +75,3 @@ void TakeTwo::Shader::Compile(const std::string& pShaderSource)
     }
 }
 
-void TakeTwo::Shader::Unload()
-{
-    if(mShaderId)
-    {
-        glDeleteShader(mShaderId);
-        mShaderId = 0;
-    }
-}
