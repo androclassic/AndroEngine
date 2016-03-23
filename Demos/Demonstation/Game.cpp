@@ -25,13 +25,13 @@ void Game::Initialise()
 	const int windowHeight = 768;
 
 	mWindow.reset(new Window(windowWidth, windowHeight));
-	mMainLight.reset(new TakeOne::Light);
+	mMainLight.reset(new TakeTwo::Light);
 	mCamera.reset(new Camera());
 
-	TakeOne::Engine& engine = *TakeOne::Engine::GetInstance();
+	TakeTwo::Engine& engine = *TakeTwo::Engine::GetInstance();
 	engine.Init(1024, 768, "AndroEngine");
 
-	mCamera->GetCamera()->SetCameraType(TakeOne::CameraType::PERSPECTIVE);
+	mCamera->GetCamera()->SetCameraType(TakeTwo::CameraType::PERSPECTIVE);
 	mCamera->GetCamera()->SetClearColor(glm::vec4(0.1,0.2,0.1, 1.0));
 	mCamera->GetCamera()->SetPerspectiveFOV(45.0f, windowWidth, windowHeight, 1.0f, 1000.0f);
 	mCamera->GetCamera()->GetTransform().SetPosition(glm::vec3(0, 3 , -40));
@@ -49,7 +49,7 @@ void Game::Initialise()
 
 	REGISTER_USER_TYPE(GameObject);
 	REGISTER_USER_TYPE_REF(GameObject);
-	REGISTER_TYPE_EXPLCIT(TakeOne::Material::MaterialFormat, MaterialFormat, TakeOne::Material::MaterialFormat::MaterialToLua, TakeOne::Material::MaterialFormat::MaterialFromLua);
+	REGISTER_TYPE_EXPLCIT(TakeTwo::Material::MaterialFormat, MaterialFormat, TakeTwo::Material::MaterialFormat::MaterialToLua, TakeTwo::Material::MaterialFormat::MaterialFromLua);
 
 	//initialise Lua
 	Lua_State::GetInstance()->Init();
@@ -71,7 +71,7 @@ void Game::Initialise()
 void Game::Update(float deltaTime)
 {
 
-	TakeOne::Engine::GetInstance()->Update();
+	TakeTwo::Engine::GetInstance()->Update();
 	mWindow->Update(deltaTime);
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptUpdate.lua");
 

@@ -13,7 +13,7 @@ radius =  15;
  Entity
  {
 	Name  = "Dwarf1",
-	Model = "data/sphere.obj",
+	Model = "data/cube2.obj",
 	Material = 	{
 					Texture = "dwarf.jpg",
 					Shader  = "SimpleTextureMap",

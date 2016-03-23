@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	Game game;
 	game.Initialise();
 
-	TakeOne::Engine& engine = *TakeOne::Engine::GetInstance();
+	TakeTwo::Engine& engine = *TakeTwo::Engine::GetInstance();
 
 
 	//This is the mainloop, we render frames until isRunning returns false

@@ -8,7 +8,7 @@ Camera::Camera()
 	REGISTER_LISTENER(MouseLButtonPressed::ID(), this);
 
 	m_mousemove = false;
-	m_camera = std::make_shared<TakeOne::CameraNode>();
+	m_camera = std::make_shared<TakeTwo::CameraNode>();
 }
 
 

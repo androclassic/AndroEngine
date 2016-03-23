@@ -39,4 +39,4 @@ else(PLATFORM STREQUAL "Win32")
 endif(PLATFORM STREQUAL "Win32")
 		
 add_executable (Demonstation WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
-target_link_libraries(Demonstation Force  AndroUtils TakeOneRenderer Lua TinyObj SOIL ${LINK_FILES})
+target_link_libraries(Demonstation Force  AndroUtils Renderer Lua TinyObj SOIL ${LINK_FILES})
