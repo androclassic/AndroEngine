@@ -8,7 +8,7 @@
 namespace TakeOne
 {
 
-    class Program : andro::Resource
+    class Program : public  andro::Resource
     {
     public:
         Program(const std::string& pVertexPath, const std::string& pFragmentPath);
