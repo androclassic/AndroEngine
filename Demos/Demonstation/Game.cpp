@@ -45,11 +45,13 @@ void Game::Initialise()
 	engine.RegisterLight(mMainLight.get());
 	engine.RegisterCamera(mCamera->GetCamera().get());
 //-----------------------------------------------------------
-//------ engine types
+//------ render types
 //-----------------------------------------------------------
 
 	REGISTER_TYPE_EXPLCIT(TakeTwo::Material::MaterialFormat, MaterialFormat, TakeTwo::Material::MaterialFormat::MaterialToLua, TakeTwo::Material::MaterialFormat::MaterialFromLua);
 	REGISTER_TYPE_EXPLCIT(TakeTwo::EffectDesc, EffectDesc, TakeTwo::EffectDesc::ToLua, TakeTwo::EffectDesc::FromLua);
+	REGISTER_TYPE_EXPLCIT(TakeTwo::BlendDesc, BlendDesc, TakeTwo::BlendDesc::ToLua, TakeTwo::BlendDesc::FromLua);
+	REGISTER_TYPE_EXPLCIT(TakeTwo::DepthStencilDesc, DepthStencilDesc, TakeTwo::DepthStencilDesc::ToLua, TakeTwo::DepthStencilDesc::FromLua);
 
 
 //-----------------------------------------------------------

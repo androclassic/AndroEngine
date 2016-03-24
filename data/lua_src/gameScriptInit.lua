@@ -1,6 +1,7 @@
 
-require "data.lua_src.effects.effects_module"
+require "data.lua_src.effects.effects"
 
+require "data.lua_src.objects"
 require "data.lua_src.dwarf"
 
 GameManager:CreateEntity("CubeNormal")

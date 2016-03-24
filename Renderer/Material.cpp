@@ -120,8 +120,8 @@ void TakeTwo::Material::MaterialFormat::MaterialFromLua(lua_State * L, int index
 	TakeTwo::Material::MaterialFormat temp;
 	TakeTwo::Material::MaterialFormat* ref_mat = new ((TakeTwo::Material::MaterialFormat*)ref->GetVoidPtr())TakeTwo::Material::MaterialFormat();
 
-	lua_getfield(L, 1, "Texture");
-	lua_getfield(L, 1, "Shader");
+	lua_getfield(L, index, "Texture");
+	lua_getfield(L, index, "Shader");
 
 	const char *texture = luaL_checkstring(L, -2);
 	const char *shader = luaL_checkstring(L, -1);
