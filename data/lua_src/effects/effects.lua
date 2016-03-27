@@ -191,19 +191,11 @@ effect
 		Name = "resolve_deferred",
 		blend_state =
 					{
-						enable		= true,
-						src_colour 	= BlendOption.SRC_ALPHA,
-						dest_colour	= BlendOption.INV_SRC_ALPHA,
-						op_colour	= BlendOperation.ADD,
-						src_alpha   = BlendOption.ONE,
-						dest_alpha  = BlendOption.ZERO,
-						op_alpha    = BlendOperation.ADD,
+						enable		= false,
 					},
 		depthstencil_state =
 					{
-						depthEnable = true,
-						depthWrite 	= true,
-						depthFunc 	= ComparisonMode.LESS,
+						depthEnable = false,
 					},
 					
 		vertex_shader	= fullscreen_quad,

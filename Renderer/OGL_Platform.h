@@ -1,8 +1,37 @@
 #pragma once
 #include "GL\glew.h"
+#include "glm\glm.hpp"
 
 namespace TakeTwo
 {
+
+	//TODO
+	struct Vertex
+	{
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec3 color;
+		glm::vec2 texCoord;
+
+		enum VertexFormat : unsigned int
+		{
+			POSITION,
+			NORMAL,
+			COLOR,
+			TEXCOORD,
+
+			Count
+		};
+	};
+
+	struct PDBuffer
+	{
+		PDBuffer(): m_buffer(0) {};
+		~PDBuffer() {	glDeleteBuffers(1, &m_buffer); }
+		GLuint m_buffer;
+	};
+
+
 	enum BlendOption
 	{
 		BLEND_OPTION_INVALID = -1,

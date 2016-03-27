@@ -3,26 +3,11 @@
 #include "glm/glm.hpp"
 #include <vector>
 #include <string>
+#include "OGL_Platform.h"
 
 namespace TakeTwo
 {
-    struct Vertex
-    {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec3 color;
-        glm::vec2 texCoord;
 
-        enum VertexFormat : unsigned int
-        {
-            POSITION,
-            NORMAL,
-            COLOR,
-            TEXCOORD,
-
-            Count
-        };
-    };
 
     class Mesh
     {
@@ -32,8 +17,6 @@ namespace TakeTwo
         Mesh();
         Mesh(const Mesh&) = delete;
         Mesh& operator=(const Mesh&) = delete;
-        Mesh(Mesh&&);
-        Mesh& operator=(Mesh&&);
         ~Mesh();
 
         void Render();
@@ -48,9 +31,8 @@ namespace TakeTwo
         void Setup();
 
     private:
-        unsigned int mVAO;
-        unsigned int mVBO;
-        unsigned int mIBO;
+        PDBuffer* mVBO;
+        PDBuffer* mIBO;
 
         unsigned short mIndicesType;
 

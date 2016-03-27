@@ -1,5 +1,7 @@
 #include "PD_CommandBuffer.h"
+#include "../AndroUtils/Utils/Trace.h"
 #include <exception>
+#include <vector>
 
 namespace TakeTwo
 {
@@ -86,9 +88,129 @@ namespace TakeTwo
 		}
 
 	}
+	void PD_CommandBuffer::Draw(unsigned int pVertex_count, unsigned int pStart_vertex_location)
+	{
+		glDrawArrays(GL_TRIANGLES, pStart_vertex_location, pVertex_count);
+	}
+	void PD_CommandBuffer::DrawIndexed(unsigned int pIndex_count, unsigned int pStart_index_location, unsigned int pBase_vertex_location)
+	{
+		glDrawElements(
+			GL_TRIANGLES,
+			pIndex_count,
+			GL_UNSIGNED_INT,
+			reinterpret_cast<const void*>(0)
+			);
+	}
+
 	void PD_CommandBuffer::Clear(float r, float g, float b, float a)
 	{
 		glClearColor(r,g,b,a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
+
+	void PD_CommandBuffer::BindVertexBuffer(PDBuffer* pBuffer, const std::vector<unsigned int>&  pAttribsUsed)
+	{
+		GLuint buffer_id = pBuffer ? pBuffer->m_buffer : 0;
+		glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+
+
+		if(pBuffer)
+		{
+
+			if (pAttribsUsed[Vertex::POSITION] )
+			{
+				glEnableVertexAttribArray(Vertex::POSITION);
+				glVertexAttribPointer(
+					Vertex::POSITION,
+					3,
+					GL_FLOAT,
+					GL_FALSE,
+					sizeof(Vertex),
+					reinterpret_cast<const void*>(offsetof(Vertex, position))
+					);
+			}
+
+			if (pAttribsUsed[Vertex::NORMAL])
+			{
+				glEnableVertexAttribArray(Vertex::NORMAL);
+				glVertexAttribPointer(
+					Vertex::NORMAL,
+					3,
+					GL_FLOAT,
+					GL_FALSE,
+					sizeof(Vertex),
+					reinterpret_cast<const void*>(offsetof(Vertex, normal))
+					);
+			}
+
+			if (pAttribsUsed[Vertex::COLOR])
+			{
+				glEnableVertexAttribArray(Vertex::COLOR);
+				glVertexAttribPointer(
+					Vertex::COLOR,
+					3,
+					GL_FLOAT,
+					GL_FALSE,
+					sizeof(Vertex),
+					reinterpret_cast<const void*>(offsetof(Vertex, color))
+					);
+			}
+
+			if (pAttribsUsed[Vertex::TEXCOORD])
+			{
+				glEnableVertexAttribArray(Vertex::TEXCOORD);
+				glVertexAttribPointer(
+					Vertex::TEXCOORD,
+					2,
+					GL_FLOAT,
+					GL_FALSE,
+					sizeof(Vertex),
+					reinterpret_cast<const void*>(offsetof(Vertex, texCoord))
+					);
+			}
+		}
+	}
+	void PD_CommandBuffer::BindIndexBuffer(PDBuffer* pBuffer)
+	{
+		GLuint buffer_id = pBuffer ? pBuffer->m_buffer : 0;
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_id);
+
+	}
+
+
+
+	//-------------------------------------------------------------------------------------------
+	Factory::Factory()
+	{
+	}
+
+	Factory::~Factory()
+	{
+
+	}
+
+	PDBuffer* Factory::CreateVertexBuffer(size_t size, void * data)
+	{
+		PDBuffer* vbo = new PDBuffer();
+		glGenBuffers(1, &vbo->m_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo->m_buffer);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+		return vbo;
+	}
+
+	PDBuffer* Factory::CreateIndexBuffer(size_t size, void * data)
+	{
+		PDBuffer* ibo = new PDBuffer();
+		glGenBuffers(1, &ibo->m_buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo->m_buffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+		return ibo;
+	}
+
+
+
+
+
 }

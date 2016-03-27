@@ -32,6 +32,7 @@ namespace TakeTwo
 		void RegisterLight(Light* pLight);
 		void RegisterCamera(TakeTwo::CameraNode* pCamera);
 		PD_CommandBuffer* GetCommandBuffer() { return m_commandBuffer; }
+		Factory*		  GetFactory() { return &m_factory; }
 
     private:
 		andro::ResourceManager			  mResourceManager;
@@ -40,6 +41,7 @@ namespace TakeTwo
 		TakeTwo::Light*					m_light; //embarrassing, temporary
 		TakeTwo::CameraNode*			m_camera; //embarrassing, temporary
 		PD_CommandBuffer*				m_commandBuffer;
+		Factory							m_factory;
 		GBuffers*						m_gBuffers;
 		DeferredRenderer*				m_deferred;
 		PD_RenderTargetTexture*			m_depth;
