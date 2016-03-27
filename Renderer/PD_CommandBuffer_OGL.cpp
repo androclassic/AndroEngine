@@ -17,12 +17,15 @@ namespace TakeTwo
 
 	void PD_CommandBuffer::BindTexture(PD_Texture* pTexture, unsigned int pSlot)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB + pSlot);
+		GLuint slot = (GL_TEXTURE0 + pSlot);
+		glActiveTexture(slot);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, pTexture->m_textureID);
 	}
 	void PD_CommandBuffer::BindRenderTargets(const PD_RenderTargetTexture* const* pRenderTargets, size_t pCount, const PD_RenderTargetTexture* pDepth)
 	{
+		GLint depth = (pDepth != nullptr) ? pDepth->m_texture.m_textureID : 0;
+
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
 
 		bool invalid = false;
@@ -36,7 +39,7 @@ namespace TakeTwo
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + i, GL_TEXTURE_2D, pRenderTargets[i]->m_texture.m_textureID, 0);
 			}
 		}
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, pDepth->m_texture.m_textureID);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth);
 
 		if (invalid)
 		{
@@ -52,11 +55,12 @@ namespace TakeTwo
 	}
 	void PD_CommandBuffer::BindRenderTarget(const PD_RenderTargetTexture* pRenderTarget, const  PD_RenderTargetTexture* pDepth)
 	{
+		GLint depth = (pDepth != nullptr) ? pDepth->m_texture.m_textureID : 0;
 
 		if (pRenderTarget == nullptr)
 		{
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, pDepth->m_texture.m_textureID);
+			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth);
 		}
 		else
 		{
@@ -67,7 +71,7 @@ namespace TakeTwo
 				glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, m_attachment[0]);
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, pRenderTarget->m_texture.m_textureID, 0);
 
-				glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, pDepth->m_texture.m_textureID);
+				glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth);
 
 				// Check if all worked fine and unbind the FBO
 				GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -81,5 +85,10 @@ namespace TakeTwo
 			glDrawBuffers(1, buffers);
 		}
 
+	}
+	void PD_CommandBuffer::Clear(float r, float g, float b, float a)
+	{
+		glClearColor(r,g,b,a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 }

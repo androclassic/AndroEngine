@@ -38,44 +38,5 @@ namespace TakeTwo
 		glDeleteRenderbuffersEXT(1, &m_renderTarget);
 	}
 
-	/**
-	*	Create the FBO render texture initializing all the stuff that we need
-	*/
-	FBORenderTexture::FBORenderTexture(int _dWidth, int _dHeight)
-	{
-		// Save extensions
-		m_width = _dWidth;
-		m_height = _dHeight;
-
-
-		m_rt[0] = new PD_RenderTargetTexture(m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE);
-		m_rt[1] = new PD_RenderTargetTexture(m_width, m_height, GL_RGBA32F_ARB, GL_FLOAT);
-		m_rt[2] = new PD_RenderTargetTexture(m_width, m_height, GL_RGBA16F_ARB, GL_FLOAT);
-		m_rt[3] = new PD_RenderTargetTexture(m_width, m_height, GL_DEPTH_COMPONENT24, GL_FLOAT);
-
-	}
-
-	/**
-	*	Destructor
-	*/
-	FBORenderTexture::~FBORenderTexture() {
-
-		delete m_rt[0];
-		delete m_rt[1];
-		delete m_rt[2];
-		delete m_rt[3];
-	}
-
-	/**
-	*	Start rendering to the texture
-	*	Both color and depth buffers are cleared.
-	*/
-	void FBORenderTexture::start() {
-		// Clear the render targets
-		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
-
-	}
 
 }

@@ -20,8 +20,9 @@ void TakeTwo::Program::Load(const std::string& pVertexCode, const std::string& p
 {
     Unload();
     //Load shaders
-    mFragment = std::make_unique<Shader>(pVertexCode, ShaderType::VERTEX);
-    mVertex = std::make_unique<Shader>(pFragmentCode, ShaderType::FRAGMENT);
+	
+	mVertex = std::make_unique<Shader>(pVertexCode, ShaderType::VERTEX);
+	mFragment = std::make_unique<Shader>(pFragmentCode, ShaderType::FRAGMENT);
 
     //Create and link program
     Link();

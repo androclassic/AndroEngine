@@ -6,7 +6,9 @@
 TakeTwo::Material::Material(Program* pProgram)
         : mProgram(pProgram)
 {
+	mFormatsUsed.resize(MaterialFormatEnum::Count);
 }
+
 
 void TakeTwo::Material::SetProgram(Program* pProgram)
 {

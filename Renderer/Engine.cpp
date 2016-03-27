@@ -27,9 +27,10 @@ bool TakeTwo::Engine::Init(int pWidth, int pHeight, std::string pTitle)
 	glDisable(GL_CULL_FACE);
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	m_multipleRenderTarget = new FBORenderTexture(pWidth, pHeight);
+	m_gBuffers = new GBuffers(pWidth, pHeight);
+	m_deferred = new DeferredRenderer(pWidth, pHeight);
 	m_commandBuffer = new PD_CommandBuffer();
-
+	m_depth =  new PD_RenderTargetTexture(pWidth, pHeight, GL_DEPTH_COMPONENT24, GL_FLOAT);
 	return true;
 }
 TakeTwo::Engine::Engine()
@@ -41,7 +42,8 @@ TakeTwo::Engine::Engine()
 TakeTwo::Engine::~Engine()
 {
 	delete m_commandBuffer;
-	delete m_multipleRenderTarget;
+	delete m_gBuffers;
+	delete m_deferred;
 
 }
 
@@ -51,50 +53,24 @@ void TakeTwo::Engine::Update()
 	ASSERT(m_camera != nullptr);
 
 
-	// Render our geometry into the FBO
-	m_commandBuffer->BindRenderTargets(m_multipleRenderTarget->m_rt, 3, m_multipleRenderTarget->m_rt[3]);
-	m_multipleRenderTarget->start();
-		
-		for (auto object : m_renderableObjects)
-		{
-			if (strcmp(object->GetRenderObject().GetResourceFileName().c_str(), "data/cube2.obj_simpletexturemap_dwarf.jpg") == 0)
-				continue;
+	m_gBuffers->Bind(m_depth);
 
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.position", m_light->position);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.intensities", m_light->intensities);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.attenuation", m_light->attenuation);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.ambientCoefficient", m_light->ambientCoefficient);
-			object->GetRenderObject().GetMaterial().SetShaderParam("camera", m_camera->GetViewProjectionMatrix());
-			object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransform().GetTransformMatrix());
-
-			object->GetRenderObject().Render();
-		}
-
-
-	m_commandBuffer->BindRenderTarget(nullptr, m_multipleRenderTarget->m_rt[3]);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-	//hacky hack temp don`t look
-	unsigned index = 0;
 	for (auto object : m_renderableObjects)
 	{
-		if (strcmp(object->GetRenderObject().GetResourceFileName().c_str(), "data/cube2.obj_simpletexturemap_dwarf.jpg") == 0)
-		{
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.position", m_light->position);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.intensities", m_light->intensities);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.attenuation", m_light->attenuation);
-			object->GetRenderObject().GetMaterial().SetShaderParam("light.ambientCoefficient", m_light->ambientCoefficient);
-			object->GetRenderObject().GetMaterial().SetShaderParam("camera", m_camera->GetViewProjectionMatrix());
-			object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransform().GetTransformMatrix());
+		object->GetRenderObject().GetMaterial().SetShaderParam("light.position", m_light->position);
+		object->GetRenderObject().GetMaterial().SetShaderParam("light.intensities", m_light->intensities);
+		object->GetRenderObject().GetMaterial().SetShaderParam("light.attenuation", m_light->attenuation);
+		object->GetRenderObject().GetMaterial().SetShaderParam("light.ambientCoefficient", m_light->ambientCoefficient);
+		object->GetRenderObject().GetMaterial().SetShaderParam("camera", m_camera->GetViewProjectionMatrix());
+		object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransform().GetTransformMatrix());
 
-			TakeTwo::Texture texture; //hack
-			texture.mTextureId = m_multipleRenderTarget->m_rt[index++]->m_texture.m_textureID;
-			object->GetRenderObject().GetMaterial().SetTexture(std::move(texture));
-			object->GetRenderObject().Render();
-		}
+		object->GetRenderObject().Render();
 	}
+
+	m_commandBuffer->BindRenderTarget(nullptr, m_depth);
+	m_commandBuffer->Clear(0.0f, 0.2f, 0.2f, 1.0f);
+
+	m_deferred->ResolveDeferred(m_gBuffers, m_depth);
 
 }
 

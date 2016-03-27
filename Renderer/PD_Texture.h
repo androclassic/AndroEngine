@@ -29,26 +29,4 @@ namespace TakeTwo
 	};
 
 
-
-	class FBORenderTexture
-	{
-	public:
-		// Ctors/Dtors
-		FBORenderTexture(int width, int height);
-		~FBORenderTexture();
-
-		// Methods
-		void	start();
-
-		PD_Texture*	getDiffuseTexture() const { return   &m_rt[0]->m_texture; }
-		PD_Texture*	getPositionTexture() const { return   &m_rt[1]->m_texture; }
-		PD_Texture*	getNormalsTexture() const { return   &m_rt[2]->m_texture; }
-
-		PD_RenderTargetTexture* m_rt[4];
-	private:
-
-		unsigned int	m_width; // FBO width
-		unsigned int	m_height; // FBO height
-	};
-
 }

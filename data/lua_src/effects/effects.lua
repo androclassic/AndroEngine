@@ -120,8 +120,8 @@ deferred_ps = [[
 	in vec3 cameraPosition;
 
 	layout(location = 0) out vec4 out_diffuse;
-	layout(location = 1) out vec4 out_position;
-	layout(location = 2) out vec4 out_normals;
+	layout(location = 1) out vec4 out_normals;
+	layout(location = 2) out vec4 out_specular;
 
 
 	void main() {
@@ -134,10 +134,83 @@ deferred_ps = [[
 			surfaceColor = texture(u_texture, fragTexCoord);
 			
 		out_diffuse = surfaceColor;
-		out_position = vec4(surfacePos,1);
+		out_specular = vec4(surfacePos,1);
 		out_normals = vec4(normal,1);;
 	}
 ]]
+
+
+
+fullscreen_quad = [[
+
+	#version 330 core
+
+	void main() {
+	    // id | x  | y
+		//----+----+---
+		// 0  | 0  | 0
+		//----+----+---
+		// 1  | 1  | 0
+		//----+----+---
+		// 2  | 0  | 1
+		//----+----+---
+		// 3  | 1  | 1
+
+		int x = gl_VertexID &  1;
+		int y = gl_VertexID >> 1;
+
+		vec4 output = vec4( x * 2 - 1, y * 2 - 1, 0.5, 1 );
+		gl_Position = output;
+	}
+]]
+
+deferred_resolve_ps = [[
+
+	#version 330
+	uniform sampler2D u_diffuse;
+	uniform sampler2D u_normals;
+	uniform sampler2D u_specular;
+
+	layout(location = 0) out vec4 out_value;
+
+
+	void main() 
+	{
+		vec2 texcoord = (gl_FragCoord.xy ) / vec2(1024, 768); 
+		vec4 diffuse  = texture(u_diffuse , texcoord);
+		vec4 normals  = texture(u_normals , texcoord);
+		vec4 specular = texture(u_specular, texcoord);
+
+		out_value = diffuse + specular;
+	}
+]]
+
+
+effect 
+	{
+		Name = "resolve_deferred",
+		blend_state =
+					{
+						enable		= true,
+						src_colour 	= BlendOption.SRC_ALPHA,
+						dest_colour	= BlendOption.INV_SRC_ALPHA,
+						op_colour	= BlendOperation.ADD,
+						src_alpha   = BlendOption.ONE,
+						dest_alpha  = BlendOption.ZERO,
+						op_alpha    = BlendOperation.ADD,
+					},
+		depthstencil_state =
+					{
+						depthEnable = true,
+						depthWrite 	= true,
+						depthFunc 	= ComparisonMode.LESS,
+					},
+					
+		vertex_shader	= fullscreen_quad,
+		pixel_shader	= deferred_resolve_ps,
+		
+	}
+	
 
 effect 
 	{

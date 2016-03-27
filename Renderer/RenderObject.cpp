@@ -100,7 +100,7 @@ bool TakeTwo::RenderObject::LoadMaterial(const Material::MaterialFormat& pMateri
 {
 	//TODO COMPLETE LOAD MATERIAL
 
-	std::vector<unsigned int> formatUsed(11);
+	std::vector<unsigned int> formatUsed(Material::MaterialFormatEnum::Count);
 	formatUsed[0] = 1;
 	formatUsed[1] = 1;
 	formatUsed[6] = 1;
