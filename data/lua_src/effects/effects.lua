@@ -181,7 +181,7 @@ deferred_resolve_ps = [[
 		vec4 normals  = texture(u_normals , texcoord);
 		vec4 specular = texture(u_specular, texcoord);
 
-		out_value = diffuse + specular;
+		out_value = diffuse + (specular/30);
 	}
 ]]
 
