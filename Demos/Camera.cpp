@@ -61,7 +61,11 @@ void Camera::OnEvent(andro::Event *e)
 	else if (e->GetID() == MouseMove::ID() && m_mousemove)
 	{
 		MouseMove* event = static_cast<MouseMove*>(e);
-		m_camera->Rotate((float)(event->m_x - event->m_lastx) / 5, glm::vec3(0, 1, 0));
+		//rotate around world y axis
+		glm::quat rotation = glm::angleAxis((float)(event->m_x - event->m_lastx) / 5, glm::vec3(0, 1, 0));
+		m_camera->GetTransform().SetRotation(rotation * m_camera->GetTransform().GetRotation());
+
+		//rotate around camera x axis
 		m_camera->Rotate((float)(event->m_y - event->m_lasty) / 5, glm::vec3(1, 0, 0));
 
 	}
