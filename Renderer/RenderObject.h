@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include "../AndroUtils/Utils/Resource.h"
+#include "Octree.h"
 
 namespace TakeTwo
 {
@@ -31,6 +32,9 @@ namespace TakeTwo
 
         std::unique_ptr<Mesh> mMesh;
         std::unique_ptr<Material> mMaterial;
+		
+		andro::OctreeNode* m_octree;
+		std::unique_ptr<Mesh> mMeshOctree;
 
 	public:
 		struct RenderObjectArgs //used for ResourceManager

@@ -90,6 +90,13 @@ namespace andro
 	   };
 	};
 
+
+	struct Triangle
+	{
+		Vector3 P1, P2, P3;
+	};
+
+
 	void  RotateYaw(Matrix4&  mat,float angle);
 	void  RotatePitch(Matrix4& mat, float angle);
 	void  RotateRoll(Matrix4& mat, float angle);
@@ -98,4 +105,6 @@ namespace andro
 	void  SetPos(Matrix4& mat, float x, float y, float z);
 	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading);
 	float Distance(const Vector3& p1, const Vector3& p2);
+	bool  TriangleBoxOverlap(Vector3 center, Vector3 halfSize, Triangle& triangle);
+
 }

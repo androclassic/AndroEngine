@@ -108,6 +108,19 @@ namespace andro
 	{
 	  return	sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2)+pow((p1.z-p2.z),2));
 	}
+	bool TriangleBoxOverlap(Vector3 center, Vector3 halfSize, Triangle & triangle)
+	{
+		Vector3 dif1 = triangle.P1 - center;
+		Vector3 dif2 = triangle.P2 - center;
+		Vector3 dif3 = triangle.P3 - center;
+
+		float len = halfSize.Lenght();
+
+		if (dif1.Lenght() < len )
+			return true;
+
+		return false;
+	}
 	Matrix4::Matrix4()
 	{
 		LoadIdentity();
