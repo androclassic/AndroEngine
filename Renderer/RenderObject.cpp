@@ -11,6 +11,7 @@
 TakeTwo::RenderObject::RenderObject(const Material::MaterialFormat& pMaterialFormat, const char* pModelName)
 	: mMesh(new Mesh)
 	, mMaterial(new Material())
+	, m_octree(NULL)
 	, Resource(pModelName, NULL)
 {
 	Load(pMaterialFormat, pModelName);
@@ -19,6 +20,8 @@ TakeTwo::RenderObject::RenderObject(const Material::MaterialFormat& pMaterialFor
 TakeTwo::RenderObject::RenderObject(const std::string & pResource_key, void * pArgs)
 	: mMesh(new Mesh)
 	, mMaterial(new Material())
+	, mMeshOctree(new Mesh)
+	, m_octree(NULL)
 	, Resource(pResource_key, NULL)
 {
 	RenderObjectArgs* args = (RenderObjectArgs*)pArgs;
@@ -43,15 +46,19 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 
 
 	std::vector<unsigned int> attribsUsed;
+	std::vector<unsigned int> attribsUsed2;
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
+	attribsUsed2 = attribsUsed;
 
 	//Read vertices and indices
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-
+	andro::BoundingBox bbx;
+	bbx.max = andro::Vector3(-999, -999, -999);
+	bbx.min = andro::Vector3(999, 999, 999);
 
 	unsigned int base = 0;
 	for (auto shape : shapes)
@@ -65,6 +72,15 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 		for (int i = 0, n = 0, t = 0; i < shape.mesh.positions.size(); i += 3, t += 2, n += 3)
 		{
 			Vertex  p;
+
+			bbx.min.x = std::min(shape.mesh.positions[i    ], bbx.min.x);
+			bbx.min.y = std::min(shape.mesh.positions[i + 1], bbx.min.y);
+			bbx.min.z = std::min(shape.mesh.positions[i + 2], bbx.min.z);
+
+			bbx.max.x = std::max(shape.mesh.positions[i],     bbx.max.x);
+			bbx.max.y = std::max(shape.mesh.positions[i + 1], bbx.max.y);
+			bbx.max.z = std::max(shape.mesh.positions[i + 2], bbx.max.z);
+
 			p.position = glm::vec3(shape.mesh.positions[i], shape.mesh.positions[i + 1], shape.mesh.positions[i + 2]);
 			if (hasNormals)
 			{
@@ -92,9 +108,33 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 	mMesh->SetIndices(std::move(indices));
 
 	mMesh->Setup();
+	mMesh->SetupFaces();
+
+
+	//build octree 
+	std::vector<andro::Triangle*> triangles;
+	triangles.resize(mMesh->m_faces.size());
+	for (unsigned int i = 0; i < triangles.size(); i++)
+		triangles[i] = &mMesh->m_faces[i];
+
+	const int step = 5;
+	m_octree = andro::BuildOctree<andro::Triangle*>(triangles, bbx, step, [](const andro::BoundingBox& box, andro::Triangle* t)	{ return TriangleBoxOverlap(box, *t); });
+
+
+	//build octree mesh
+	std::vector<Vertex> vertices_octree;
+	std::vector<unsigned int> indices_octree;
+
+	fillVerticesFromOctree(vertices_octree, indices_octree, m_octree, step);
+	mMeshOctree->SetVertices(std::move(vertices_octree));
+	mMeshOctree->SetAttribsUsed(std::move(attribsUsed2));
+	mMeshOctree->SetIndices(std::move(indices_octree));
+	mMeshOctree->Setup();
 
 	return true;
 }
+
+
 
 bool TakeTwo::RenderObject::LoadMaterial(const Material::MaterialFormat& pMaterialFormat)
 {
@@ -129,7 +169,49 @@ void TakeTwo::RenderObject::Render() const
 {
     mMaterial->Use();
     mMesh->Render();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	mMeshOctree->Render();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 }
+
+
+void TakeTwo::RenderObject::fillVerticesFromOctree(std::vector<TakeTwo::Vertex>& vertices, std::vector<unsigned int>& indices, andro::OctreeNode<andro::Triangle*>* node, int step)
+{
+	if (node == NULL)
+		return;
+
+	step--;
+	bool is_leaf = step == 0;
+
+	if (is_leaf)
+	{
+
+
+		andro::Vector3 points[8];
+		unsigned int cube_indices[36];
+		andro::CreateCubeModel(node->m_bounds, points, cube_indices);
+
+		for (int i = 0; i < 8; i++)
+		{
+			TakeTwo::Vertex v;
+			v.position.x = points[i].x;
+			v.position.y = points[i].y;
+			v.position.z = points[i].z;
+			vertices.push_back(v);
+		}
+
+		int base = vertices.size();
+		for (int i = 0; i < 36; i++)
+			indices.push_back(base + cube_indices[i]);
+	}
+	for (int i = 0; i < 8; i++)
+		fillVerticesFromOctree(vertices, indices, node->m_children[i], step);
+
+}
+
 
 
 

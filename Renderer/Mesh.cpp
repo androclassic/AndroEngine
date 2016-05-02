@@ -64,3 +64,22 @@ void TakeTwo::Mesh::Setup()
 		mIBO = Engine::GetInstance()->GetFactory()->CreateIndexBuffer(mIndices.size() * sizeof(unsigned int), &mIndices[0]);
 	}
 }
+
+void TakeTwo::Mesh::SetupFaces()
+{
+	m_faces.clear();
+
+	for (int i = 0; i < mIndices.size() - 2; i++)
+	{
+		Vertex v1 = mVertices[mIndices[i]];
+		Vertex v2 = mVertices[mIndices[i + 1]];
+		Vertex v3 = mVertices[mIndices[i + 2]];
+
+		andro::Triangle t;
+		t.P1 = andro::Vector3(v1.position.x, v1.position.y, v1.position.z);
+		t.P2 = andro::Vector3(v2.position.x, v2.position.y, v2.position.z);
+		t.P3 = andro::Vector3(v3.position.x, v3.position.y, v3.position.z);
+		m_faces.push_back(t);
+	}
+
+}
