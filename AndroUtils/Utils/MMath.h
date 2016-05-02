@@ -40,10 +40,17 @@ namespace andro
 			Vector3  operator*(float scalar) const;
 			Vector3& operator=(const Vector3 &rhs);
 			Vector3 vectorProduct(const Vector3 &vector) const;
-       
-			float x;
-			float y;
-			float z;
+
+
+			union
+			{
+				struct
+				{
+					float x, y, z;
+				};
+
+				float v[3];
+			};
 	};
 
 	class Vector4
@@ -96,6 +103,18 @@ namespace andro
 		Vector3 P1, P2, P3;
 	};
 
+	struct BoundingBox
+	{
+		BoundingBox();
+		inline void SetExtents(Vector3& pMin, Vector3&  pMax) { min = pMin; max = pMax; }
+		Vector3 GetHalfSize() const;
+		Vector3 GetCenter() const;
+
+		Vector3		min;
+		Vector3		max;
+	};
+
+
 
 	void  RotateYaw(Matrix4&  mat,float angle);
 	void  RotatePitch(Matrix4& mat, float angle);
@@ -105,6 +124,17 @@ namespace andro
 	void  SetPos(Matrix4& mat, float x, float y, float z);
 	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading);
 	float Distance(const Vector3& p1, const Vector3& p2);
-	bool  TriangleBoxOverlap(Vector3 center, Vector3 halfSize, Triangle& triangle);
+
+
+
+	//intersections
+	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, float distance);
+	bool  TriangleBoxOverlap(const BoundingBox& box, Triangle& triangle);
+
+
+	//TODO move
+	void CreateCubeModel(const BoundingBox& aabb, Vector3 points[8], unsigned int  indices[36]);
+	BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num);
+
 
 }
