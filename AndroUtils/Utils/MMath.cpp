@@ -202,12 +202,11 @@ namespace andro
 
 
 		Vector3 e0 = v[1] - v[0];
-		Vector3 e1 = v[2] - v[0];
+		Vector3 e1 = v[2] - v[1];
 		Vector3 plane_normal = e0.vectorProduct(e1);
 		plane_normal.Normalize();
 		float d = v[0] * plane_normal;
-
-
+		
 		// test triangle plane intersects bbx
 		if (!Box_Plane_Overlap(box, plane_normal, d))
 			return false;
@@ -215,8 +214,7 @@ namespace andro
 
 		/*    3) */
 
-		Vector3 e2 = v[2] - v[1];
-
+		Vector3 e2 = v[2] - v[0];
 
 		float min, max, p0, p1, p2, rad, fex, fey, fez;
 		const unsigned int X = 0; const unsigned  int Y = 1; const unsigned  int Z = 2;
