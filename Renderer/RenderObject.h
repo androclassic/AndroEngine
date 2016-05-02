@@ -30,10 +30,13 @@ namespace TakeTwo
 		bool LoadModel(const char* pModelName);
 		bool LoadMaterial(const Material::MaterialFormat& pMaterialFormat);
 
+		void fillVerticesFromOctree(std::vector<TakeTwo::Vertex>& vertices, std::vector<unsigned int>& indices, andro::OctreeNode<andro::Triangle*>* node, int step);
+
+
         std::unique_ptr<Mesh> mMesh;
         std::unique_ptr<Material> mMaterial;
 		
-		andro::OctreeNode* m_octree;
+		andro::OctreeNode<andro::Triangle*>* m_octree;
 		std::unique_ptr<Mesh> mMeshOctree;
 
 	public:
