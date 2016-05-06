@@ -31,9 +31,9 @@ namespace TakeTwo
         void Rotate(float pAngle, const glm::vec3& pAxis);
 
         void LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp = glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::vec3 GetFrontDir() const;
-        glm::vec3 GetUpDir() const;
-        glm::vec3 GetRightDir() const;
+        glm::vec3 GetFrontDir();
+        glm::vec3 GetUpDir();
+        glm::vec3 GetRightDir();
 
         void SetPerspective(float pFOV, float pAspectRatio, float pNearPlane, float pFarPlane);
 		void SetPerspectiveFOV(float pFOV, float width, float height, float pNearPlane, float pFarPlane);
@@ -50,8 +50,8 @@ namespace TakeTwo
 
         inline glm::mat4 GetProjectionMatrix() const { return mProjection; }
         //non const because GetTransformMatrix updates it's members if dirty
-        inline glm::mat4 GetViewMatrix() { return glm::inverse(mTransform->GetTransformMatrix()); }
-        inline glm::mat4 GetViewProjectionMatrix() { return mProjection * glm::inverse(mTransform->GetTransformMatrix()); }
+        inline glm::mat4 GetViewMatrix() { return glm::inverse(GetTransformMatrix()); }
+        inline glm::mat4 GetViewProjectionMatrix() { return mProjection * glm::inverse(GetTransformMatrix()); }
 
     private:
 

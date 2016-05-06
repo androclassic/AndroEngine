@@ -28,48 +28,48 @@ glm::vec4 TakeTwo::CameraNode::GetClearColor() const
 
 void TakeTwo::CameraNode::SetAngleAxis(const glm::vec4& pAngleAxis)
 {
-    mTransform->SetRotation(glm::angleAxis(pAngleAxis.x, glm::vec3(pAngleAxis.y, pAngleAxis.z, pAngleAxis.w)));
+    SetRotation(glm::angleAxis(pAngleAxis.x, glm::vec3(pAngleAxis.y, pAngleAxis.z, pAngleAxis.w)));
 }
 
 void TakeTwo::CameraNode::SetAngleAxis(float pAngle, const glm::vec3& pAxis)
 {
-    mTransform->SetRotation(glm::angleAxis(pAngle, pAxis));
+    SetRotation(glm::angleAxis(pAngle, pAxis));
 }
 
 glm::vec4 TakeTwo::CameraNode::GetAngleAxis() const
 {
-    auto quat = mTransform->GetRotation();
+    auto quat = GetRotation();
     return glm::vec4(glm::angle(quat), glm::axis(quat));
 }
 
 float TakeTwo::CameraNode::GetAngle() const
 {
-    return glm::angle(mTransform->GetRotation());
+    return glm::angle(GetRotation());
 }
 
 glm::vec3 TakeTwo::CameraNode::GetAxis() const
 {
-    return glm::axis(mTransform->GetRotation());
+    return glm::axis(GetRotation());
 }
 
 void TakeTwo::CameraNode::Rotate(const glm::vec4& pAngleAxis)
 {
-    mTransform->SetRotation(
-        mTransform->GetRotation() * glm::angleAxis(pAngleAxis.x, glm::vec3(pAngleAxis.y, pAngleAxis.z, pAngleAxis.w))
+    SetRotation(
+        GetRotation() * glm::angleAxis(pAngleAxis.x, glm::vec3(pAngleAxis.y, pAngleAxis.z, pAngleAxis.w))
     );
 }
 
 void TakeTwo::CameraNode::Rotate(float pAngle, const glm::vec3& pAxis)
 {
-    mTransform->SetRotation(mTransform->GetRotation() * glm::angleAxis(pAngle, pAxis));
+    SetRotation(GetRotation() * glm::angleAxis(pAngle, pAxis));
 }
 
 void TakeTwo::CameraNode::LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp)
 {
-    mTransform->SetRotation(
+    SetRotation(
         glm::toQuat(
             glm::lookAt(
-                mTransform->GetPosition(),
+                GetPosition(),
                 pLookAt,
                 pUp
             )
@@ -77,21 +77,21 @@ void TakeTwo::CameraNode::LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp)
     );
 }
 
-glm::vec3 TakeTwo::CameraNode::GetFrontDir() const
+glm::vec3 TakeTwo::CameraNode::GetFrontDir() 
 {
-    glm::mat4& mat =  mTransform->GetTransformMatrix();
+    glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[2][0], -mat[2][1], -mat[2][2]);
 }
 
-glm::vec3 TakeTwo::CameraNode::GetUpDir() const
+glm::vec3 TakeTwo::CameraNode::GetUpDir() 
 {
-	glm::mat4& mat = mTransform->GetTransformMatrix();
+	glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[1][0], -mat[1][1],-mat[1][2]);
 }
 
-glm::vec3 TakeTwo::CameraNode::GetRightDir() const
+glm::vec3 TakeTwo::CameraNode::GetRightDir() 
 {
-	glm::mat4& mat = mTransform->GetTransformMatrix();
+	glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[0][0], -mat[0][1], -mat[0][2]);
 }
 

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Light.h"
-#include "RenderNode.h"
+#include "Node.h"
 #include "CameraNode.h"
 #include "PD_CommandBuffer.h"
 #include "EffectLib.h"
@@ -27,8 +27,8 @@ namespace TakeTwo
 
 		andro::ResourceManager& GetResoruceManager()  { return mResourceManager; }
 
-		void RegisterRenderObject(TakeTwo::RenderNode* pNode);
-		void RemoveRenderObject(TakeTwo::RenderNode* pNode);
+		void RegisterRenderObject(TakeTwo::Node* pNode);
+		void RemoveRenderObject(TakeTwo::Node* pNode);
 		void RegisterLight(Light* pLight);
 		void RegisterCamera(TakeTwo::CameraNode* pCamera);
 		PD_CommandBuffer* GetCommandBuffer() { return m_commandBuffer; }
@@ -36,7 +36,7 @@ namespace TakeTwo
 
     private:
 		andro::ResourceManager			  mResourceManager;
-		std::vector<TakeTwo::RenderNode*> m_renderableObjects;
+		std::vector<TakeTwo::Node*> m_renderableObjects;
 
 		TakeTwo::Light*					m_light; //embarrassing, temporary
 		TakeTwo::CameraNode*			m_camera; //embarrassing, temporary

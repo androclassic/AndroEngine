@@ -62,7 +62,7 @@ void TakeTwo::Engine::Update()
 		object->GetRenderObject().GetMaterial().SetShaderParam("light.attenuation", m_light->attenuation);
 		object->GetRenderObject().GetMaterial().SetShaderParam("light.ambientCoefficient", m_light->ambientCoefficient);
 		object->GetRenderObject().GetMaterial().SetShaderParam("camera", m_camera->GetViewProjectionMatrix());
-		object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransform().GetTransformMatrix());
+		object->GetRenderObject().GetMaterial().SetShaderParam("model", object->GetTransformMatrix());
 
 		object->GetRenderObject().Render();
 	}
@@ -74,14 +74,14 @@ void TakeTwo::Engine::Update()
 
 }
 
-void TakeTwo::Engine::RegisterRenderObject(TakeTwo::RenderNode * pNode)
+void TakeTwo::Engine::RegisterRenderObject(TakeTwo::Node * pNode)
 {
 	m_renderableObjects.push_back(pNode);
 }
 
-void TakeTwo::Engine::RemoveRenderObject(TakeTwo::RenderNode * pNode)
+void TakeTwo::Engine::RemoveRenderObject(TakeTwo::Node * pNode)
 {
-	for (std::vector<TakeTwo::RenderNode*>::iterator it = m_renderableObjects.begin(); it != m_renderableObjects.end(); it++)
+	for (std::vector<TakeTwo::Node*>::iterator it = m_renderableObjects.begin(); it != m_renderableObjects.end(); it++)
 	{
 		if (*it == pNode)
 		{

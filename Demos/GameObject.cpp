@@ -7,29 +7,45 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 	std::stringstream resource_key;
 	resource_key << pModelName << "_" << pMaterialFormat.programName << "_" << pMaterialFormat.textureName;
 
-	TakeTwo::RenderObject::RenderObjectArgs args(pMaterialFormat, pModelName);
+	TakeTwo::RenderObject::RenderObjectArgs args;
+	args.pMaterialFormat = &pMaterialFormat;
+	args.pModelName = pModelName;
+	args.pOctree = nullptr;
 
 	TakeTwo::RenderObject *renderObject = TakeTwo::Engine::GetInstance()->GetResoruceManager().Load<TakeTwo::RenderObject>(resource_key.str(), &args);
-	mRenderNode.SetRenderObject(renderObject);
-	TakeTwo::Engine::GetInstance()->RegisterRenderObject(&mRenderNode);
+	mNode.SetRenderObject(renderObject);
+	TakeTwo::Engine::GetInstance()->RegisterRenderObject(&mNode);
 
-	mRenderNode.GetTransform().SetScale(glm::vec3(0.1f));
-	mRenderNode.GetTransform().SetPosition(glm::vec3(0, 0, 0));
+	mNode.SetScale(glm::vec3(0.1f));
+	mNode.SetPosition(glm::vec3(0, 0, 0));
+
+
+	args.pMaterialFormat = &pMaterialFormat;
+	args.pModelName = nullptr;
+	args.pOctree = renderObject->m_octree;
+	resource_key << "_octree";
+
+	TakeTwo::RenderObject *renderObjectOctree = TakeTwo::Engine::GetInstance()->GetResoruceManager().Load<TakeTwo::RenderObject>(resource_key.str(), &args);
+	mOctreeNode.SetRenderObject(renderObjectOctree);
+	TakeTwo::Engine::GetInstance()->RegisterRenderObject(&mOctreeNode);
+
+	mNode.AddChild(&mOctreeNode);
+
 
 }
 
 GameObject::~GameObject()
 {
-	TakeTwo::Engine::GetInstance()->RemoveRenderObject(&mRenderNode);
+	TakeTwo::Engine::GetInstance()->RemoveRenderObject(&mNode);
 }
 
 void GameObject::SetPosition(float x, float y, float z)
 {
-	mRenderNode.GetTransform().SetPosition(glm::vec3(x, y, z));
+	mNode.SetPosition(glm::vec3(x, y, z));
 }
 void GameObject::SetScale(float scale)
 {
-	mRenderNode.GetTransform().SetScale(glm::vec3(scale, scale, scale));
+	mNode.SetScale(glm::vec3(scale, scale, scale));
 }
 
 

@@ -6,26 +6,28 @@
 #include "../AndroUtils/Utils/Trace.h"
 #include "../AndroUtils/Utils/AndroUtils.h"
 #include "../External/tinyOBJ/tiny_obj_loader.h"
+static const int octree_step = 5;
 
-
-TakeTwo::RenderObject::RenderObject(const Material::MaterialFormat& pMaterialFormat, const char* pModelName)
-	: mMesh(new Mesh)
-	, mMaterial(new Material())
-	, m_octree(NULL)
-	, Resource(pModelName, NULL)
-{
-	Load(pMaterialFormat, pModelName);
-}
 
 TakeTwo::RenderObject::RenderObject(const std::string & pResource_key, void * pArgs)
 	: mMesh(new Mesh)
 	, mMaterial(new Material())
-	, mMeshOctree(new Mesh)
 	, m_octree(NULL)
 	, Resource(pResource_key, NULL)
 {
 	RenderObjectArgs* args = (RenderObjectArgs*)pArgs;
-	Load(args->pMaterialFormat, args->pModelName);
+	if (args->pModelName != nullptr)
+	{
+		LoadModel(args->pModelName);
+		LoadMaterial(*args->pMaterialFormat);
+	}
+	else if (args->pOctree != nullptr)
+	{
+		BuildModelFromOctree(args->pOctree);
+		LoadMaterial(*args->pMaterialFormat);
+	}
+	else
+		ASSERT(FALSE, "Invalid RenderObjectArgs");
 }
 
 bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
@@ -46,12 +48,10 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 
 
 	std::vector<unsigned int> attribsUsed;
-	std::vector<unsigned int> attribsUsed2;
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
 	attribsUsed.push_back(1);
-	attribsUsed2 = attribsUsed;
 
 	//Read vertices and indices
 	std::vector<Vertex> vertices;
@@ -117,25 +117,35 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 	for (unsigned int i = 0; i < triangles.size(); i++)
 		triangles[i] = &mMesh->m_faces[i];
 
-	const int step = 5;
-	m_octree = andro::BuildOctree<andro::Triangle*>(triangles, bbx, step, [](const andro::BoundingBox& box, andro::Triangle* t)	{ return TriangleBoxOverlap(box, *t); });
+	m_octree = andro::BuildOctree<andro::Triangle*>(triangles, bbx, octree_step, [](const andro::BoundingBox& box, andro::Triangle* t)	{ return TriangleBoxOverlap(box, *t); });
 
 
-	//build octree mesh
-	std::vector<Vertex> vertices_octree;
-	std::vector<unsigned int> indices_octree;
-
-	fillVerticesFromOctree(vertices_octree, indices_octree, m_octree, step);
-	mMeshOctree->SetVertices(std::move(vertices_octree));
-	mMeshOctree->SetAttribsUsed(std::move(attribsUsed2));
-	mMeshOctree->SetIndices(std::move(indices_octree));
-	mMeshOctree->Setup();
 
 	return true;
 }
 
 
+bool TakeTwo::RenderObject::BuildModelFromOctree(andro::OctreeNode<andro::Triangle*>* pOctree)
+{
+	std::vector<unsigned int> attribsUsed;
+	attribsUsed.push_back(1);
+	attribsUsed.push_back(1);
+	attribsUsed.push_back(1);
+	attribsUsed.push_back(1);
 
+
+	std::vector<Vertex> vertices_octree;
+	std::vector<unsigned int> indices_octree;
+
+	fillVerticesFromOctree(vertices_octree, indices_octree, pOctree, octree_step);
+	mMesh->SetVertices(std::move(vertices_octree));
+	mMesh->SetAttribsUsed(std::move(attribsUsed));
+	mMesh->SetIndices(std::move(indices_octree));
+	mMesh->Setup();
+
+	return true;
+
+}
 bool TakeTwo::RenderObject::LoadMaterial(const Material::MaterialFormat& pMaterialFormat)
 {
 	//TODO COMPLETE LOAD MATERIAL
@@ -156,25 +166,20 @@ bool TakeTwo::RenderObject::LoadMaterial(const Material::MaterialFormat& pMateri
 	return true;
 }
 
-bool TakeTwo::RenderObject::Load(const Material::MaterialFormat& pMaterialFormat, const char* pModelName)
-{
-
-	LoadModel(pModelName);
-	LoadMaterial(pMaterialFormat);
-
-	return true;
-}
-
 void TakeTwo::RenderObject::Render() const
 {
     mMaterial->Use();
-    mMesh->Render();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (m_octree == nullptr) //TODO
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	mMeshOctree->Render();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		mMesh->Render();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	}
+	else
+	    mMesh->Render();
 }
 
 

@@ -34,7 +34,7 @@ void Game::Initialise()
 	mCamera->GetCamera()->SetCameraType(TakeTwo::CameraType::PERSPECTIVE);
 	mCamera->GetCamera()->SetClearColor(glm::vec4(0.1,0.2,0.1, 1.0));
 	mCamera->GetCamera()->SetPerspectiveFOV(45.0f, windowWidth, windowHeight, 1.0f, 1000.0f);
-	mCamera->GetCamera()->GetTransform().SetPosition(glm::vec3(0, 3 , -40));
+	mCamera->GetCamera()->SetPosition(glm::vec3(0, 3 , -40));
 	mCamera->GetCamera()->LookAt(glm::vec3(0, -10, 0));
 
 	mMainLight->position = glm::vec3(0.0f, 100.0f, -10.0f);

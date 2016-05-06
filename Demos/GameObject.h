@@ -12,7 +12,7 @@
 
 #include "../../Renderer/Program.h"
 #include "../../Renderer/Engine.h"
-#include "../../Renderer/RenderNode.h"
+#include "../../Renderer/Node.h"
 
 #include ".././AndroUtils/Introspection/LuaState.h"
 
@@ -31,7 +31,8 @@ public:
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
 
 private:
-	TakeTwo::RenderNode mRenderNode;
+	TakeTwo::Node mNode;
+	TakeTwo::Node mOctreeNode;
 	static std::vector<GameObject*> m_gameObjects;
 
 };
