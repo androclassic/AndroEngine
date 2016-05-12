@@ -8,42 +8,7 @@ dwarfIndex = 1
 angle = 2 * 3.14 / dwarfNumbers;
 radius =  15;	
 ---------------------------------------------
-	
 
- Entity
- {
-	Name  = "Dwarf1",
-	Model = "data/dwarf.obj",
-	Material = 	{
-					Texture = "dwarf.jpg",
-					Shader  = "SimpleTextureMap",
-				},
-				
-	OnInit = function( o )			
-		o:SetPosition(0, -10, 0)
-		o:SetScale(1)
-	end,
-	
-	OnUpdate = function( o )
-		o:SetScale(o.height)
-		o.height = o.height + o.grow_speed * o.grow_dorection
-
-		if o.height > 0.3 or o.height  < 0.04 then
-			o.grow_dorection = o.grow_dorection * -1
-		end
-	end,
-	
-	OnDestroy = function( o )
-		Print_C(o.Name.." Destroyed !")
-	end,
-	
-	
-	height =  0.04,
-	grow_dorection = 1,
-	grow_speed = 0.0001,
-}
-
-----------------------------------------------------------------
 
  Entity
  {
@@ -51,7 +16,7 @@ radius =  15;
 	Model = "data/dwarf.obj",
 	Material = 	{
 					Texture = "dwarf2.jpg",
-					Shader  = "SimpleTextureMap",
+					Shader  = "Deferred",
 				},
 				
 	OnInit = function( o )			

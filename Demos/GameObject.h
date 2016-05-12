@@ -10,9 +10,9 @@
 #include "../../AndroUtils/EventManager/Event.h"
 #include "../../AndroUtils/EventManager/EventManager.h"
 
-#include "../../TakeOneRenderer/Program.h"
-#include "../../TakeOneRenderer/Engine.h"
-#include "../../TakeOneRenderer/RenderNode.h"
+#include "../../Renderer/Program.h"
+#include "../../Renderer/Engine.h"
+#include "../../Renderer/Node.h"
 
 #include ".././AndroUtils/Introspection/LuaState.h"
 
@@ -22,16 +22,17 @@ class GameObject
 {
 
 public:
-	GameObject(TakeOne::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
 	~GameObject();
 	void SetPosition(float x, float y, float z);
 	void SetScale(float scale);
 
-	static ObjectRef<GameObject> CreateGameObject(TakeOne::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	static ObjectRef<GameObject> CreateGameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
 
 private:
-	TakeOne::RenderNode mRenderNode;
+	TakeTwo::Node mNode;
+	TakeTwo::Node mOctreeNode;
 	static std::vector<GameObject*> m_gameObjects;
 
 };

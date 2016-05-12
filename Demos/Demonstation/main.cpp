@@ -32,15 +32,12 @@ int main(int argc, char** argv)
 	Game game;
 	game.Initialise();
 
-	TakeOne::Engine& engine = *TakeOne::Engine::GetInstance();
+	TakeTwo::Engine& engine = *TakeTwo::Engine::GetInstance();
 
 
 	//This is the mainloop, we render frames until isRunning returns false
 	while (!game.GetWindow().ShouldClose())
 	{
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		FPS++;
 		currentTime = GetTickCount();
 		elapsedTime = currentTime - lastTime;

@@ -19,7 +19,7 @@ public:
 private:
 	std::unique_ptr<Window> mWindow;
 	std::unique_ptr<Camera> mCamera;
-	std::unique_ptr<TakeOne::Light> mMainLight;
+	std::unique_ptr<TakeTwo::Light> mMainLight;
 
 };
 
