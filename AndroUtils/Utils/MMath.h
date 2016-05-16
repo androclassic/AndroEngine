@@ -137,4 +137,7 @@ namespace andro
 	BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num);
 
 
+
+	Vector3 random_in_unit_sphere();
+
 }

@@ -1,5 +1,8 @@
 #include "MMath.h"
 #include <math.h>
+
+
+
 namespace andro
 {
 	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading)
@@ -56,7 +59,7 @@ namespace andro
 		return sqrt(x*x + y*y);
 	}
 
-	float Vector3::operator *(const Vector3& rhs) const
+	float Vector3::operator*(const Vector3& rhs) const
 	{
 		return x*rhs.x + y*rhs.y + z*rhs.z;
 	}
@@ -371,6 +374,18 @@ namespace andro
 
 		}
 		return bbx;
+	}
+
+	Vector3 random_in_unit_sphere()
+	{
+		Vector3 random_vector;
+		do
+		{
+			
+			random_vector = Vector3(random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f);
+		} while (random_vector.Lenght() > 1.0f);
+
+		return random_vector;
 	}
 
 	//----------------------------------------------------------------------------------

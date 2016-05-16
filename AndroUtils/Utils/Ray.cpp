@@ -23,6 +23,7 @@ namespace andro
 			rec.t = temp;
 			rec.point = r.get_point_at(temp);
 			rec.normal = (rec.point - center) * (1.0f/radius);
+			rec.object = this;
 			return true;
 		}
 
@@ -32,6 +33,7 @@ namespace andro
 			rec.t = temp;
 			rec.point = r.get_point_at(temp);
 			rec.normal = (rec.point - center) * (1.0f / radius);
+			rec.object = this;
 			return true;
 		}
 

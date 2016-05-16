@@ -16,7 +16,7 @@ FILE(GLOB EM_CSOURCE   "./Introspection/*.c")
 FILE(GLOB EM_HEADERS   "./Introspection/*.h")
 
 
-add_definitions(-DANDRO_UTILS)
+add_definitions(-D_CRT_RAND_S -DANDRO_UTILS )
 source_group(EventManager FILES  ${EM_CPPSOURCE}  ${EM_CSOURCE}  ${EM_HEADERS})
 
 add_library (AndroUtils ${HEADERS}   ${CSOURCE}  ${CPPSOURCE} ${EM_CPPSOURCE}  ${EM_CSOURCE}  ${EM_HEADERS}) 

@@ -17,3 +17,7 @@
  #define VERIFY(expr) (expr)
 #endif
 
+namespace andro
+{
+	float random_float(float max);
+}

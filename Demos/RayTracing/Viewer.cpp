@@ -8,9 +8,13 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "AndroUtils\Utils\Ray.h"
+#include "Material.h"
 
-CFrameBuffer g_Framebuffer(512, 512);
-
+CFrameBuffer g_Framebuffer(384, 256);
+Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
+Lambertian mat_blue(andro::Vector3(0.0, 0.0, 0.5));
+Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3));
+Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0));
 
 //////////////////////////////////////////////////////////////////////////////////
 class CViewer
@@ -21,19 +25,17 @@ public:
 		hbmMem = 0;
 		hdcMem = 0;
 		m_nFrame = 0;
+
+		spheres.push_back(Object(&metal_green, andro::Vector3(-1.0f, 0, -2), 0.5));
+		spheres.push_back(Object(&mat_Red,     andro::Vector3( 0  , 0, -2), 0.5));
+		spheres.push_back(Object(&metal_blue,  andro::Vector3( 1.0f, 0, -2), 0.5));
+		spheres.push_back(Object(&mat_blue,    andro::Vector3(0, -100.5, -1), 100));
+
 	}
 
 	void RenderFrame( HDC hdc )
 	{
-		static std::vector<andro::Hitable*> spheres;
-		if (spheres.size() == 0)
-		{
-			spheres.push_back(new andro::Sphere(andro::Vector3(0, 0, -1), 0.5));
-			spheres.push_back(new andro::Sphere(andro::Vector3(0, -100.5, -1), 100));
-		}
-
-		g_Framebuffer.Clear();
-		g_Framebuffer.Render(spheres);
+		g_Framebuffer.Update(spheres);
 		PaintFrameBuffer(hdc);
 	}
 
@@ -83,6 +85,8 @@ private:
 	int m_nFrame;
 	HDC hdcMem;
 	HBITMAP hbmMem;
+	std::vector<Object> spheres;
+
 };
 
 CViewer g_viewer;
@@ -228,8 +232,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
 
-	 int width = g_Framebuffer.GetWidth();
-	 int height = g_Framebuffer.GetHeight();
+	 int width = g_Framebuffer.GetWidth() + 20;
+	 int height = g_Framebuffer.GetHeight() + 50;
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT, width,height, 0, NULL, hInstance, NULL);
 

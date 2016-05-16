@@ -5,6 +5,7 @@ namespace andro
 {
 	struct ray
 	{
+		ray() {};
 		ray(const Vector3& o, const Vector3& d) : origin(o), dir(d) 
 		{
 			dir.Normalize(); 
@@ -20,11 +21,14 @@ namespace andro
 	};
 
 
+	class Hitable;
+
 	struct hit_record
 	{
 		float t;
 		Vector3 normal;
 		Vector3 point;
+		const Hitable* object;
 	};
 
 	class Hitable

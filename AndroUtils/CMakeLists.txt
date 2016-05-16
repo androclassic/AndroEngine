@@ -20,7 +20,7 @@ FILE(GLOB  UTILS_CSOURCE   "./Utils/*.c")
 FILE(GLOB  UTILS_HEADERS   "./Utils/*.h")
 
 
-add_definitions(-DANDRO_UTILS)
+add_definitions(-D_CRT_RAND_S -DANDRO_UTILS )
 source_group(EventManager  FILES  ${EM_CPPSOURCE}  ${EM_CSOURCE}  ${EM_HEADERS})
 source_group(Utils 		   FILES  ${UTILS_CPPSOURCE}  ${UTILS_CSOURCE}  ${UTILS_HEADERS})
 source_group(Introspection FILES  ${I_CPPSOURCE}  ${I_CSOURCE}  ${I_HEADERS})
