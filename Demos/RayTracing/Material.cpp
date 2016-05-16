@@ -19,7 +19,7 @@ bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuati
 {
 	andro::Vector3 ray_dir = ray_in.dir;
 	ray_dir.Normalize();
-	andro::Vector3 reflect = Reflect(ray_dir, rec.normal);
+	andro::Vector3 reflect = Reflect(ray_dir, rec.normal) + (random_in_unit_sphere() *  roughness);
 	scattered = andro::ray(rec.point, reflect);
 	attenuation = albedo;
 

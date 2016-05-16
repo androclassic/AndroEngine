@@ -22,7 +22,8 @@ class Metal : public material
 {
 public:
 	Metal() { }
-	Metal(const andro::Vector3& color) : albedo(color) {}
+	Metal(const andro::Vector3& color, float pRoughness ) : albedo(color), roughness(pRoughness){}
 	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
 	Vector3 albedo;
+	float	roughness;
 };

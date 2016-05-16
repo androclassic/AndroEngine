@@ -16,7 +16,7 @@ void RenderSliceTask::operator()()
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
 	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(float(iWidth)/iHeight)
-	, thread_pool(4)
+	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
 
@@ -60,7 +60,7 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 		andro::Vector3  color;
 		andro::Vector3 attenuation;
 		andro::ray new_ray;
-		if (depth < 15 && current_mat->scatter(ray, rec, attenuation, new_ray))
+		if (depth < 40 && current_mat->scatter(ray, rec, attenuation, new_ray))
 		{
 
 			color = get_color(new_ray, objects, ++depth);
@@ -81,7 +81,7 @@ void CFrameBuffer::Update(const std::vector<Object>& objects)
 	Clear();
 
 
-	const int num_jobs = 32;
+	const int num_jobs = 128;
 	std::thread t[num_jobs];
 
 	//render

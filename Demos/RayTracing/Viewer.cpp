@@ -10,11 +10,11 @@
 #include "AndroUtils\Utils\Ray.h"
 #include "Material.h"
 
-CFrameBuffer g_Framebuffer(384, 256);
+CFrameBuffer g_Framebuffer(256, 256);
 Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
 Lambertian mat_blue(andro::Vector3(0.0, 0.0, 0.5));
-Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3));
-Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0));
+Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3), 0.f);
+Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0), 0.5f);
 
 //////////////////////////////////////////////////////////////////////////////////
 class CViewer
@@ -29,7 +29,7 @@ public:
 		spheres.push_back(Object(&metal_green, andro::Vector3(-1.0f, 0, -2), 0.5));
 		spheres.push_back(Object(&mat_Red,     andro::Vector3( 0  , 0, -2), 0.5));
 		spheres.push_back(Object(&metal_blue,  andro::Vector3( 1.0f, 0, -2), 0.5));
-		spheres.push_back(Object(&mat_blue,    andro::Vector3(0, -100.5, -1), 100));
+		spheres.push_back(Object(&metal_blue,    andro::Vector3(0, -100.5, -1), 100));
 
 	}
 
