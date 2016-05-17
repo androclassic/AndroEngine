@@ -53,6 +53,18 @@ void TakeTwo::Engine::Update()
 	ASSERT(m_camera != nullptr);
 
 
+	m_renderableObjects.clear();
+	Node* node = &m_SceneRoot;
+	while (node)
+	{
+		if (node->HasRenderObject())
+			m_renderableObjects.push_back(node);
+
+		node = node->GetNextInHierarchy();
+	}
+
+
+
 	m_gBuffers->Bind(m_depth);
 
 	for (auto object : m_renderableObjects)
@@ -76,19 +88,12 @@ void TakeTwo::Engine::Update()
 
 void TakeTwo::Engine::RegisterRenderObject(TakeTwo::Node * pNode)
 {
-	m_renderableObjects.push_back(pNode);
+	m_SceneRoot.AddChild(pNode);
 }
 
 void TakeTwo::Engine::RemoveRenderObject(TakeTwo::Node * pNode)
 {
-	for (std::vector<TakeTwo::Node*>::iterator it = m_renderableObjects.begin(); it != m_renderableObjects.end(); it++)
-	{
-		if (*it == pNode)
-		{
-			m_renderableObjects.erase(it);
-			return;
-		}
-	}
+	m_SceneRoot.RemoveChild(pNode);
 }
 
 void TakeTwo::Engine::RegisterLight(Light * pLight)

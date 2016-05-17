@@ -16,6 +16,8 @@ namespace TakeTwo
         Node& operator= (const Node&) = delete;
         ~Node();
 
+		inline bool HasRenderObject() { return  mRenderObject != nullptr; }
+
         void SetRenderObject(RenderObject* pRenderObject);
 		RenderObject& GetRenderObject();
 
@@ -40,6 +42,8 @@ namespace TakeTwo
 		glm::vec3 GetScale() const;
 		glm::quat GetRotation() const;
 
+		Node* GetNextInHierarchy();
+
 	protected:
 		std::string mName;
 
@@ -56,6 +60,8 @@ namespace TakeTwo
 		bool mDirty;
 
 		Node* mParent;
+		Node* mNext;
+
 		std::vector<Node*> mChildren;
 
 		RenderObject* mRenderObject;
