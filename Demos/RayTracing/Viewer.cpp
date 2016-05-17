@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
+#include <windowsx.h>
 
 #include "FrameBuffer.h"
 
@@ -12,9 +13,11 @@
 
 CFrameBuffer g_Framebuffer(256, 256);
 Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
-Lambertian mat_blue(andro::Vector3(0.0, 0.0, 0.5));
+Lambertian mat_gray(andro::Vector3(0.3, 0.3, 0.3));
 Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3), 0.f);
-Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0), 0.5f);
+Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0), 0.002f);
+Dielectric dielectric(1.5f);
+
 
 //////////////////////////////////////////////////////////////////////////////////
 class CViewer
@@ -26,10 +29,10 @@ public:
 		hdcMem = 0;
 		m_nFrame = 0;
 
-		spheres.push_back(Object(&metal_green, andro::Vector3(-1.0f, 0, -2), 0.5));
-		spheres.push_back(Object(&mat_Red,     andro::Vector3( 0  , 0, -2), 0.5));
+		spheres.push_back(Object(&dielectric, andro::Vector3(  0,	 0.18, -1), 0.25));
+		spheres.push_back(Object(&mat_Red,     andro::Vector3( 0  , -0.2, -1.5), 0.25));
 		spheres.push_back(Object(&metal_blue,  andro::Vector3( 1.0f, 0, -2), 0.5));
-		spheres.push_back(Object(&metal_blue,    andro::Vector3(0, -100.5, -1), 100));
+		spheres.push_back(Object(&mat_gray,    andro::Vector3(0, -100.5, -1), 100));
 
 	}
 
@@ -160,6 +163,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 
+		andro::EventManager::GetInstance()->Update(deltaTime);
+
+
+
 		InvalidateRect(g_hWnd,0,FALSE);
 		if (elapsedTime >= 100)
 		{
@@ -264,9 +271,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	int xPos, yPos;
 
 	switch (message)
 	{
+	case WM_KEYDOWN:
+		andro::EventManager::GetInstance()->AddEvent(new KeyPressedEvent(wParam));
+		break;
+	case WM_MOUSEMOVE:
+		xPos = GET_X_LPARAM(lParam);
+		yPos = GET_Y_LPARAM(lParam);
+		andro::EventManager::GetInstance()->AddEvent(new MouseMove(xPos,yPos));
+		break;
+	case WM_LBUTTONDOWN:
+		xPos = GET_X_LPARAM(lParam);
+		yPos = GET_Y_LPARAM(lParam);
+		andro::EventManager::GetInstance()->AddEvent(new MouseLButtonPressed(xPos, yPos));
+		break;
+	case WM_LBUTTONUP:
+		xPos = GET_X_LPARAM(lParam);
+		yPos = GET_Y_LPARAM(lParam);
+		andro::EventManager::GetInstance()->AddEvent(new MouseLButtonUp(xPos, yPos));
+		break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);

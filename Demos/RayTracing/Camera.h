@@ -1,22 +1,32 @@
 #pragma once
 #include "AndroUtils\Utils\Ray.h"
+#include "../../AndroUtils/EventManager/EventManager.h"
 
-class Camera
+#include <memory>
+
+
+class Camera : public andro::EventListener
 {
-	public:
-		Camera(float ratio)
-		{
-			m_top_left_corner = andro::Vector3(-ratio, 1.0f, -1.0f);
-			m_horizontal = andro::Vector3(ratio * 2, 0.0f, 0.0f); // -1 - 1
-			m_vertical = andro::Vector3(0.0f, -2.0f, 0.0f); // -1 - 1
+private:
+	bool m_mousemove;
 
-		}
+public:
+	Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio);
+	void OnEvent(andro::Event *e);
+	void Move(float dx, float dz);
+	void UpdateCamera();
+	andro::ray getRay(float u, float v) const;
 
-		andro::ray getRay(float u, float v) const;
+	andro::Vector3 m_top_left_corner;
+	andro::Vector3 m_horizontal; 
+	andro::Vector3 m_vertical;
+	andro::Vector3 m_origin;
+	andro::Vector3 m_right;
+	andro::Vector3 m_front;
+	andro::Vector3 m_up;
 
-		andro::Vector3 m_top_left_corner;
-		andro::Vector3 m_horizontal; 
-		andro::Vector3 m_vertical;
-		andro::Vector3 m_origin;
+	float half_width;
+	float half_height;
+
 
 };

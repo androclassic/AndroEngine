@@ -2,27 +2,90 @@
 
 bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
 {
-	andro::Vector3 dir = (rec.normal + andro::random_in_unit_sphere());
-	scattered = andro::ray(rec.point, dir);
+	Vector3 dir = (rec.normal + random_in_unit_sphere());
+	scattered = ray(rec.point, dir);
 	attenuation = albedo;
 	return true;
 }
 
 
-andro::Vector3 Reflect(const andro::Vector3& vector, const andro::Vector3& normal)
+Vector3 Reflect(const Vector3& vector, const Vector3& normal)
 {
 	return vector - (normal * (vector * normal)* 2.0f);
 }
 
 
+//Snell's law
+bool Refract(const Vector3& v, const Vector3& n, float refractive_idx_ratio, Vector3& refracted)
+{
+	Vector3 unit_v = v;
+	unit_v.Normalize();
+	float dt = unit_v * n;
+	float discriminant = 1.0 - refractive_idx_ratio*refractive_idx_ratio * (1 - dt*dt);
+	if (discriminant > 0)
+	{
+		refracted = (v - (n*dt)) * refractive_idx_ratio  - n * sqrtf(discriminant);
+		return true;
+	}
+
+	return false;
+}
+
+
+float Schlick(float cosine, float ref_idx)
+{
+	float r0 = (1 - ref_idx) / (1 + ref_idx);
+	r0 = r0 *r0;
+	return r0 + (1 - r0) * pow((1 - cosine), 5);
+}
+
+
 bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const
 {
-	andro::Vector3 ray_dir = ray_in.dir;
+	Vector3 ray_dir = ray_in.dir;
 	ray_dir.Normalize();
-	andro::Vector3 reflect = Reflect(ray_dir, rec.normal) + (random_in_unit_sphere() *  roughness);
-	scattered = andro::ray(rec.point, reflect);
+	Vector3 reflect = Reflect(ray_dir, rec.normal) + (random_in_unit_sphere() *  roughness);
+	scattered = ray(rec.point, reflect);
 	attenuation = albedo;
 
 	return ((scattered.dir *  rec.normal) > 0.0f);
 
+}
+bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
+{
+	Vector3 outward_normal;
+	Vector3 refracted;
+	float refractive_index_ratio, reflect_prob, cosine;
+
+	Vector3 reflected = Reflect(ray_in.dir, rec.normal);
+	attenuation = Vector3(1.0f, 1.0f, 1.0f);
+
+	if ((ray_in.dir * rec.normal) > 0)
+	{
+		outward_normal = (rec.normal * -1);
+		refractive_index_ratio = refractive_index;
+		cosine = refractive_index *  (ray_in.dir * rec.normal) / ray_in.dir.Lenght();
+	}
+	else
+	{
+		outward_normal = (rec.normal);
+		refractive_index_ratio = 1.0f/refractive_index;
+		cosine = -1.0f * refractive_index *  (ray_in.dir * rec.normal) / ray_in.dir.Lenght() ;
+	}
+	if (Refract(ray_in.dir, outward_normal, refractive_index_ratio, refracted))
+	{
+		reflect_prob = Schlick(cosine, refractive_index);
+	}
+	else
+	{
+		reflect_prob = 2.0f;
+	}
+	if (andro::random_float(1.0f) < reflect_prob)
+	{
+		scattered = ray(rec.point, reflected);
+	}
+	else
+		scattered = ray(rec.point, refracted);
+
+	return true;
 }

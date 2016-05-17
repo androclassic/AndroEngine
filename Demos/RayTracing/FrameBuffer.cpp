@@ -15,7 +15,7 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(float(iWidth)/iHeight)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(), andro::Vector3(0.0f, 0.0f, -1.0f),90,float(iWidth)/iHeight)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -72,7 +72,11 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 		return color;
 	}
 
-	return   andro::Vector3(0.2, 0.2, 0.6);
+	Vector3 unit_v = ray.dir;
+	unit_v.Normalize();
+	float t = 0.5 * (unit_v.y + 1.0f);
+
+	return   andro::Vector3(1.0f,1.0f, 1.0f) * (1.0f - t) + andro::Vector3(0.5, 0.7, 1.0) * t;
  }
 
 

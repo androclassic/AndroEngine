@@ -27,3 +27,14 @@ public:
 	Vector3 albedo;
 	float	roughness;
 };
+
+class Dielectric : public material
+{
+public:
+	Dielectric(){}
+	Dielectric(float refractive_idx) : refractive_index(refractive_idx) {}
+	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
+
+	float refractive_index;
+
+};
