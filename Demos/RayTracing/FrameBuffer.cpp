@@ -15,7 +15,7 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(), andro::Vector3(0.0f, 0.0f, -1.0f),90,float(iWidth)/iHeight)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(7,1.5,2.5), andro::Vector3(0.0f, 0.0f, -1.0f),90,float(iWidth)/iHeight, 6,0.04f)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -76,7 +76,7 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 	unit_v.Normalize();
 	float t = 0.5 * (unit_v.y + 1.0f);
 
-	return   andro::Vector3(1.0f,1.0f, 1.0f) * (1.0f - t) + andro::Vector3(0.5, 0.7, 1.0) * t;
+	return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.002, 0.002,0.004) * t;
  }
 
 
@@ -85,7 +85,7 @@ void CFrameBuffer::Update(const std::vector<Object>& objects)
 	Clear();
 
 
-	const int num_jobs = 128;
+	const int num_jobs = 1024;
 	std::thread t[num_jobs];
 
 	//render

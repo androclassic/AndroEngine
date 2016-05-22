@@ -20,11 +20,12 @@ bool Refract(const Vector3& v, const Vector3& n, float refractive_idx_ratio, Vec
 {
 	Vector3 unit_v = v;
 	unit_v.Normalize();
+
 	float dt = unit_v * n;
 	float discriminant = 1.0 - refractive_idx_ratio*refractive_idx_ratio * (1 - dt*dt);
 	if (discriminant > 0)
 	{
-		refracted = (v - (n*dt)) * refractive_idx_ratio  - n * sqrtf(discriminant);
+		refracted = (unit_v - (n*dt)) * refractive_idx_ratio  - n * sqrtf(discriminant);
 		return true;
 	}
 
@@ -64,7 +65,8 @@ bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 	{
 		outward_normal = (rec.normal * -1);
 		refractive_index_ratio = refractive_index;
-		cosine = refractive_index *  (ray_in.dir * rec.normal) / ray_in.dir.Lenght();
+		cosine =  (ray_in.dir * rec.normal) / ray_in.dir.Lenght();
+		cosine = 1 - refractive_index * refractive_index* (1 - cosine *cosine);
 	}
 	else
 	{
@@ -72,6 +74,9 @@ bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 		refractive_index_ratio = 1.0f/refractive_index;
 		cosine = -1.0f * refractive_index *  (ray_in.dir * rec.normal) / ray_in.dir.Lenght() ;
 	}
+
+	outward_normal.Normalize();
+
 	if (Refract(ray_in.dir, outward_normal, refractive_index_ratio, refracted))
 	{
 		reflect_prob = Schlick(cosine, refractive_index);

@@ -11,7 +11,7 @@
 #include "AndroUtils\Utils\Ray.h"
 #include "Material.h"
 
-CFrameBuffer g_Framebuffer(256, 256);
+CFrameBuffer g_Framebuffer(256,256);
 Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
 Lambertian mat_gray(andro::Vector3(0.3, 0.3, 0.3));
 Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3), 0.f);
@@ -29,16 +29,46 @@ public:
 		hdcMem = 0;
 		m_nFrame = 0;
 
-		spheres.push_back(Object(&dielectric, andro::Vector3(  0,	 0.18, -1), 0.25));
-		spheres.push_back(Object(&mat_Red,     andro::Vector3( 0  , -0.2, -1.5), 0.25));
-		spheres.push_back(Object(&metal_blue,  andro::Vector3( 1.0f, 0, -2), 0.5));
-		spheres.push_back(Object(&mat_gray,    andro::Vector3(0, -100.5, -1), 100));
+		spheres.push_back(Object(new Lambertian(andro::Vector3(0.5, 0.5, 0.5)), andro::Vector3(0, -1000, -1), 1000));
+		int i = 1;
+		for (int a = -11; a < 11; a++)
+		{
+			for (int b = -11; b < 11; b++)
+			{
+				float choose_mat = random_float(1);
+				Vector3 center(a + 0.9* random_float(1), 0.2, b * random_float(1));
+				if ((center - Vector3(4, 0.2, 0)).Lenght() > 0.9)
+				{
+					if (choose_mat < 0.8) //difuse
+						spheres.push_back(Object(new Lambertian(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1))), center, 0.2));
+					else if (choose_mat < 0.95) //metal
+						spheres.push_back(Object(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1) ), center, 0.2));
+					else
+						spheres.push_back(Object(new Dielectric(1.5), center, 0.2));
+
+				}
+			}
+
+		}
+		spheres.push_back(Object(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
+		spheres.push_back(Object(new Lambertian(Vector3(0.4, 0.2, 0.1)), Vector3(-4, 1.0, 1.0), 1));
+		spheres.push_back(Object(new Metal(Vector3(0.7, 0.6, 0.5), 0), Vector3(4, 1.0, 0.0), 1));
+
 
 	}
+	~CViewer()
+	{
+		for (auto& obj : spheres)
+		{
+			delete obj.m_material;
+		}
+	}
+
 
 	void RenderFrame( HDC hdc )
 	{
 		g_Framebuffer.Update(spheres);
+
 		PaintFrameBuffer(hdc);
 	}
 
