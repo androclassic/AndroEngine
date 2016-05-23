@@ -10,14 +10,7 @@ Variable::Variable(void* data,const TypeInfo* type)
 	, m_typeinfo(type)
 	{}
 
-void* Variable::GetVoidPtr()
-{
-	return m_data;
-}
-const TypeInfo* Variable::GetType() const
-{
-	return m_typeinfo; 
-}
+
 
 
 

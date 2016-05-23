@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include "../AndroUtils/Utils/Resource.h"
-#include "Octree.h"
+#include "../AndroUtils/Utils/Octree.h"
 
 namespace TakeTwo
 {

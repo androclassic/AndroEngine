@@ -121,8 +121,8 @@ void CFrameBuffer::Render(const std::vector<Object>& objects, Rect& rect)
 			andro::Vector3 color;
 			for (unsigned int s = 0; s < ns; s++)
 			{
-				float u = float(x) / m_iWidth;
-				float v = (float(y) / m_iHeight);
+				float u = float(x + random_float(1)) / m_iWidth;
+				float v = (float(y + random_float(1)) / m_iHeight);
 				andro::ray r = m_camera.getRay(u, v);
 				andro::Vector3 col = get_color(r, objects);
 				color = color + col;

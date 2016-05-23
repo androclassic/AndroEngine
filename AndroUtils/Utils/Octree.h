@@ -1,24 +1,10 @@
 #pragma once
 #include <vector>
 #include <functional>
-#include "../AndroUtils/Utils/MMath.h"
-#include "OGL_Platform.h"
-
-
-namespace TakeTwo
-{
-	class RenderObject;
-}
+#include "MMath.h"
 
 namespace andro
 {
-
-	class OctreeObject
-	{
-		TakeTwo::RenderObject* handle;
-	};
-	
-
 
 	enum NodePosition
 	{

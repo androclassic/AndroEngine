@@ -35,10 +35,14 @@ public:
 	T* operator=(T* data);
 
 
-
-	inline void* GetVoidPtr();
-
-	inline const TypeInfo* GetType() const;
+	inline void* Variable::GetVoidPtr()
+	{
+		return m_data;
+	}
+	inline const TypeInfo* Variable::GetType() const
+	{
+		return m_typeinfo;
+	}
 
 
 	// Cast helper exists to properly handle pointer types

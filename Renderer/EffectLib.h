@@ -7,8 +7,8 @@
 namespace TakeTwo
 {
 	class Program;
-	class BlendDesc;
-	class DepthStencilDesc;
+	struct BlendDesc;
+	struct DepthStencilDesc;
 	
 	struct EffectDesc
 	{

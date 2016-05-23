@@ -1,5 +1,4 @@
 #include "Octree.h"
-#include "../../Renderer/RenderObject.h"
 
 namespace andro
 {
