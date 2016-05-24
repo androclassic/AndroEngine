@@ -5,6 +5,7 @@
 #include <string>
 #include "OGL_Platform.h"
 #include "../../AndroUtils/Utils/MMath.h"
+#include "../../AndroUtils/Utils/Shapes.h"
 
 namespace TakeTwo
 {

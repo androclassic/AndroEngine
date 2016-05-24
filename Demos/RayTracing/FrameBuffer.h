@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Material.h"
 #include "AndroUtils\Utils\ThreadPool.h"
+#include "AndroUtils\Utils\Shapes.h"
 
 struct Object
 {

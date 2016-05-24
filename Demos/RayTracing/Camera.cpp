@@ -21,8 +21,7 @@ Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, flo
 
 	Vector3 absoluteUp(0, 1, 0);
 
-	m_front =   position - lookat;
-	m_front.Normalize();
+	m_front =  (position - lookat).Normalise();
 	m_right = absoluteUp.vectorProduct(m_front);
 	m_up = m_front.vectorProduct(m_right);
 	m_origin = position;
@@ -97,11 +96,9 @@ void Camera::OnEvent(andro::Event *e)
 							-sin(angle_y), 0, cos(angle_y), 0,
 							0, 0, 0, 1);
 
-		m_front = m_front *rotate_yaw;
-		m_right = m_right *rotate_yaw;
+		m_front = (m_front *rotate_yaw).Normalise();
+		m_right = (m_right *rotate_yaw).Normalise();
 
-		m_right.Normalize();
-		m_front.Normalize();
 
 
 	}

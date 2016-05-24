@@ -8,7 +8,7 @@ namespace andro
 		ray() {};
 		ray(const Vector3& o, const Vector3& d) : origin(o), dir(d) 
 		{
-			dir.Normalize(); 
+			dir.NormalizeInto();
 		}
 
 		Vector3 get_point_at(float t) const
@@ -38,17 +38,5 @@ namespace andro
 	};
 
 
-	struct Sphere : public Hitable
-	{
-			Sphere() {}
-			Sphere(Vector3 c, float r) :center(c), radius(r) {}
-			bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-
-			float radius;
-			Vector3 center;
-
-
-
-	};
 
 }

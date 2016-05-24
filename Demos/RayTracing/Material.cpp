@@ -18,8 +18,7 @@ Vector3 Reflect(const Vector3& vector, const Vector3& normal)
 //Snell's law
 bool Refract(const Vector3& v, const Vector3& n, float refractive_idx_ratio, Vector3& refracted)
 {
-	Vector3 unit_v = v;
-	unit_v.Normalize();
+	Vector3 unit_v = v.Normalise();
 
 	float dt = unit_v * n;
 	float discriminant = 1.0 - refractive_idx_ratio*refractive_idx_ratio * (1 - dt*dt);
@@ -43,8 +42,7 @@ float Schlick(float cosine, float ref_idx)
 
 bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const
 {
-	Vector3 ray_dir = ray_in.dir;
-	ray_dir.Normalize();
+	Vector3 ray_dir = ray_in.dir.Normalise();
 	Vector3 reflect = Reflect(ray_dir, rec.normal) + (random_in_unit_sphere() *  roughness);
 	scattered = ray(rec.point, reflect);
 	attenuation = albedo;
@@ -75,7 +73,7 @@ bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 		cosine = -1.0f * refractive_index *  (ray_in.dir * rec.normal) / ray_in.dir.Lenght() ;
 	}
 
-	outward_normal.Normalize();
+	outward_normal.NormalizeInto();
 
 	if (Refract(ray_in.dir, outward_normal, refractive_index_ratio, refracted))
 	{

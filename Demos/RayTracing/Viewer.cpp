@@ -8,8 +8,10 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "AndroUtils\Utils\Ray.h"
 #include "Material.h"
+#include "AndroUtils\Utils\Octree.h"
+#include "AndroUtils\Utils\Ray.h"
+#include "AndroUtils\Utils\Shapes.h"
 
 CFrameBuffer g_Framebuffer(256,256);
 Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
@@ -28,7 +30,7 @@ public:
 		hbmMem = 0;
 		hdcMem = 0;
 		m_nFrame = 0;
-
+	
 		spheres.push_back(Object(new Lambertian(andro::Vector3(0.5, 0.5, 0.5)), andro::Vector3(0, -1000, -1), 1000));
 		int i = 1;
 		for (int a = -11; a < 11; a++)
@@ -49,10 +51,40 @@ public:
 				}
 			}
 
+
 		}
 		spheres.push_back(Object(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
 		spheres.push_back(Object(new Lambertian(Vector3(0.4, 0.2, 0.1)), Vector3(-4, 1.0, 1.0), 1));
 		spheres.push_back(Object(new Metal(Vector3(0.7, 0.6, 0.5), 0), Vector3(4, 1.0, 0.0), 1));
+
+		// buid scene bbx
+		std::vector<Object*> objects;
+		float min_radius = 10000;
+		for (auto& sphere : spheres)
+		{
+			objects.push_back(&sphere);
+			min_radius = fminf(min_radius, sphere.m_shape.radius);
+			for (int a = 0; a < 3; a++)
+			{
+
+				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], sphere.m_shape.center[a] - sphere.m_shape.radius);
+				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], sphere.m_shape.center[a] + sphere.m_shape.radius);
+			}
+		}
+
+
+		// build octree of the scene
+		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 5, [](const andro::BoundingBox& box, Object* t)
+		{
+			// check in sphere is enclosed
+			andro::Vector3 v = (t->m_shape.center - box.GetCenter());
+			if (box.GetHalfSize().Lenght() > v.Lenght() + t->m_shape.radius)
+				return true;
+
+			return false;
+
+		}, true);
+
 
 
 	}
@@ -62,6 +94,7 @@ public:
 		{
 			delete obj.m_material;
 		}
+		delete m_octree;
 	}
 
 
@@ -119,6 +152,9 @@ private:
 	HDC hdcMem;
 	HBITMAP hbmMem;
 	std::vector<Object> spheres;
+	andro::OctreeNode<Object*>* m_octree;
+	andro::BoundingBox m_scene_bbx;
+
 
 };
 

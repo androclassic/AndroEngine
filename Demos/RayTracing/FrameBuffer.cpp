@@ -72,8 +72,7 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 		return color;
 	}
 
-	Vector3 unit_v = ray.dir;
-	unit_v.Normalize();
+	Vector3 unit_v = ray.dir.Normalise();
 	float t = 0.5 * (unit_v.y + 1.0f);
 
 	return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.002, 0.002,0.004) * t;

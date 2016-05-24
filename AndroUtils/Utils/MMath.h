@@ -32,14 +32,40 @@ namespace andro
 			Vector3(const float v[3]) : x(v[0]), y(v[1]), z(v[2]){};
 			Vector3() : x(0.0f), y(0.0f), z(0.0f){};
 	
-			float Lenght() const;
-			void Normalize();
+			void NormalizeInto();
+
 			Vector3  operator+(const Vector3 &rhs) const;
 			Vector3  operator-(const Vector3 &rhs) const;
 			float	 operator*(const Vector3& rhs) const;
 			Vector3  operator*(float scalar) const;
 			Vector3& operator=(const Vector3 &rhs);
+			float&	 operator[](unsigned int i);
+
 			Vector3 vectorProduct(const Vector3 &vector) const;
+
+
+			inline Vector3 Min(const Vector3 &rhs) const { return Vector3(fminf(x, rhs.x), fminf(y, rhs.y), fminf(z, rhs.z)); }
+			inline Vector3 Max(const Vector3 &rhs) const { return Vector3(fmaxf(x, rhs.x), fmaxf(y, rhs.y), fmaxf(z, rhs.z)); }
+
+			inline Vector3 Vector3::Normalise() const
+			{
+				Vector3 v;
+				float lenght = Lenght();
+				v.x = x / lenght;
+				v.y = y / lenght;
+				v.z = z / lenght;
+				return v;
+			}
+			inline float Vector3::Lenght() const
+			{
+				return sqrt(x*x + y*y + z*z);
+			}
+
+			inline float Vector3::LenghtSq() const
+			{
+				return (x*x + y*y + z*z);
+			}
+
 
 
 			union
@@ -98,21 +124,7 @@ namespace andro
 	};
 
 
-	struct Triangle
-	{
-		Vector3 P1, P2, P3;
-	};
-
-	struct BoundingBox
-	{
-		BoundingBox();
-		inline void SetExtents(Vector3& pMin, Vector3&  pMax) { min = pMin; max = pMax; }
-		Vector3 GetHalfSize() const;
-		Vector3 GetCenter() const;
-
-		Vector3		min;
-		Vector3		max;
-	};
+	struct BoundingBox;
 
 
 
@@ -125,11 +137,6 @@ namespace andro
 	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading);
 	float Distance(const Vector3& p1, const Vector3& p2);
 
-
-
-	//intersections
-	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, float distance);
-	bool  TriangleBoxOverlap(const BoundingBox& box, Triangle& triangle);
 
 
 	//TODO move
