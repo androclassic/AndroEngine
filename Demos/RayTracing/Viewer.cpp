@@ -74,7 +74,7 @@ public:
 
 
 		// build octree of the scene
-		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 5, [](const andro::BoundingBox& box, Object* t)
+		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 7, [](const andro::BoundingBox& box, Object* t)
 		{
 			// check in sphere is enclosed
 			andro::Vector3 v = (t->m_shape.center - box.GetCenter());
@@ -84,8 +84,6 @@ public:
 			return false;
 
 		}, true);
-
-
 
 	}
 	~CViewer()
@@ -100,7 +98,7 @@ public:
 
 	void RenderFrame( HDC hdc )
 	{
-		g_Framebuffer.Update(spheres);
+		g_Framebuffer.Update(m_octree);
 
 		PaintFrameBuffer(hdc);
 	}

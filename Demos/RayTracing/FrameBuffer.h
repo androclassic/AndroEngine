@@ -6,7 +6,7 @@
 #include "Material.h"
 #include "AndroUtils\Utils\ThreadPool.h"
 #include "AndroUtils\Utils\Shapes.h"
-
+#include "AndroUtils\Utils\Octree.h"
 struct Object
 {
 	Object(material* p_material, const Vector3& c, float r)
@@ -42,16 +42,16 @@ class CFrameBuffer;
 struct RenderSliceTask
 {
 	RenderSliceTask() {};
-	RenderSliceTask(CFrameBuffer &fb, const std::vector<Object>& objects, const Rect& subRect)
+	RenderSliceTask(CFrameBuffer &fb, andro::OctreeNode<Object*>* octree, const Rect& subRect)
 	{
 		mfb = &fb;
-		m_objects = &objects;
+		m_octree = octree;
 		mRect = subRect;
 	}
 	void operator()();
 
 	CFrameBuffer* mfb;
-	const std::vector<Object>* m_objects;
+	andro::OctreeNode<Object*>* m_octree;
 	Rect mRect;
 
 };
@@ -63,8 +63,8 @@ public:
 	~CFrameBuffer();
 
 	void Clear();
-	void Update(const std::vector<Object>& objects);
-	void Render(const std::vector<Object>& objects, Rect& rect);
+	void Update(andro::OctreeNode<Object*>* octree);
+	void Render(andro::OctreeNode<Object*>* octree, Rect& rect);
 
 
 	const unsigned int* GetFrameBuffer() const;
@@ -74,7 +74,7 @@ public:
 	int GetValue(int index) { return m_FramebufferArray[index]; }
 	
 private:
-	andro::Vector3 get_color(const andro::ray& ray, const std::vector<Object>& objects, unsigned int depth = 0);
+	andro::Vector3 get_color( andro::ray& ray, andro::OctreeNode<Object*>* octree, unsigned int depth = 0);
 
 
 	std::vector<unsigned int> m_FramebufferArray;
