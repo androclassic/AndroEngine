@@ -9,13 +9,13 @@
 
 void RenderSliceTask::operator()()
 {
-	mfb->Render(*m_objects, mRect);
+	mfb->Render(m_octree, mRect);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(7,1.5,2.5), andro::Vector3(0.0f, 0.0f, -1.0f),90,float(iWidth)/iHeight, 6,0.04f)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(7, 1.5,2.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 6, 0.04f)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -35,7 +35,7 @@ void CFrameBuffer::Clear()
 
 
 
-andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<Object>& objects, unsigned int depth)
+andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<Object*>const * octree, unsigned int depth)
 {
 
 	andro::hit_record rec, temp_rec;
@@ -43,15 +43,24 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 	float closest_so_far = 99999.0f;
 	const material* current_mat = nullptr;
 
-	for (auto& obj : objects)
+	Object* objects[500];
+	ray.dir.NormalizeInto();
+
+	unsigned int size = 0;
+
+	andro::ray_octree_traversal(octree, ray, objects, size);
+
+	//for (auto obj : debug_objects){
+	for (int i = 0; i < size; i++)
 	{
-		
-		if (obj.m_shape.hit(ray, 0.0001f, closest_so_far, temp_rec))
+		Object* obj = objects[i];
+
+		if (obj->m_shape.hit(ray, 0.0001f, closest_so_far, temp_rec))
 		{
 			hit = true;
 			closest_so_far = temp_rec.t;
 			rec = temp_rec;
-			current_mat = obj.m_material;
+			current_mat = obj->m_material;
 		}
 	}
 
@@ -63,7 +72,7 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 		if (depth < 40 && current_mat->scatter(ray, rec, attenuation, new_ray))
 		{
 
-			color = get_color(new_ray, objects, ++depth);
+			color = get_color(new_ray, octree, ++depth);
 			color.x *=attenuation.x;
 			color.y *=attenuation.y;
 			color.z *=attenuation.z;
@@ -75,11 +84,11 @@ andro::Vector3 CFrameBuffer::get_color(const andro::ray& ray, const std::vector<
 	Vector3 unit_v = ray.dir.Normalise();
 	float t = 0.5 * (unit_v.y + 1.0f);
 
-	return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.002, 0.002,0.004) * t;
+	return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
  }
 
 
-void CFrameBuffer::Update(const std::vector<Object>& objects)
+void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree)
 {
 	Clear();
 
@@ -94,15 +103,15 @@ void CFrameBuffer::Update(const std::vector<Object>& objects)
 		rect.top = (1.0f / num_jobs) * (i);
 		rect.bottom = (1.0f / num_jobs) * (i + 1);
 
-		thread_pool.Enqueue(RenderSliceTask(*this, objects, rect));
+		thread_pool.Enqueue(RenderSliceTask(*this, octree, rect));
 	}
 	thread_pool.FlushQueue();
 
 	//static Rect full_screen(0, 0, 1, 1);
-	//Render(objects, full_screen);
+	//Render(octree, full_screen);
 
 }
-void CFrameBuffer::Render(const std::vector<Object>& objects, Rect& rect)
+void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& rect)
 {
 
 	float ratio = m_iWidth / m_iHeight;
@@ -123,7 +132,7 @@ void CFrameBuffer::Render(const std::vector<Object>& objects, Rect& rect)
 				float u = float(x + random_float(1)) / m_iWidth;
 				float v = (float(y + random_float(1)) / m_iHeight);
 				andro::ray r = m_camera.getRay(u, v);
-				andro::Vector3 col = get_color(r, objects);
+				andro::Vector3 col = get_color(r, octree);
 				color = color + col;
 			}
 			color = color * (1.0f / ns);

@@ -60,8 +60,11 @@ public:
 		// buid scene bbx
 		std::vector<Object*> objects;
 		float min_radius = 10000;
+		
+
 		for (auto& sphere : spheres)
 		{
+			g_Framebuffer.debug_objects.push_back(&sphere);
 			objects.push_back(&sphere);
 			min_radius = fminf(min_radius, sphere.m_shape.radius);
 			for (int a = 0; a < 3; a++)
@@ -72,20 +75,21 @@ public:
 			}
 		}
 
-
 		// build octree of the scene
-		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 5, [](const andro::BoundingBox& box, Object* t)
+		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 21, [](const andro::BoundingBox& box, Object* t)
 		{
 			// check in sphere is enclosed
 			andro::Vector3 v = (t->m_shape.center - box.GetCenter());
-			if (box.GetHalfSize().Lenght() > v.Lenght() + t->m_shape.radius)
+			andro::Vector3 halfsize = box.GetHalfSize();
+
+			if ((halfsize.x > std::fabs(v.x) + t->m_shape.radius) && 
+				(halfsize.y > std::fabs(v.y) + t->m_shape.radius) &&
+				(halfsize.z > std::fabs(v.z) + t->m_shape.radius))
 				return true;
 
 			return false;
 
 		}, true);
-
-
 
 	}
 	~CViewer()
@@ -100,7 +104,7 @@ public:
 
 	void RenderFrame( HDC hdc )
 	{
-		g_Framebuffer.Update(spheres);
+		g_Framebuffer.Update(m_octree);
 
 		PaintFrameBuffer(hdc);
 	}
