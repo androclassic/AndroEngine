@@ -42,7 +42,7 @@ class CFrameBuffer;
 struct RenderSliceTask
 {
 	RenderSliceTask() {};
-	RenderSliceTask(CFrameBuffer &fb, andro::OctreeNode<Object*>* octree, const Rect& subRect)
+	RenderSliceTask(CFrameBuffer &fb, const andro::OctreeNode<Object*>const* octree, const Rect& subRect)
 	{
 		mfb = &fb;
 		m_octree = octree;
@@ -51,7 +51,7 @@ struct RenderSliceTask
 	void operator()();
 
 	CFrameBuffer* mfb;
-	andro::OctreeNode<Object*>* m_octree;
+	const andro::OctreeNode<Object*>const* m_octree;
 	Rect mRect;
 
 };
@@ -63,8 +63,8 @@ public:
 	~CFrameBuffer();
 
 	void Clear();
-	void Update(andro::OctreeNode<Object*>* octree);
-	void Render(andro::OctreeNode<Object*>* octree, Rect& rect);
+	void Update(const andro::OctreeNode<Object*>const* octree);
+	void Render(const andro::OctreeNode<Object*>const* octree, Rect& rect);
 
 
 	const unsigned int* GetFrameBuffer() const;
@@ -73,14 +73,16 @@ public:
 
 	int GetValue(int index) { return m_FramebufferArray[index]; }
 	
+	std::vector<Object*> debug_objects;
 private:
-	andro::Vector3 get_color( andro::ray& ray, andro::OctreeNode<Object*>* octree, unsigned int depth = 0);
+	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
 
 
 	std::vector<unsigned int> m_FramebufferArray;
 	int m_iWidth, m_iHeight;
 	Camera m_camera;
 	andro::ThreadPool<RenderSliceTask> thread_pool;
+
 
 };
 

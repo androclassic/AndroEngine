@@ -72,6 +72,7 @@ namespace andro
 		{
 			node->m_objects = objects; // Warning: copying here best be avoided.
 			node->m_terminal = true;
+			TRACE(L"Reached leaf %d %d\n ", stopDepth, objects.size());
 			return node;
 		}
 
@@ -111,18 +112,18 @@ namespace andro
 			}
 		}
 		node->m_terminal = is_terminal;
+		if(node->m_objects.size())
+			TRACE(L"Reached leaf %d %d*\n ", stopDepth, node->m_objects.size());
 
 		return node;
 
 	}
 
-	static unsigned char a; // because an unsigned char is 8 bits
-
 	int first_node(double tx0, double ty0, double tz0, double txm, double tym, double tzm);
 	int new_node(double txm, int x, double tym, int y, double tzm, int z);
 
 	template<typename T>
-	void proc_subtree(double tx0, double ty0, double tz0, double tx1, double ty1, double tz1, OctreeNode<T>* node, std::vector<T>* objects_list)
+	void proc_subtree(unsigned int a, double tx0, double ty0, double tz0, double tx1, double ty1, double tz1, const OctreeNode<T> const* node, T* objects_list, unsigned int& current_size)
 	{
 		if (node == nullptr)//TODO
 			return;
@@ -131,20 +132,25 @@ namespace andro
 		int currNode;
 
 		if (tx1 < 0 || ty1 < 0 || tz1 < 0) return;
+
+
+		if (node->m_objects.size())
+		{
+			//			TRACE(L"Adding %d objects \n", node->m_objects.size());
+			memcpy_s(objects_list + current_size, node->m_objects.size() * sizeof(T), node->m_objects.data(), node->m_objects.size() * sizeof(T));
+			current_size += node->m_objects.size();
+//			objects_list->insert(objects_list->end(), , node->m_objects.end());
+		}
+
 		if (node->m_terminal) {
-			TRACE(L"Reached leaf \n ");
+//			TRACE(L"Reached leaf \n ");
 			return;
 		}
 		else 
 		{
-			TRACE(L"Reached node \n");
+//			TRACE(L"Reached node \n");
 		}
 
-		if (node->m_objects.size())
-		{
-			TRACE(L"Adding %d objects \n", node->m_objects.size());
-			objects_list->insert(objects_list->end(), node->m_objects.begin(), node->m_objects.end());
-		}
 
 
 		txm = 0.5*(tx0 + tx1);
@@ -156,35 +162,35 @@ namespace andro
 			switch (currNode)
 			{
 			case 0: {
-				proc_subtree(tx0, ty0, tz0, txm, tym, tzm, node->m_children[a], objects_list);
+				proc_subtree(a, tx0, ty0, tz0, txm, tym, tzm, node->m_children[a], objects_list, current_size);
 				currNode = new_node(txm, 4, tym, 2, tzm, 1);
 				break; }
 			case 1: {
-				proc_subtree(tx0, ty0, tzm, txm, tym, tz1, node->m_children[1 ^ a], objects_list);
+				proc_subtree(a, tx0, ty0, tzm, txm, tym, tz1, node->m_children[1 ^ a], objects_list, current_size);
 				currNode = new_node(txm, 5, tym, 3, tz1, 8);
 				break; }
 			case 2: {
-				proc_subtree(tx0, tym, tz0, txm, ty1, tzm, node->m_children[2 ^ a], objects_list);
+				proc_subtree(a, tx0, tym, tz0, txm, ty1, tzm, node->m_children[2 ^ a], objects_list, current_size);
 				currNode = new_node(txm, 6, ty1, 8, tzm, 3);
 				break; }
 			case 3: {
-				proc_subtree(tx0, tym, tzm, txm, ty1, tz1, node->m_children[3 ^ a], objects_list);
+				proc_subtree(a, tx0, tym, tzm, txm, ty1, tz1, node->m_children[3 ^ a], objects_list, current_size);
 				currNode = new_node(txm, 7, ty1, 8, tz1, 8);
 				break; }
 			case 4: {
-				proc_subtree(txm, ty0, tz0, tx1, tym, tzm, node->m_children[4 ^ a], objects_list);
+				proc_subtree(a, txm, ty0, tz0, tx1, tym, tzm, node->m_children[4 ^ a], objects_list, current_size);
 				currNode = new_node(tx1, 8, tym, 6, tzm, 5);
 				break; }
 			case 5: {
-				proc_subtree(txm, ty0, tzm, tx1, tym, tz1, node->m_children[5 ^ a], objects_list);
+				proc_subtree(a, txm, ty0, tzm, tx1, tym, tz1, node->m_children[5 ^ a], objects_list, current_size);
 				currNode = new_node(tx1, 8, tym, 7, tz1, 8);
 				break; }
 			case 6: {
-				proc_subtree(txm, tym, tz0, tx1, ty1, tzm, node->m_children[6 ^ a], objects_list);
+				proc_subtree(a, txm, tym, tz0, tx1, ty1, tzm, node->m_children[6 ^ a], objects_list, current_size);
 				currNode = new_node(tx1, 8, ty1, 8, tzm, 7);
 				break; }
 			case 7: {
-				proc_subtree(txm, tym, tzm, tx1, ty1, tz1, node->m_children[7 ^ a], objects_list);
+				proc_subtree(a, txm, tym, tzm, tx1, ty1, tz1, node->m_children[7 ^ a], objects_list, current_size);
 				currNode = 8;
 				break; }
 			}
@@ -192,40 +198,41 @@ namespace andro
 	}
 
 	template<typename T>
-	void ray_octree_traversal(OctreeNode<T>* octree, andro::ray& ray, std::vector<T>* objects_list) {
-		a = 0;
-		andro::Vector3 size = octree->m_bounds.GetHalfSize();
+	void ray_octree_traversal(const OctreeNode<T> const* octree, andro::ray ray, T* objects_list, unsigned int& current_size) {
+		unsigned int a = 0;
+		andro::Vector3 min = octree->m_bounds.min;
+		andro::Vector3 max = octree->m_bounds.max;
 
 		// fixes for rays with negative direction
 		if (ray.dir[0] < 0) {
-			ray.origin[0] = size[0] - ray.origin[0];
-			ray.dir[0] = size[0] -ray.dir[0];
+			ray.origin[0] = max[0] - (ray.origin[0] - min[0]);
+			ray.dir[0] = -ray.dir[0];
 			a |= 4; //bitwise OR (latest bits are XYZ)
 		}
 		if (ray.dir[1] < 0) {
-			ray.origin[1] = size[1] - ray.origin[1];
+			ray.origin[1] = max[1] - (ray.origin[1] - min[1]);
 			ray.dir[1] = -ray.dir[1];
 			a |= 2;
 		}
 		if (ray.dir[2] < 0) {
-			ray.origin[2] = size[2] - ray.origin[2];
+			ray.origin[2] = max[2] - (ray.origin[2] - min[2]);
 			ray.dir[2] = -ray.dir[2];
 			a |= 1;
 		}
 
-		double divx = 1 / ray.dir[0]; // IEEE stability fix
-		double divy = 1 / ray.dir[1];
-		double divz = 1 / ray.dir[2];
+		double divx = 1 / ray.dir.x; // IEEE stability fix
+		double divy = 1 / ray.dir.y;
+		double divz = 1 / ray.dir.z;
 
-		double tx0 = (octree->m_bounds.min[0] - ray.origin[0]) * divx;
-		double tx1 = (octree->m_bounds.max[0] - ray.origin[0]) * divx;
-		double ty0 = (octree->m_bounds.min[1] - ray.origin[1]) * divy;
-		double ty1 = (octree->m_bounds.max[1] - ray.origin[1]) * divy;
-		double tz0 = (octree->m_bounds.min[2] - ray.origin[2]) * divz;
-		double tz1 = (octree->m_bounds.max[2] - ray.origin[2]) * divz;
+		double tx0 = (octree->m_bounds.min.x - ray.origin.x) * divx;
+		double tx1 = (octree->m_bounds.max.x - ray.origin.x) * divx;
+		double ty0 = (octree->m_bounds.min.y - ray.origin.y) * divy;
+		double ty1 = (octree->m_bounds.max.y - ray.origin.y) * divy;
+		double tz0 = (octree->m_bounds.min.z - ray.origin.z) * divz;
+		double tz1 = (octree->m_bounds.max.z - ray.origin.z) * divz;
 
 		if (max(max(tx0, ty0), tz0) < min(min(tx1, ty1), tz1)) {
-			proc_subtree(tx0, ty0, tz0, tx1, ty1, tz1, octree, objects_list);
+			proc_subtree(a, tx0, ty0, tz0, tx1, ty1, tz1, octree, objects_list, current_size);
 		}
 	}
 
