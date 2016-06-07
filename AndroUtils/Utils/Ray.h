@@ -3,6 +3,9 @@
 
 namespace andro
 {
+	class Hitable;
+
+
 	struct ray
 	{
 		ray() {};
@@ -19,9 +22,6 @@ namespace andro
 		Vector3 origin;
 		Vector3 dir;
 	};
-
-
-	class Hitable;
 
 	struct hit_record
 	{

@@ -7,6 +7,9 @@
 #include "AndroUtils\Utils\ThreadPool.h"
 #include "AndroUtils\Utils\Shapes.h"
 #include "AndroUtils\Utils\Octree.h"
+
+class CFrameBuffer;
+
 struct Object
 {
 	Object(material* p_material, const Vector3& c, float r)
@@ -37,8 +40,6 @@ struct Rect
 	float left, top, right, bottom;
 };
 
-class CFrameBuffer;
-
 struct RenderSliceTask
 {
 	RenderSliceTask() {};
@@ -55,6 +56,7 @@ struct RenderSliceTask
 	Rect mRect;
 
 };
+//#define OBJECT_LIST_DEBUG_TEST 1
 
 class CFrameBuffer
 {
@@ -72,8 +74,11 @@ public:
 	int GetHeight() const { return m_iHeight; }
 
 	int GetValue(int index) { return m_FramebufferArray[index]; }
-	
+
+#ifdef OBJECT_LIST_DEBUG_TEST
 	std::vector<Object*> debug_objects;
+#endif
+
 private:
 	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
 

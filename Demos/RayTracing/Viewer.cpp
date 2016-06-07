@@ -13,7 +13,7 @@
 #include "AndroUtils\Utils\Ray.h"
 #include "AndroUtils\Utils\Shapes.h"
 
-CFrameBuffer g_Framebuffer(256,256);
+CFrameBuffer g_Framebuffer(400,256);
 Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
 Lambertian mat_gray(andro::Vector3(0.3, 0.3, 0.3));
 Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3), 0.f);
@@ -64,7 +64,9 @@ public:
 
 		for (auto& sphere : spheres)
 		{
+#ifdef OBJECT_LIST_DEBUG_TEST
 			g_Framebuffer.debug_objects.push_back(&sphere);
+#endif
 			objects.push_back(&sphere);
 			min_radius = fminf(min_radius, sphere.m_shape.radius);
 			for (int a = 0; a < 3; a++)

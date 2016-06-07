@@ -28,7 +28,6 @@ CFrameBuffer::~CFrameBuffer()
 
 void CFrameBuffer::Clear()
 {
-//	memset(&m_FramebufferArray[0], 0x0,m_iWidth*m_iHeight*4);
 	std::fill(m_FramebufferArray.begin(), m_FramebufferArray.end(), 0xFF);
 
 }
@@ -50,11 +49,13 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 
 	andro::ray_octree_traversal(octree, ray, objects, size);
 
-	//for (auto obj : debug_objects){
+#ifdef OBJECT_LIST_DEBUG_TEST
+	for (auto obj : debug_objects){
+#else
 	for (int i = 0; i < size; i++)
 	{
 		Object* obj = objects[i];
-
+#endif
 		if (obj->m_shape.hit(ray, 0.0001f, closest_so_far, temp_rec))
 		{
 			hit = true;
