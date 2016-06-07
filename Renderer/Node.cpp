@@ -12,6 +12,7 @@ TakeTwo::Node::Node(RenderObject* pRenderObject)
 		, mRotation(glm::quat())
 		, mDirty(true)
 		, mParent(nullptr)
+		, mNext(nullptr)
 {
 	
 	mName = "Node_" + std::to_string(sIndex);
@@ -71,6 +72,9 @@ const TakeTwo::Node* TakeTwo::Node::GetParent() const
 
 void TakeTwo::Node::AddChild(Node* const pChild)
 {
+	if (mChildren.size() > 0)
+		mChildren.back()->mNext = pChild;
+
 	mChildren.push_back(pChild);
 	if (pChild->GetParent())
 	{
@@ -89,6 +93,21 @@ const std::vector<TakeTwo::Node*>& TakeTwo::Node::GetChildren() const
 {
 	return mChildren;
 }
+
+TakeTwo::Node* TakeTwo::Node::GetNextInHierarchy()
+{
+	if (mChildren.size())
+		return mChildren[0];
+
+	if (mNext)
+		return mNext;
+
+	if (mParent)
+		return mParent->mNext;
+
+	return nullptr;
+}
+
 
 
 glm::mat4 TakeTwo::Node::GetTransformMatrix()

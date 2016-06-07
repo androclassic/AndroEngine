@@ -46,5 +46,7 @@ namespace TakeTwo
 		DeferredRenderer*				m_deferred;
 		PD_RenderTargetTexture*			m_depth;
 
+		TakeTwo::Node					m_SceneRoot;
+
     };
 }

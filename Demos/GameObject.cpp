@@ -14,6 +14,7 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 
 	TakeTwo::RenderObject *renderObject = TakeTwo::Engine::GetInstance()->GetResoruceManager().Load<TakeTwo::RenderObject>(resource_key.str(), &args);
 	mNode.SetRenderObject(renderObject);
+	renderObject->SetFlags(ITEM_OPAQUE); //todo
 	TakeTwo::Engine::GetInstance()->RegisterRenderObject(&mNode);
 
 	mNode.SetScale(glm::vec3(0.1f));
@@ -27,8 +28,7 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 
 	TakeTwo::RenderObject *renderObjectOctree = TakeTwo::Engine::GetInstance()->GetResoruceManager().Load<TakeTwo::RenderObject>(resource_key.str(), &args);
 	mOctreeNode.SetRenderObject(renderObjectOctree);
-	TakeTwo::Engine::GetInstance()->RegisterRenderObject(&mOctreeNode);
-
+	renderObjectOctree->SetFlags(ITEM_POLYGON); //todo
 	mNode.AddChild(&mOctreeNode);
 
 
