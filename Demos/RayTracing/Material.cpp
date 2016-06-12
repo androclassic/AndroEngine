@@ -4,7 +4,8 @@ bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 {
 	Vector3 dir = (rec.normal + random_in_unit_sphere());
 	scattered = ray(rec.point, dir);
-	attenuation = albedo;
+
+	attenuation = m_texture->sample(rec.uv.x, rec.uv.y, rec.point);
 	return true;
 }
 

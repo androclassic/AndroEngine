@@ -3,15 +3,18 @@
 
 using namespace andro;
 
-Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio, float focus_dist, float aperture)
+Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio, float focus_dist, float aperture, float t0, float t1)
+	: m_origin(position)
+	, focus_distance(focus_dist)
+	, lens_radius(aperture / 2.0f)
+	, time0(t0)
+	, time1(t1)
 {
 	REGISTER_LISTENER(KeyPressedEvent::ID(), this);
 	REGISTER_LISTENER(MouseMove::ID(), this);
 	REGISTER_LISTENER(MouseLButtonUp::ID(), this);
 	REGISTER_LISTENER(MouseLButtonPressed::ID(), this);
 
-	lens_radius = aperture / 2.0f;
-	focus_distance = focus_dist;
 
 	float theta = DEG2RAD(vfov);
 	half_height = tan(theta / 2);
@@ -24,7 +27,6 @@ Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, flo
 	m_front =  (position - lookat).Normalise();
 	m_right = absoluteUp.vectorProduct(m_front);
 	m_up = m_front.vectorProduct(m_right);
-	m_origin = position;
 	UpdateCamera();
 }
 
@@ -135,7 +137,7 @@ andro::ray Camera::getRay(float u, float v) const
 	andro::Vector3 rd = random_in_unit_disk() * lens_radius;
 	andro::Vector3 offset = m_right * rd.x + m_up*rd.y;
 	andro::Vector3 origin = m_origin + offset;
-	return andro::ray(origin, m_top_left_corner + (m_horizontal * u) + (m_vertical * v) - origin);
+	return andro::ray(origin, m_top_left_corner + (m_horizontal * u) + (m_vertical * v) - origin, andro::GetTimeMS());
 }
 
 

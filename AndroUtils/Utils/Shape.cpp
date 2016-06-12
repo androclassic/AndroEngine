@@ -2,8 +2,21 @@
 
 namespace andro
 {
-	bool Sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+
+	Vector2 Sphere::getUV(const Vector3& point) const
 	{
+		Vector2 uv;
+		float phi = atan2f(point.z, point.x);
+		float theta = asinf(point.y);
+		uv.x = 1 - (phi + math::PI) / (2 * math::PI);
+		uv.y = (theta + math::PI / 2.0f) / math::PI;
+
+		return uv;
+	}
+
+	 bool Sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	{
+
 		// p(t) = (origin + t * dir)) - center)
 		//dot( ( p(t), p(t)) = R* R
 
@@ -24,6 +37,7 @@ namespace andro
 			rec.point = r.get_point_at(temp);
 			rec.normal = (rec.point - center) * (1.0f / radius);
 			rec.object = this;
+			rec.uv = getUV(rec.point);
 			return true;
 		}
 
@@ -34,6 +48,7 @@ namespace andro
 			rec.point = r.get_point_at(temp);
 			rec.normal = (rec.point - center) * (1.0f / radius);
 			rec.object = this;
+			rec.uv = getUV(rec.point);
 			return true;
 		}
 
@@ -77,8 +92,10 @@ namespace andro
 		return bbx;
 	}
 
-	inline bool BoundingBox::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	 bool BoundingBox::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 	{
+
+
 		for (int a = 0; a < 3; a++)
 		{
 			float t0 = fminf((min.v[a] - r.origin.v[a]) / r.dir.v[a],
@@ -94,10 +111,107 @@ namespace andro
 
 		}
 
+		Vector3 hit_point = r.get_point_at(t_min);
+		Vector3 normal(0, 1, 1);
+		static float delta = 0.005f;
+
+		if (fabs(hit_point.x - min.x) < delta)
+			normal = Vector3(-1, 0, 0);
+		else if (fabs(hit_point.x - max.x) < delta)
+			normal = Vector3(1, 0, 0);
+		else if (fabs(hit_point.z - max.z) < delta)
+			normal = Vector3(0, 0, 1);
+		else if (fabs(hit_point.z - min.z) < delta)
+			normal = Vector3(0, 0, -1);
+		else if (fabs(hit_point.y - min.y) < delta)
+			normal = Vector3(0, -1, 0);
+		else if (fabs(hit_point.y - max.y) < delta)
+			normal = Vector3(0, 1, 0);
+		else
+			ASSERT(false, "DELTA not good");
+
+		rec.t = t_min;
+		rec.point = hit_point;
+		rec.normal = normal;
+		rec.object = this;
+		rec.uv = getUV(rec.point);
+
 		return true;
 	}
 
 
+//--------------------------------------------------------------------------------------------------
+	bool xy_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	{
+		float t = (k - r.origin.z) / r.dir.z;
+		if (t < t_min || t > t_max)
+			return false;
+
+		float x = r.origin.x + t * r.dir.x;
+		float y = r.origin.y + t * r.dir.y;
+
+		if (x < x0 || x > x1 || y < y0 || y > y1)
+			return false;
+
+		rec.point = r.get_point_at(t);
+		rec.t = t;
+		rec.normal = Vector3(0, 0, n);
+		rec.uv = getUV(rec.point);
+
+	}
+
+	Vector2 xy_rect::getUV(const Vector3& p) const
+	{
+		return Vector2((p.x - x0)/ (x1-x0), (p.y - y0)/(y1 - y0));
+	}
+	//--------------------------------------------------------------------------------------------------
+	bool xz_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	{
+		float t = (k - r.origin.y) / r.dir.y;
+		if (t < t_min || t > t_max)
+			return false;
+
+		float x = r.origin.x + t * r.dir.x;
+		float z = r.origin.z + t * r.dir.z;
+
+		if (x < x0 || x > x1 || z < z0 || z > z1)
+			return false;
+
+		rec.point = r.get_point_at(t);
+		rec.t = t;
+		rec.normal = Vector3(0, n, 0);
+		rec.uv = getUV(rec.point);
+
+	}
+
+	Vector2 xz_rect::getUV(const Vector3& p) const
+	{
+		return Vector2((p.x - x0) / (x1 - x0), (p.z - z0) / (z1 - z0));
+	}
+	//--------------------------------------------------------------------------------------------------
+	bool yz_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	{
+		float t = (k - r.origin.x) / r.dir.x;
+		if (t < t_min || t > t_max)
+			return false;
+
+		float y = r.origin.y + t * r.dir.y;
+		float z = r.origin.z + t * r.dir.z;
+
+		if (y < y0 || y > y1 || z < z0 || z > z1)
+			return false;
+
+		rec.point = r.get_point_at(t);
+		rec.t = t;
+		rec.normal = Vector3(n, 0, 0);
+		rec.uv = getUV(rec.point);
+
+	}
+
+	Vector2 yz_rect::getUV(const Vector3& p) const
+	{
+		return Vector2((p.y - y0) / (y1 - y0), (p.z - z0) / (z1 - z0));
+	}
 
 	//------------------------------------------------------------------
 	//intersections

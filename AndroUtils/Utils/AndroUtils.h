@@ -1,4 +1,3 @@
-
 #pragma once
 
 
@@ -12,12 +11,15 @@
 #define to_lower( s ) std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 
 #if defined _DEBUG
- #define VERIFY ASSERT
+#define VERIFY ASSERT
 #else
- #define VERIFY(expr) (expr)
+#define VERIFY(expr) (expr)
 #endif
 
 namespace andro
 {
-	float random_float(float max);
+	float random_float(float max = 1.0f);
+
+	float GetTimeMS();
+	float GetTimeS();
 }

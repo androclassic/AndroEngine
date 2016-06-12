@@ -15,7 +15,7 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(7, 1.5,2.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 6, 0.04f)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 6, 0.04f,0,0)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -56,7 +56,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 	{
 		Object* obj = objects[i];
 #endif
-		if (obj->m_shape.hit(ray, 0.0001f, closest_so_far, temp_rec))
+		if (obj->m_shape->hit(ray, 0.0001f, closest_so_far, temp_rec))
 		{
 			hit = true;
 			closest_so_far = temp_rec.t;
@@ -68,24 +68,24 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 	if (hit && rec.t > 0)
 	{
 		andro::Vector3  color;
+		andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
 		andro::Vector3 attenuation;
 		andro::ray new_ray;
 		if (depth < 40 && current_mat->scatter(ray, rec, attenuation, new_ray))
 		{
-
-			color = get_color(new_ray, octree, ++depth);
+			color =  get_color(new_ray, octree, ++depth);
 			color.x *=attenuation.x;
 			color.y *=attenuation.y;
 			color.z *=attenuation.z;
 		}
-
-		return color;
+		return emited + color;
 	}
 
 	Vector3 unit_v = ray.dir.Normalise();
 	float t = 0.5 * (unit_v.y + 1.0f);
 
-	return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
+	//return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
+	return   andro::Vector3(0.01, 0.01, 0.01);
  }
 
 

@@ -6,6 +6,10 @@
 
 #include "FrameBuffer.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Material.h"
@@ -13,12 +17,7 @@
 #include "AndroUtils\Utils\Ray.h"
 #include "AndroUtils\Utils\Shapes.h"
 
-CFrameBuffer g_Framebuffer(400,256);
-Lambertian mat_Red(andro::Vector3(0.5, 0.0, 0.0));
-Lambertian mat_gray(andro::Vector3(0.3, 0.3, 0.3));
-Metal metal_green(andro::Vector3(0.3, 1.0f, 0.3), 0.f);
-Metal metal_blue(andro::Vector3(0.3f, 0.3f, 1.0), 0.002f);
-Dielectric dielectric(1.5f);
+CFrameBuffer g_Framebuffer(300,300);
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +30,14 @@ public:
 		hdcMem = 0;
 		m_nFrame = 0;
 	
-		spheres.push_back(Object(new Lambertian(andro::Vector3(0.5, 0.5, 0.5)), andro::Vector3(0, -1000, -1), 1000));
+
+		int w, h, n = 0;
+		unsigned char* data = stbi_load("data/doza.jpg", &w, &h, &n, 0);
+		ASSERT(data != nullptr);
+		if (data == nullptr) TRACE(L"ERROR LOADING FILE");
+
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(25, 25, 25))), andro::Vector3(0, 1, -2), andro::Vector2(1, 2), RectObjectType::YZ));
+		m_objects.push_back(new SphereObject(new Lambertian(new noise_texture(andro::Vector3(0.9, 0.9, 0.0))), andro::Vector3(0, -1000, -1), 1000));
 		int i = 1;
 		for (int a = -11; a < 11; a++)
 		{
@@ -41,52 +47,55 @@ public:
 				Vector3 center(a + 0.9* random_float(1), 0.2, b * random_float(1));
 				if ((center - Vector3(4, 0.2, 0)).Lenght() > 0.9)
 				{
-					if (choose_mat < 0.8) //difuse
-						spheres.push_back(Object(new Lambertian(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1))), center, 0.2));
-					else if (choose_mat < 0.95) //metal
-						spheres.push_back(Object(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1) ), center, 0.2));
+					/*if (choose_mat < 0.8) //difuse
+						m_objects.push_back(Object(new Lambertian(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1))), center, 0.2));
+					else*/ if (choose_mat < 0.95) //metal
+						m_objects.push_back(new SphereObject(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1) ), center, 0.2));
 					else
-						spheres.push_back(Object(new Dielectric(1.5), center, 0.2));
+						m_objects.push_back(new SphereObject(new Dielectric(1.5), center, 0.2));
 
 				}
 			}
 
 
 		}
-		spheres.push_back(Object(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
-		spheres.push_back(Object(new Lambertian(Vector3(0.4, 0.2, 0.1)), Vector3(-4, 1.0, 1.0), 1));
-		spheres.push_back(Object(new Metal(Vector3(0.7, 0.6, 0.5), 0), Vector3(4, 1.0, 0.0), 1));
+		m_objects.push_back(new SphereObject(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
+//		m_objects.push_back(Object(new Lambertian(Vector3(0.4, 0.2, 0.1)), Vector3(-4, 1.0, 1.0), 1));
+		m_objects.push_back(new SphereObject(new Metal(Vector3(0.7, 0.6, 0.5), 0), Vector3(4, 1.0, 0.0), 1));
 
 		// buid scene bbx
-		std::vector<Object*> objects;
 		float min_radius = 10000;
 		
 
-		for (auto& sphere : spheres)
+		for (auto object : m_objects)
 		{
 #ifdef OBJECT_LIST_DEBUG_TEST
 			g_Framebuffer.debug_objects.push_back(&sphere);
 #endif
-			objects.push_back(&sphere);
-			min_radius = fminf(min_radius, sphere.m_shape.radius);
+
+			andro::Sphere bsphere = object->GetBoundingSphere();
+
+			min_radius = fminf(min_radius, bsphere.radius);
 			for (int a = 0; a < 3; a++)
 			{
 
-				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], sphere.m_shape.center[a] - sphere.m_shape.radius);
-				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], sphere.m_shape.center[a] + sphere.m_shape.radius);
+				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], bsphere.center[a] - bsphere.radius);
+				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], bsphere.center[a] + bsphere.radius);
 			}
 		}
 
 		// build octree of the scene
-		m_octree = andro::BuildOctree<Object*>(objects, m_scene_bbx, 21, [](const andro::BoundingBox& box, Object* t)
+		m_octree = andro::BuildOctree<Object*>(m_objects, m_scene_bbx, 21, [](const andro::BoundingBox& box, Object* t)
 		{
 			// check in sphere is enclosed
-			andro::Vector3 v = (t->m_shape.center - box.GetCenter());
+			andro::Sphere bsphere = t->GetBoundingSphere();
+
+			andro::Vector3 v = (bsphere.center - box.GetCenter());
 			andro::Vector3 halfsize = box.GetHalfSize();
 
-			if ((halfsize.x > std::fabs(v.x) + t->m_shape.radius) && 
-				(halfsize.y > std::fabs(v.y) + t->m_shape.radius) &&
-				(halfsize.z > std::fabs(v.z) + t->m_shape.radius))
+			if ((halfsize.x > std::fabs(v.x) + bsphere.radius) && 
+				(halfsize.y > std::fabs(v.y) + bsphere.radius) &&
+				(halfsize.z > std::fabs(v.z) + bsphere.radius))
 				return true;
 
 			return false;
@@ -96,9 +105,10 @@ public:
 	}
 	~CViewer()
 	{
-		for (auto& obj : spheres)
+		for (auto obj : m_objects)
 		{
-			delete obj.m_material;
+			delete obj->m_material;
+			delete obj;
 		}
 		delete m_octree;
 	}
@@ -157,7 +167,7 @@ private:
 	int m_nFrame;
 	HDC hdcMem;
 	HBITMAP hbmMem;
-	std::vector<Object> spheres;
+	std::vector<Object*> m_objects;
 	andro::OctreeNode<Object*>* m_octree;
 	andro::BoundingBox m_scene_bbx;
 

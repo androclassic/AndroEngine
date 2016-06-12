@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	while (!game.GetWindow().ShouldClose())
 	{
 		FPS++;
-		currentTime = GetTickCount();
+		currentTime =andro::GetTimeMS();
 		elapsedTime = currentTime - lastTime;
 
 		deltaTime = (currentTime - lastframeTime) / 1000;

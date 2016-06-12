@@ -6,6 +6,10 @@
 namespace andro
 {
 	#define DEG2RAD(x) ((x)*0.0174532925f)
+	namespace math
+	{
+		static float PI = 3.14159265f;
+	}
 
 	class Vector2
 	{

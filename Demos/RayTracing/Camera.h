@@ -11,7 +11,7 @@ private:
 	bool m_mousemove;
 
 public:
-	Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio, float focus_dist, float aperture);
+	Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio, float focus_dist, float aperture, float t0, float t1);
 	void OnEvent(andro::Event *e);
 	void Move(float dx, float dz);
 	void UpdateCamera();
@@ -29,6 +29,7 @@ public:
 	float half_height;
 	float lens_radius;
 	float focus_distance;
+	float time0, time1; // sutter open-close times
 
 
 };
