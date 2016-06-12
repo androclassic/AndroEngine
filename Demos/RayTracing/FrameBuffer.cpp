@@ -71,7 +71,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
 		andro::Vector3 attenuation;
 		andro::ray new_ray;
-		if (depth < 40 && current_mat->scatter(ray, rec, attenuation, new_ray))
+		if (depth < 300 && current_mat->scatter(ray, rec, attenuation, new_ray))
 		{
 			color =  get_color(new_ray, octree, ++depth);
 			color.x *=attenuation.x;
@@ -117,7 +117,7 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 
 	float ratio = m_iWidth / m_iHeight;
 
-	unsigned int ns = 1000;
+	unsigned int ns = 5;
 
 	unsigned int start_x = rect.left * m_iWidth;
 	unsigned int start_y = rect.top * m_iHeight;

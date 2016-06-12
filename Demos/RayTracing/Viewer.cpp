@@ -13,36 +13,49 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Material.h"
-#include "AndroUtils\Utils\Octree.h"
-#include "AndroUtils\Utils\Ray.h"
-#include "AndroUtils\Utils\Shapes.h"
+#include "AndroUtils/Utils/Octree.h"
+#include "AndroUtils/Utils/Ray.h"
+#include "AndroUtils/Utils/Shapes.h"
+#include "AndroUtils/Introspection/LuaState.h"
 
+
+std::vector<Object*> m_objects;
+andro::OctreeNode<Object*>* m_octree;
+andro::BoundingBox m_scene_bbx;
+int m_nFrame = 0;
+HDC hdcMem = 0;
+HBITMAP hbmMem = 0;
+bool m_init = false;
 CFrameBuffer g_Framebuffer(300, 300);
 
 
-#define ONE_FRAME 1
+//#define ONE_FRAME 1
 
 //////////////////////////////////////////////////////////////////////////////////
-class CViewer
-{
-public:
-	CViewer()
+	void DestroyObjects()
 	{
-		hbmMem = 0;
-		hdcMem = 0;
-		m_nFrame = 0;
-	
+		for (auto obj : m_objects)
+		{
+			delete obj->m_material;
+			delete obj;
+		}
+		delete m_octree;
+	}
 
+	//////////////////////////////////////////////////////////////////////////////////
+	void InitScene()
+	{
+		m_init = true;
 		int w, h, n = 0;
 		unsigned char* data = stbi_load("data/doza.jpg", &w, &h, &n, 0);
 		ASSERT(data != nullptr);
 		if (data == nullptr) TRACE(L"ERROR LOADING FILE");
 
 		float light_intensity = 5;
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,1)*light_intensity)), andro::Vector3(-2, 4,  2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,1)*light_intensity)), andro::Vector3( 2, 4, -2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,0)*light_intensity)), andro::Vector3(-2, 4, -2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,0)*light_intensity)), andro::Vector3( 2, 4,  2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 1)*light_intensity)), andro::Vector3(-2, 4, 2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 1)*light_intensity)), andro::Vector3(2, 4, -2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 0)*light_intensity)), andro::Vector3(-2, 4, -2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 0)*light_intensity)), andro::Vector3(2, 4, 2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
 		m_objects.push_back(new SphereObject(new Lambertian(new noise_texture(andro::Vector3(0.9, 0.9, 0.0))), andro::Vector3(0, -1000, -1), 1000));
 		int i = 1;
 		for (int a = -11; a < 11; a++)
@@ -56,7 +69,7 @@ public:
 					if (choose_mat < 0.8) //difuse
 						m_objects.push_back(new SphereObject(new Lambertian(new constant_texture(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1)))), center, 0.2));
 					else if (choose_mat < 0.95) //metal
-						m_objects.push_back(new SphereObject(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1) ), center, 0.2));
+						m_objects.push_back(new SphereObject(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1)), center, 0.2));
 					else
 						m_objects.push_back(new SphereObject(new Dielectric(1.5), center, 0.2));
 
@@ -67,11 +80,11 @@ public:
 		}
 		m_objects.push_back(new SphereObject(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
 		m_objects.push_back(new SphereObject(new Lambertian(new  constant_texture(Vector3(0.4, 0.2, 0.1))), Vector3(-4, 1.0, 1.0), 1));
-		m_objects.push_back(new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1)));
+//		m_objects.push_back(new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1)));
 
 		// buid scene bbx
 		float min_radius = 10000;
-		
+
 
 		for (auto object : m_objects)
 		{
@@ -90,6 +103,12 @@ public:
 			}
 		}
 
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+
+	void BuildSceneOctree()
+	{ 
 		// build octree of the scene
 		m_octree = andro::BuildOctree<Object*>(m_objects, m_scene_bbx, 21, [](const andro::BoundingBox& box, Object* t)
 		{
@@ -99,7 +118,7 @@ public:
 			andro::Vector3 v = (bsphere.center - box.GetCenter());
 			andro::Vector3 halfsize = box.GetHalfSize();
 
-			if ((halfsize.x > std::fabs(v.x) + bsphere.radius) && 
+			if ((halfsize.x > std::fabs(v.x) + bsphere.radius) &&
 				(halfsize.y > std::fabs(v.y) + bsphere.radius) &&
 				(halfsize.z > std::fabs(v.z) + bsphere.radius))
 				return true;
@@ -109,36 +128,8 @@ public:
 		}, true);
 
 	}
-	~CViewer()
-	{
-		for (auto obj : m_objects)
-		{
-			delete obj->m_material;
-			delete obj;
-		}
-		delete m_octree;
-	}
-
-
-	void RenderFrame( HDC hdc )
-	{
-
-#if defined ONE_FRAME
-		static int s = 0;
-		s++;
-		if (s > 1)
-		{
-			PaintFrameBuffer(hdc);
-			return;
-		}
-#endif
-
-		g_Framebuffer.Update(m_octree);
-		PaintFrameBuffer(hdc);
-	}
-
-private:
-	void PaintFrameBuffer( HDC hdc )
+	//////////////////////////////////////////////////////////////////////////////////
+	void PaintFrameBuffer(HDC hdc)
 	{
 		m_nFrame++;
 
@@ -155,42 +146,40 @@ private:
 		const unsigned int *p = g_Framebuffer.GetFrameBuffer();
 
 		// Draw back buffer
-		HANDLE hOld   = SelectObject(hdcMem, hbmMem);
+		HANDLE hOld = SelectObject(hdcMem, hbmMem);
 
-		SetBitmapBits(hbmMem,4*iWidth*iHeight,p);
+		SetBitmapBits(hbmMem, 4 * iWidth*iHeight, p);
 
-		//////////////////////////////////////////////////////////////////////////////////
-		// Display FPS
-		//////////////////////////////////////////////////////////////////////////////////
-		//float fps = (float)(1000.f/m_averageFrameTime);
-
-		//char str[1024];
-		//sprintf_s( str,"Frame:%d:  fps:%.1f,  %.2fms",m_nFrame,fps,m_averageFrameTime );
-		//TextOut(hdcMem,0,0,str,(int)strlen(str) );
-
-		//sprintf_s( str,"Turn Time: %.2f sec",(float)(m_lastFullRotationTime/1000.0) );
-		//TextOut(hdcMem,0,16,str,(int)strlen(str) );
-		//////////////////////////////////////////////////////////////////////////////////
-
-		// Transfer the off-screen DC to the screen
 		BitBlt(hdc, 0, 0, iWidth, iHeight, hdcMem, 0, 0, SRCCOPY);
 
 		// Free-up the off-screen DC
 		SelectObject(hdcMem, hOld);
 	}
+	//////////////////////////////////////////////////////////////////////////////////
+
+	void RenderFrame( HDC hdc )
+	{
+
+#if defined ONE_FRAME
+		static int s = 0;
+		s++;
+		if (s > 1)
+		{
+			PaintFrameBuffer(hdc);
+			return;
+		}
+#endif
+
+		if (m_init)
+			g_Framebuffer.Update(m_octree);
+
+		PaintFrameBuffer(hdc);
+	}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
 	
-private:
-	int m_nFrame;
-	HDC hdcMem;
-	HBITMAP hbmMem;
-	std::vector<Object*> m_objects;
-	andro::OctreeNode<Object*>* m_octree;
-	andro::BoundingBox m_scene_bbx;
-
-
-};
-
-CViewer g_viewer;
 
 //////////////////////////////////////////////////////////////////////////////////
 #define MAX_LOADSTRING 100
@@ -207,6 +196,17 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 //////////////////////////////////////////////////////////////////////////////////
 
+
+ObjectRef<Object> CreateObject()
+{
+	ObjectRef<Object> ref;
+
+	ref.object = new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1));
+	m_objects.push_back(ref.object);
+
+	return ref;
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -240,6 +240,28 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 
 	HDC hdc = GetDC(g_hWnd);
+
+	//-----------------------------------------------------------
+	//------ game types
+	//-----------------------------------------------------------
+
+
+	REGISTER_USER_TYPE(Object);
+	REGISTER_USER_TYPE_REF(Object);
+	REGISTER_USER_TYPE(BoxObject);
+	REGISTER_USER_TYPE_REF(BoxObject);
+	//--------------------------------------
+	
+	
+	//initialise Lua
+	Lua_State::GetInstance()->Init();
+	lua_State* L = *Lua_State::GetInstance();
+	lua_bind(L, CreateObject);
+
+	Lua_State::GetInstance()->execute_program("data/raytracer/raytracer.lua");
+
+	InitScene();
+	BuildSceneOctree();
 
 	while (true)
 	{
@@ -411,7 +433,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		{
 			hdc = BeginPaint(hWnd, &ps);
-			g_viewer.RenderFrame( hdc );
+			RenderFrame( hdc );
 			EndPaint(hWnd, &ps);
 		}
 		break;

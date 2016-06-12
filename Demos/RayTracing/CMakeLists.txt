@@ -36,4 +36,4 @@ else(PLATFORM STREQUAL "Win32")
 endif(PLATFORM STREQUAL "Win32")
 		
 add_executable (RayTracing WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
-target_link_libraries(RayTracing  AndroUtils  ${LINK_FILES})
+target_link_libraries(RayTracing  AndroUtils Lua ${LINK_FILES})
