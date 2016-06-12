@@ -24,6 +24,7 @@ namespace andro
 	struct BoundingBox : public Hitable
 	{
 		BoundingBox();
+		BoundingBox(const Vector3& pCenter, const Vector3& pHalfSize) { min = pCenter - pHalfSize; max = pCenter + pHalfSize; }
 		inline void SetExtents(Vector3& pMin, Vector3&  pMax) { min = pMin; max = pMax; }
 		Vector3 GetHalfSize() const;
 		Vector3 GetCenter() const;

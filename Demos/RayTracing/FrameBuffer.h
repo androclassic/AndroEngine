@@ -41,6 +41,32 @@ struct SphereObject : public Object
 
 }; 
 
+
+struct BoxObject : public Object
+{
+	BoxObject(material* p_material, const Vector3& c, const Vector3& half_size)
+		 : m_center(c)
+		,  m_HalfSize(half_size)
+	{
+		m_material = p_material;
+		m_shape = new andro::BoundingBox(c, half_size);
+	}
+
+	~BoxObject()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+	inline andro::Sphere GetBoundingSphere() const
+	{
+		return  andro::Sphere(m_center, m_HalfSize.Lenght());
+	}
+
+	 Vector3 m_center;
+	 Vector3 m_HalfSize;
+};
+
 enum RectObjectType
 {
 	XY,

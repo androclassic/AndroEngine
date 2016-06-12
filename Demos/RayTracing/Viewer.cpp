@@ -17,8 +17,10 @@
 #include "AndroUtils\Utils\Ray.h"
 #include "AndroUtils\Utils\Shapes.h"
 
-CFrameBuffer g_Framebuffer(300,300);
+CFrameBuffer g_Framebuffer(300, 300);
 
+
+#define ONE_FRAME 1
 
 //////////////////////////////////////////////////////////////////////////////////
 class CViewer
@@ -36,7 +38,11 @@ public:
 		ASSERT(data != nullptr);
 		if (data == nullptr) TRACE(L"ERROR LOADING FILE");
 
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(25, 25, 25))), andro::Vector3(0, 1, -2), andro::Vector2(1, 2), RectObjectType::YZ));
+		float light_intensity = 5;
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,1)*light_intensity)), andro::Vector3(-2, 4,  2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,1)*light_intensity)), andro::Vector3( 2, 4, -2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,0)*light_intensity)), andro::Vector3(-2, 4, -2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
+		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1,1,0)*light_intensity)), andro::Vector3( 2, 4,  2), andro::Vector2(0.7,0.7), RectObjectType::XZ));
 		m_objects.push_back(new SphereObject(new Lambertian(new noise_texture(andro::Vector3(0.9, 0.9, 0.0))), andro::Vector3(0, -1000, -1), 1000));
 		int i = 1;
 		for (int a = -11; a < 11; a++)
@@ -47,9 +53,9 @@ public:
 				Vector3 center(a + 0.9* random_float(1), 0.2, b * random_float(1));
 				if ((center - Vector3(4, 0.2, 0)).Lenght() > 0.9)
 				{
-					/*if (choose_mat < 0.8) //difuse
-						m_objects.push_back(Object(new Lambertian(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1))), center, 0.2));
-					else*/ if (choose_mat < 0.95) //metal
+					if (choose_mat < 0.8) //difuse
+						m_objects.push_back(new SphereObject(new Lambertian(new constant_texture(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1)))), center, 0.2));
+					else if (choose_mat < 0.95) //metal
 						m_objects.push_back(new SphereObject(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1) ), center, 0.2));
 					else
 						m_objects.push_back(new SphereObject(new Dielectric(1.5), center, 0.2));
@@ -60,8 +66,8 @@ public:
 
 		}
 		m_objects.push_back(new SphereObject(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
-//		m_objects.push_back(Object(new Lambertian(Vector3(0.4, 0.2, 0.1)), Vector3(-4, 1.0, 1.0), 1));
-		m_objects.push_back(new SphereObject(new Metal(Vector3(0.7, 0.6, 0.5), 0), Vector3(4, 1.0, 0.0), 1));
+		m_objects.push_back(new SphereObject(new Lambertian(new  constant_texture(Vector3(0.4, 0.2, 0.1))), Vector3(-4, 1.0, 1.0), 1));
+		m_objects.push_back(new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1)));
 
 		// buid scene bbx
 		float min_radius = 10000;
@@ -116,8 +122,18 @@ public:
 
 	void RenderFrame( HDC hdc )
 	{
-		g_Framebuffer.Update(m_octree);
 
+#if defined ONE_FRAME
+		static int s = 0;
+		s++;
+		if (s > 1)
+		{
+			PaintFrameBuffer(hdc);
+			return;
+		}
+#endif
+
+		g_Framebuffer.Update(m_octree);
 		PaintFrameBuffer(hdc);
 	}
 
@@ -250,7 +266,14 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 
 		InvalidateRect(g_hWnd,0,FALSE);
+
+#if defined ONE_FRAME
+		static int st = 0;
+		st++;
+		if (st == 1)
+#else
 		if (elapsedTime >= 100)
+#endif
 		{
 			
 			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f", (UINT)(FPS * 1000.0 / elapsedTime), (float)(currentTime - lastframeTime));

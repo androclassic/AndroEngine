@@ -32,7 +32,8 @@ namespace andro
 	class Vector3
 	{
 		public:
-			Vector3(float xx , float yy , float zz ): x(xx), y(yy), z(zz){};
+			Vector3(float xx) : x(xx), y(xx), z(xx){};
+			Vector3(float xx, float yy, float zz) : x(xx), y(yy), z(zz){};
 			Vector3(const float v[3]) : x(v[0]), y(v[1]), z(v[2]){};
 			Vector3() : x(0.0f), y(0.0f), z(0.0f){};
 	

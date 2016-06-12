@@ -15,7 +15,7 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 6, 0.04f,0,0)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 4, 0.02f,0,0)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -85,7 +85,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 	float t = 0.5 * (unit_v.y + 1.0f);
 
 	//return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
-	return   andro::Vector3(0.01, 0.01, 0.01);
+	return   andro::Vector3(0.005, 0.005, 0.005);
  }
 
 
@@ -117,7 +117,8 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 
 	float ratio = m_iWidth / m_iHeight;
 
-	unsigned int ns = 1;
+	unsigned int ns = 1000;
+
 	unsigned int start_x = rect.left * m_iWidth;
 	unsigned int start_y = rect.top * m_iHeight;
 	unsigned int end_x = rect.right * m_iWidth;
@@ -140,6 +141,10 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 
 			//gamma correction
 			color = andro::Vector3(sqrtf(color.x), sqrtf(color.y), sqrtf(color.z));
+
+			color.x = min(color.x, 1.0f);
+			color.y = min(color.y, 1.0f);
+			color.z = min(color.z, 1.0f);
 
 			m_FramebufferArray[x + y * m_iWidth] = int(color.x * 255) << 16;
 			m_FramebufferArray[x + y * m_iWidth] |= int(color.y * 255) << 8;
