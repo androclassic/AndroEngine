@@ -38,16 +38,16 @@
 
 /*
 ** 'l_intfitsf' checks whether a given integer can be converted to a
-** float without rounding. Used in comparisons. Left undefined if
-** all integers fit in a float precisely.
+** afloat without rounding. Used in comparisons. Left undefined if
+** all integers fit in a afloat precisely.
 */
 #if !defined(l_intfitsf)
 
-/* number of bits in the mantissa of a float */
+/* number of bits in the mantissa of a afloat */
 #define NBM		(l_mathlim(MANT_DIG))
 
 /*
-** Check whether some integers may not fit in a float, that is, whether
+** Check whether some integers may not fit in a afloat, that is, whether
 ** (maxinteger >> NBM) > 0 (that implies (1 << NBM) <= maxinteger).
 ** (The shifts are done in parts to avoid shifting by more than the size
 ** of an integer. In a worst case, NBM == 113 for long double and
@@ -66,7 +66,7 @@
 
 
 /*
-** Try to convert a value to a float. The float case is already handled
+** Try to convert a value to a afloat. The afloat case is already handled
 ** by the macro 'tonumber'.
 */
 int luaV_tonumber_ (const TValue *obj, lua_Number *n) {
@@ -77,7 +77,7 @@ int luaV_tonumber_ (const TValue *obj, lua_Number *n) {
   }
   else if (cvt2num(obj) &&  /* string convertible to number? */
             luaO_str2num(svalue(obj), &v) == vslen(obj) + 1) {
-    *n = nvalue(&v);  /* convert result of 'luaO_str2num' to a float */
+    *n = nvalue(&v);  /* convert result of 'luaO_str2num' to a afloat */
     return 1;
   }
   else
@@ -136,14 +136,14 @@ static int forlimit (const TValue *obj, lua_Integer *p, lua_Integer step,
                      int *stopnow) {
   *stopnow = 0;  /* usually, let loops run */
   if (!luaV_tointeger(obj, p, (step < 0 ? 2 : 1))) {  /* not fit in integer? */
-    lua_Number n;  /* try to convert to float */
-    if (!tonumber(obj, &n)) /* cannot convert to float? */
+    lua_Number n;  /* try to convert to afloat */
+    if (!tonumber(obj, &n)) /* cannot convert to afloat? */
       return 0;  /* not a number */
-    if (luai_numlt(0, n)) {  /* if true, float is larger than max integer */
+    if (luai_numlt(0, n)) {  /* if true, afloat is larger than max integer */
       *p = LUA_MAXINTEGER;
       if (step < 0) *stopnow = 1;
     }
-    else {  /* float is smaller than min integer */
+    else {  /* afloat is smaller than min integer */
       *p = LUA_MININTEGER;
       if (step >= 0) *stopnow = 1;
     }
@@ -256,11 +256,11 @@ static int l_strcmp (const TString *ls, const TString *rs) {
 
 
 /*
-** Check whether integer 'i' is less than float 'f'. If 'i' has an
-** exact representation as a float ('l_intfitsf'), compare numbers as
+** Check whether integer 'i' is less than afloat 'f'. If 'i' has an
+** exact representation as a afloat ('l_intfitsf'), compare numbers as
 ** floats. Otherwise, if 'f' is outside the range for integers, result
 ** is trivial. Otherwise, compare them as integers. (When 'i' has no
-** float representation, either 'f' is "far away" from 'i' or 'f' has
+** afloat representation, either 'f' is "far away" from 'i' or 'f' has
 ** no precision left for a fractional part; either way, how 'f' is
 ** truncated is irrelevant.) When 'f' is NaN, comparisons must result
 ** in false.
@@ -281,7 +281,7 @@ static int LTintfloat (lua_Integer i, lua_Number f) {
 
 
 /*
-** Check whether integer 'i' is less than or equal to float 'f'.
+** Check whether integer 'i' is less than or equal to afloat 'f'.
 ** See comments on previous function.
 */
 static int LEintfloat (lua_Integer i, lua_Number f) {
@@ -307,14 +307,14 @@ static int LTnum (const TValue *l, const TValue *r) {
     lua_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li < ivalue(r);  /* both are integers */
-    else  /* 'l' is int and 'r' is float */
+    else  /* 'l' is int and 'r' is afloat */
       return LTintfloat(li, fltvalue(r));  /* l < r ? */
   }
   else {
-    lua_Number lf = fltvalue(l);  /* 'l' must be float */
+    lua_Number lf = fltvalue(l);  /* 'l' must be afloat */
     if (ttisfloat(r))
-      return luai_numlt(lf, fltvalue(r));  /* both are float */
-    else if (luai_numisnan(lf))  /* 'r' is int and 'l' is float */
+      return luai_numlt(lf, fltvalue(r));  /* both are afloat */
+    else if (luai_numisnan(lf))  /* 'r' is int and 'l' is afloat */
       return 0;  /* NaN < i is always false */
     else  /* without NaN, (l < r)  <-->  not(r <= l) */
       return !LEintfloat(ivalue(r), lf);  /* not (r <= l) ? */
@@ -330,14 +330,14 @@ static int LEnum (const TValue *l, const TValue *r) {
     lua_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li <= ivalue(r);  /* both are integers */
-    else  /* 'l' is int and 'r' is float */
+    else  /* 'l' is int and 'r' is afloat */
       return LEintfloat(li, fltvalue(r));  /* l <= r ? */
   }
   else {
-    lua_Number lf = fltvalue(l);  /* 'l' must be float */
+    lua_Number lf = fltvalue(l);  /* 'l' must be afloat */
     if (ttisfloat(r))
-      return luai_numle(lf, fltvalue(r));  /* both are float */
-    else if (luai_numisnan(lf))  /* 'r' is int and 'l' is float */
+      return luai_numle(lf, fltvalue(r));  /* both are afloat */
+    else if (luai_numisnan(lf))  /* 'r' is int and 'l' is afloat */
       return 0;  /*  NaN <= i is always false */
     else  /* without NaN, (l <= r)  <-->  not(r < l) */
       return !LTintfloat(ivalue(r), lf);  /* not (r < l) ? */
@@ -878,7 +878,7 @@ void luaV_execute (lua_State *L) {
         else { Protect(luaT_trybinTM(L, rb, rc, ra, TM_MUL)); }
         vmbreak;
       }
-      vmcase(OP_DIV) {  /* float division (always with floats) */
+      vmcase(OP_DIV) {  /* afloat division (always with floats) */
         TValue *rb = RKB(i);
         TValue *rc = RKC(i);
         lua_Number nb; lua_Number nc;

@@ -8,43 +8,43 @@ namespace andro
 	#define DEG2RAD(x) ((x)*0.0174532925f)
 	namespace math
 	{
-		static float PI = 3.14159265f;
+		static afloat PI = 3.14159265f;
 	}
 
 	class Vector2
 	{
 		public:
-			Vector2(float xx , float yy ): x(xx), y(yy){};
+			Vector2(afloat xx , afloat yy ): x(xx), y(yy){};
 			Vector2(): x(0.0f), y(0.0f){};
 	
-			float Lenght() const;
+			afloat Lenght() const;
 			void Normalize();
 			Vector2 operator+(const Vector2 &rhs) const;
 			Vector2 operator-(const Vector2 &rhs) const;
-			float   operator*(const Vector2& rhs) const;
+			afloat   operator*(const Vector2& rhs) const;
 			Vector2& operator=(const Vector2 &rhs);
 
-			float x;
-			float y;
+			afloat x;
+			afloat y;
 	};
 
 
 	class Vector3
 	{
 		public:
-			Vector3(float xx) : x(xx), y(xx), z(xx){};
-			Vector3(float xx, float yy, float zz) : x(xx), y(yy), z(zz){};
-			Vector3(const float v[3]) : x(v[0]), y(v[1]), z(v[2]){};
+			Vector3(afloat xx) : x(xx), y(xx), z(xx){};
+			Vector3(afloat xx, afloat yy, afloat zz) : x(xx), y(yy), z(zz){};
+			Vector3(const afloat v[3]) : x(v[0]), y(v[1]), z(v[2]){};
 			Vector3() : x(0.0f), y(0.0f), z(0.0f){};
 	
 			void NormalizeInto();
 
 			Vector3  operator+(const Vector3 &rhs) const;
 			Vector3  operator-(const Vector3 &rhs) const;
-			float	 operator*(const Vector3& rhs) const;
-			Vector3  operator*(float scalar) const;
+			afloat	 operator*(const Vector3& rhs) const;
+			Vector3  operator*(afloat scalar) const;
 			Vector3& operator=(const Vector3 &rhs);
-			float&	 operator[](unsigned int i);
+			afloat&	 operator[](unsigned int i);
 
 			Vector3 vectorProduct(const Vector3 &vector) const;
 
@@ -55,18 +55,18 @@ namespace andro
 			inline Vector3 Vector3::Normalise() const
 			{
 				Vector3 v;
-				float lenght = Lenght();
+				afloat lenght = Lenght();
 				v.x = x / lenght;
 				v.y = y / lenght;
 				v.z = z / lenght;
 				return v;
 			}
-			inline float Vector3::Lenght() const
+			inline afloat Vector3::Lenght() const
 			{
 				return sqrt(x*x + y*y + z*z);
 			}
 
-			inline float Vector3::LenghtSq() const
+			inline afloat Vector3::LenghtSq() const
 			{
 				return (x*x + y*y + z*z);
 			}
@@ -77,22 +77,22 @@ namespace andro
 			{
 				struct
 				{
-					float x, y, z;
+					afloat x, y, z;
 				};
 
-				float v[3];
+				afloat v[3];
 			};
 	};
 
 	class Vector4
 	{
 		public:
-			Vector4(float xx = 0.f, float yy = 0.f, float zz = 0.f, float ww = 1.f): x(xx), y(yy), z(zz), w(ww){};
+			Vector4(afloat xx = 0.f, afloat yy = 0.f, afloat zz = 0.f, afloat ww = 1.f): x(xx), y(yy), z(zz), w(ww){};
 			Vector4(const Vector3& rhs){ x = rhs.x, y = rhs.y; z = rhs.z; w = 1; }
-			float x;
-			float y;
-			float z;
-			float w;
+			afloat x;
+			afloat y;
+			afloat z;
+			afloat w;
 	};
 
 	class Matrix4
@@ -100,10 +100,10 @@ namespace andro
 	public:
 	   Matrix4();
 
-	   Matrix4(float _m11,float _m21,float _m31,float _m41,
-			   float _m12,float _m22,float _m32,float _m42,
-			   float _m13,float _m23,float _m33,float _m43,
-			   float _m14,float _m24,float _m34,float _m44);
+	   Matrix4(afloat _m11,afloat _m21,afloat _m31,afloat _m41,
+			   afloat _m12,afloat _m22,afloat _m32,afloat _m42,
+			   afloat _m13,afloat _m23,afloat _m33,afloat _m43,
+			   afloat _m14,afloat _m24,afloat _m34,afloat _m44);
 	   Matrix4 operator*( const Matrix4& mat) const;
 
 	   friend Vector4 operator*(const Vector4& vec, const Matrix4& mat);
@@ -117,13 +117,13 @@ namespace andro
 		       
 		   struct
 		   { 
-			   float  m11;float  m21;float  m31;float  m41;
-			   float  m12;float  m22;float  m32;float  m42;
-			   float  m13;float  m23;float  m33;float  m43;
-			   float  m14;float  m24;float  m34;float  m44;
+			   afloat  m11;afloat  m21;afloat  m31;afloat  m41;
+			   afloat  m12;afloat  m22;afloat  m32;afloat  m42;
+			   afloat  m13;afloat  m23;afloat  m33;afloat  m43;
+			   afloat  m14;afloat  m24;afloat  m34;afloat  m44;
 		   };
-		   float matrix[4][4];
-		   float data[16];
+		   afloat matrix[4][4];
+		   afloat data[16];
 
 	   };
 	};
@@ -133,14 +133,14 @@ namespace andro
 
 
 
-	void  RotateYaw(Matrix4&  mat,float angle);
-	void  RotatePitch(Matrix4& mat, float angle);
-	void  RotateRoll(Matrix4& mat, float angle);
-	void  Translate(Matrix4& mat, float x, float y, float z);
-	void  Scale(Matrix4& mat, float x, float y, float z);
-	void  SetPos(Matrix4& mat, float x, float y, float z);
-	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading);
-	float Distance(const Vector3& p1, const Vector3& p2);
+	void  RotateYaw(Matrix4&  mat,afloat angle);
+	void  RotatePitch(Matrix4& mat, afloat angle);
+	void  RotateRoll(Matrix4& mat, afloat angle);
+	void  Translate(Matrix4& mat, afloat x, afloat y, afloat z);
+	void  Scale(Matrix4& mat, afloat x, afloat y, afloat z);
+	void  SetPos(Matrix4& mat, afloat x, afloat y, afloat z);
+	void ComputeFrontAndRight(Vector3& front, Vector3& right, afloat pitch, afloat heading);
+	afloat Distance(const Vector3& p1, const Vector3& p2);
 
 
 

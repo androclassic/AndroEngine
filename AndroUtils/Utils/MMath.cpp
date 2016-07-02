@@ -5,13 +5,13 @@
 
 namespace andro
 {
-	void ComputeFrontAndRight(Vector3& front, Vector3& right, float pitch, float heading)
+	void ComputeFrontAndRight(Vector3& front, Vector3& right, afloat pitch, afloat heading)
 	{
-		float sinP = sinf(DEG2RAD(pitch));
-		float cosP = cosf(DEG2RAD(pitch));
+		afloat sinP = sinf(DEG2RAD(pitch));
+		afloat cosP = cosf(DEG2RAD(pitch));
 
-		float sinH = sinf(DEG2RAD(heading));
-		float cosH = cosf(DEG2RAD(heading));
+		afloat sinH = sinf(DEG2RAD(heading));
+		afloat cosH = cosf(DEG2RAD(heading));
 
 		right.x = cosP;
 		right.y = 0;
@@ -23,7 +23,7 @@ namespace andro
 	}
 
 
-	float Vector2::operator* (const Vector2& rhs) const
+	afloat Vector2::operator* (const Vector2& rhs) const
 	{
 		return x*rhs.x + y*rhs.y;
 	}
@@ -39,7 +39,7 @@ namespace andro
 	}
 	void Vector2::Normalize()
 	{
-		float lenght=Lenght();
+		afloat lenght=Lenght();
 		x=x/lenght;
 		y=y/lenght;
 	}
@@ -54,12 +54,12 @@ namespace andro
 	}
 
 
-	float Vector2::Lenght() const
+	afloat Vector2::Lenght() const
 	{
 		return sqrt(x*x + y*y);
 	}
 
-	float Vector3::operator*(const Vector3& rhs) const
+	afloat Vector3::operator*(const Vector3& rhs) const
 	{
 		return x*rhs.x + y*rhs.y + z*rhs.z;
 	}
@@ -79,14 +79,14 @@ namespace andro
 
 		return *this;
 	}
-	float & Vector3::operator[](unsigned int i) 
+	afloat & Vector3::operator[](unsigned int i) 
 	{
 		ASSERT(i < 3);
 		return this->v[i];
 	}
 	void Vector3::NormalizeInto()
 	{
-		float lenght=Lenght();
+		afloat lenght=Lenght();
 		x=x/lenght;
 		y=y/lenght;
 		z=z/lenght;
@@ -102,7 +102,7 @@ namespace andro
 		return Vector3(x-rhs.x,y-rhs.y,z-rhs.z);
 	}
 
-	Vector3 Vector3::operator*(float scalar) const
+	Vector3 Vector3::operator*(afloat scalar) const
 	{
 		return Vector3(scalar * x,scalar * y,scalar * z);
 	}
@@ -110,7 +110,7 @@ namespace andro
 
 
 
-	float Distance(const Vector3& p1, const  Vector3& p2)
+	afloat Distance(const Vector3& p1, const  Vector3& p2)
 	{
 	  return	sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2)+pow((p1.z-p2.z),2));
 	}
@@ -125,10 +125,10 @@ namespace andro
 	}
 
 
-	Matrix4::Matrix4(float _m11, float _m12, float _m13, float _m14,
-					 float _m21, float _m22, float _m23, float _m24,
-					 float _m31, float _m32, float _m33, float _m34,
-					 float _m41, float _m42, float _m43, float _m44)
+	Matrix4::Matrix4(afloat _m11, afloat _m12, afloat _m13, afloat _m14,
+					 afloat _m21, afloat _m22, afloat _m23, afloat _m24,
+					 afloat _m31, afloat _m32, afloat _m33, afloat _m34,
+					 afloat _m41, afloat _m42, afloat _m43, afloat _m44)
 	{
 		
 	   m11=_m11;m12=_m12;m13=_m13;m14=_m14;
@@ -224,7 +224,7 @@ namespace andro
 
 
 
-	void RotateYaw(Matrix4 &mat, float angle)
+	void RotateYaw(Matrix4 &mat, afloat angle)
 	{
 			angle=DEG2RAD(angle);//convertion
 
@@ -237,7 +237,7 @@ namespace andro
 	mat =(temp*rotate);
 	  
 	}
-	void  RotatePitch(Matrix4& mat, float angle)
+	void  RotatePitch(Matrix4& mat, afloat angle)
 	{
 		angle=DEG2RAD(angle);//convertion
 
@@ -251,7 +251,7 @@ namespace andro
 	 
 
 	}
-	void RotateRoll(Matrix4& mat, float angle)
+	void RotateRoll(Matrix4& mat, afloat angle)
 	{
 			angle=DEG2RAD(angle);//convertion
 
@@ -263,14 +263,14 @@ namespace andro
 	mat = (temp*rotate);
 	}
 
-	void  Translate(Matrix4& mat, float x, float y, float z)
+	void  Translate(Matrix4& mat, afloat x, afloat y, afloat z)
 	{
 		mat.m41=x;
 		mat.m42=y;
 		mat.m43=z;
 	}
 
-	void  Scale(Matrix4& mat, float x, float y, float z)
+	void  Scale(Matrix4& mat, afloat x, afloat y, afloat z)
 	{
 		Matrix4 scale;
 		scale.LoadIdentity();
@@ -284,7 +284,7 @@ namespace andro
 
 	}
 
-	void SetPos(Matrix4& mat, float x, float y, float z)
+	void SetPos(Matrix4& mat, afloat x, afloat y, afloat z)
 	{
 		mat.m41=x;
 		mat.m42=y;
@@ -299,9 +299,9 @@ namespace andro
 	{
 
 		andro::Vector3 center = aabb.GetCenter();
-		float half_x = aabb.GetHalfSize().x;
-		float half_y = aabb.GetHalfSize().y;
-		float half_z = aabb.GetHalfSize().z;
+		afloat half_x = aabb.GetHalfSize().x;
+		afloat half_y = aabb.GetHalfSize().y;
+		afloat half_z = aabb.GetHalfSize().z;
 
 
 		/* init_resources */

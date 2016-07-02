@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "RayObjects.h"
 #include "AndroUtils\Utils\ThreadPool.h"
+//#define OBJECT_LIST_DEBUG_TEST 1
 
 
 class CFrameBuffer;
@@ -14,7 +15,7 @@ struct Rect
 	{
 		left = right = top = bottom = 0;
 	}
-	Rect(float l, float t, float r, float b)
+	Rect(afloat l, afloat t, afloat r, afloat b)
 	{
 		left = l;
 		right = r;
@@ -22,7 +23,7 @@ struct Rect
 		bottom = b;
 	}
 
-	float left, top, right, bottom;
+	afloat left, top, right, bottom;
 };
 
 struct RenderSliceTask
@@ -50,7 +51,7 @@ public:
 	~CFrameBuffer();
 
 	void Clear();
-	void Update(const andro::OctreeNode<Object*>const* octree);
+	void Update(const andro::OctreeNode<Object*>const* octree, int numberOfSamples);
 	void Render(const andro::OctreeNode<Object*>const* octree, Rect& rect);
 
 
@@ -66,7 +67,7 @@ public:
 
 private:
 	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
-
+	int	m_nbSamples;
 
 	std::vector<unsigned int> m_FramebufferArray;
 	int m_iWidth, m_iHeight;

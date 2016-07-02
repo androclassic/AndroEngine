@@ -82,7 +82,7 @@ void Game::Initialise()
 
 
 
-void Game::Update(float deltaTime)
+void Game::Update(afloat deltaTime)
 {
 
 	TakeTwo::Engine::GetInstance()->Update();

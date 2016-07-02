@@ -1,5 +1,6 @@
 #pragma once
 #include "glm\glm.hpp"
+#include "../AndroUtils/Utils/AndroTypes.h"
 
 namespace TakeTwo
 {
@@ -8,7 +9,7 @@ namespace TakeTwo
 	public:
 		glm::vec3 position;
 		glm::vec3 intensities;
-		float attenuation;
-		float ambientCoefficient;
+		afloat attenuation;
+		afloat ambientCoefficient;
 	};
 }

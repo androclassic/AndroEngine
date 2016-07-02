@@ -33,12 +33,12 @@ class KeyUpEvent : public andro::Event
 class MouseLButtonPressed : public andro::Event
 {
 	public:
-		MouseLButtonPressed(float x,float y);
+		MouseLButtonPressed(afloat x,afloat y);
 
 		DeclareEventID('LB_P');
     private:
-		float m_x;
-		float m_y;
+		afloat m_x;
+		afloat m_y;
 		
 };
 
@@ -46,12 +46,12 @@ class MouseLButtonPressed : public andro::Event
 class MouseLButtonUp: public andro::Event
 {
 	public:
-		MouseLButtonUp(float x,float y);
+		MouseLButtonUp(afloat x,afloat y);
 
 		DeclareEventID('LB_U');
     private:
-		float m_x;
-		float m_y;
+		afloat m_x;
+		afloat m_y;
 
 		
 };
@@ -61,15 +61,15 @@ class MouseLButtonUp: public andro::Event
 class MouseMove: public andro::Event
 {
 	public:
-		MouseMove(float x,float y);
+		MouseMove(afloat x,afloat y);
 virtual	~MouseMove();
 
 		DeclareEventID('MM');
 
-		float m_x;
-		float m_y;
-		static float m_lastx;
-		static float m_lasty;
+		afloat m_x;
+		afloat m_y;
+		static afloat m_lastx;
+		static afloat m_lasty;
 
 		
 };

@@ -2,7 +2,7 @@
 
 #include "../../AndroUtils/EventManager/EventManager.h"
 #include "../../Renderer/CameraNode.h"
-
+#include "../../AndroUtils/Utils/AndroTypes.h"
 #include <memory>
 #include "GLFW\glfw3.h"
 
@@ -16,7 +16,7 @@ public:
 	Camera();
 	void OnEvent(andro::Event *e);
 	std::shared_ptr<TakeTwo::CameraNode> GetCamera() const { return m_camera; }
-	void Move(float dx, float dz);
+	void Move(afloat dx, afloat dz);
 
 };
 

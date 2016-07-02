@@ -15,7 +15,7 @@
 
         ~Window();
 
-        void Update(float dt);
+        void Update(afloat dt);
 
         bool ShouldClose();
 

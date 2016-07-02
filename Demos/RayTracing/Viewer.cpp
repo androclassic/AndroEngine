@@ -3,6 +3,8 @@
 // Windows Header Files:
 #include <windows.h>
 #include <windowsx.h>
+#include <fstream>
+#include <sstream>
 
 #include "FrameBuffer.h"
 
@@ -12,11 +14,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Material.h"
-#include "AndroUtils/Utils/Octree.h"
-#include "AndroUtils/Utils/Ray.h"
-#include "AndroUtils/Utils/Shapes.h"
-#include "AndroUtils/Introspection/LuaState.h"
+#include "ObjectsLuaDesc.h"
 
 
 std::vector<Object*> m_objects;
@@ -25,85 +23,32 @@ andro::BoundingBox m_scene_bbx;
 int m_nFrame = 0;
 HDC hdcMem = 0;
 HBITMAP hbmMem = 0;
-bool m_init = false;
-CFrameBuffer g_Framebuffer(300, 300);
+unsigned int s_numberOfSamples;
 
+CFrameBuffer* g_Framebuffer = NULL;
 
-//#define ONE_FRAME 1
-
+#define ONE_FRAME 1
 //////////////////////////////////////////////////////////////////////////////////
 	void DestroyObjects()
 	{
+		delete g_Framebuffer;
+
 		for (auto obj : m_objects)
 		{
+			obj->m_material->Destroy();
 			delete obj->m_material;
 			delete obj;
 		}
 		delete m_octree;
 	}
+///////////////////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////////////////
-	void InitScene()
+	void InitFrame(unsigned int ns, unsigned w, unsigned h)
 	{
-		m_init = true;
-		int w, h, n = 0;
-		unsigned char* data = stbi_load("data/doza.jpg", &w, &h, &n, 0);
-		ASSERT(data != nullptr);
-		if (data == nullptr) TRACE(L"ERROR LOADING FILE");
-
-		float light_intensity = 5;
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 1)*light_intensity)), andro::Vector3(-2, 4, 2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 1)*light_intensity)), andro::Vector3(2, 4, -2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 0)*light_intensity)), andro::Vector3(-2, 4, -2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
-		m_objects.push_back(new RectObject(new diffuse_light(new constant_texture(andro::Vector3(1, 1, 0)*light_intensity)), andro::Vector3(2, 4, 2), andro::Vector2(0.7, 0.7), RectObjectType::XZ));
-		m_objects.push_back(new SphereObject(new Lambertian(new noise_texture(andro::Vector3(0.9, 0.9, 0.0))), andro::Vector3(0, -1000, -1), 1000));
-		int i = 1;
-		for (int a = -11; a < 11; a++)
-		{
-			for (int b = -11; b < 11; b++)
-			{
-				float choose_mat = random_float(1);
-				Vector3 center(a + 0.9* random_float(1), 0.2, b * random_float(1));
-				if ((center - Vector3(4, 0.2, 0)).Lenght() > 0.9)
-				{
-					if (choose_mat < 0.8) //difuse
-						m_objects.push_back(new SphereObject(new Lambertian(new constant_texture(Vector3(random_float(1)* random_float(1), random_float(1)* random_float(1), random_float(1)* random_float(1)))), center, 0.2));
-					else if (choose_mat < 0.95) //metal
-						m_objects.push_back(new SphereObject(new Metal(Vector3(0.5*(1 + random_float(1)), 0.5*(1 + random_float(1)), 0.5*(1 + random_float(1))), 0.5*random_float(1)), center, 0.2));
-					else
-						m_objects.push_back(new SphereObject(new Dielectric(1.5), center, 0.2));
-
-				}
-			}
-
-
-		}
-		m_objects.push_back(new SphereObject(new Dielectric(1.5), Vector3(0, 1, 0.5), 1.0));
-		m_objects.push_back(new SphereObject(new Lambertian(new  constant_texture(Vector3(0.4, 0.2, 0.1))), Vector3(-4, 1.0, 1.0), 1));
-//		m_objects.push_back(new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1)));
-
-		// buid scene bbx
-		float min_radius = 10000;
-
-
-		for (auto object : m_objects)
-		{
-#ifdef OBJECT_LIST_DEBUG_TEST
-			g_Framebuffer.debug_objects.push_back(&sphere);
-#endif
-
-			andro::Sphere bsphere = object->GetBoundingSphere();
-
-			min_radius = fminf(min_radius, bsphere.radius);
-			for (int a = 0; a < 3; a++)
-			{
-
-				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], bsphere.center[a] - bsphere.radius);
-				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], bsphere.center[a] + bsphere.radius);
-			}
-		}
-
+		g_Framebuffer = new CFrameBuffer(w, h);
+		s_numberOfSamples = ns;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////////////
 
@@ -129,12 +74,111 @@ CFrameBuffer g_Framebuffer(300, 300);
 
 	}
 	//////////////////////////////////////////////////////////////////////////////////
+	void InitScene()
+	{
+
+		// buid scene bbx
+		afloat min_radius = 10000;
+
+
+		for (auto object : m_objects)
+		{
+#ifdef OBJECT_LIST_DEBUG_TEST
+			g_Framebuffer->debug_objects.push_back(object);
+#endif
+
+			andro::Sphere bsphere = object->GetBoundingSphere();
+
+			min_radius = fminf(min_radius, bsphere.radius);
+			for (int a = 0; a < 3; a++)
+			{
+
+				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], bsphere.center[a] - bsphere.radius);
+				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], bsphere.center[a] + bsphere.radius);
+			}
+		}
+
+		BuildSceneOctree();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	ObjectRef<Object> CreateObject(ObjectDesc desc)
+	{
+		ObjectRef<Object> ref;
+		Object* object = nullptr;
+		material* mat = nullptr;
+		texture* tex = nullptr;
+
+		if (desc.m_material == MaterialType::M_Lambertian)
+		{
+
+			if (desc.m_texture == TextureType::Tex_Constant)
+				tex = new constant_texture(desc.m_colour);
+			else
+				tex = new noise_texture(desc.m_colour);
+
+			mat = new Lambertian(tex);
+		}
+		else if (desc.m_material == MaterialType::M_LIGHT)
+		{
+			if (desc.m_texture == TextureType::Tex_Constant)
+				tex = new constant_texture(desc.m_colour);
+			else
+				tex = new noise_texture(desc.m_colour);
+
+			mat = new diffuse_light(tex);
+		}
+		else if (desc.m_material == MaterialType::M_Metal)
+		{
+			mat = new Metal(desc.m_colour, desc.m_roughness);
+		}
+		else if (desc.m_material == MaterialType::M_Dielectric)
+		{
+			mat = new Dielectric(desc.m_roughness); //refractive index
+		}
+		else
+			ASSERT(false);
+
+		//------------------------------------------------------------
+		if (desc.m_type == ObjectType::OBJ_Sphere)
+		{
+			object = new SphereObject(mat, desc.m_position, desc.m_size);
+		}
+		else if (desc.m_type == ObjectType::OBJ_Box)
+		{
+			object = new BoxObject(mat, desc.m_position, andro::Vector3(desc.m_size, desc.m_size, desc.m_size));
+		}
+		else if (desc.m_type == ObjectType::OBJ_RectObjectXY)
+		{
+			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::XY);
+		}
+		else if (desc.m_type == ObjectType::OBJ_RectObjectYZ)
+		{
+			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::YZ);
+		}
+		else if (desc.m_type == ObjectType::OBJ_RectObjectXZ)
+		{
+			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::XZ);
+		}
+		else
+			ASSERT(false);
+
+
+		ref.object = object;
+		m_objects.push_back(ref.object);
+
+		return ref;
+
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
 	void PaintFrameBuffer(HDC hdc)
 	{
 		m_nFrame++;
 
-		int iWidth = g_Framebuffer.GetWidth();
-		int iHeight = g_Framebuffer.GetHeight();
+		int iWidth = g_Framebuffer->GetWidth();
+		int iHeight = g_Framebuffer->GetHeight();
 
 		// Create an off-screen DC for double-buffering
 		if (!hbmMem)
@@ -143,7 +187,7 @@ CFrameBuffer g_Framebuffer(300, 300);
 			hbmMem = CreateCompatibleBitmap(hdc, iWidth, iHeight);
 		}
 
-		const unsigned int *p = g_Framebuffer.GetFrameBuffer();
+		const unsigned int *p = g_Framebuffer->GetFrameBuffer();
 
 		// Draw back buffer
 		HANDLE hOld = SelectObject(hdcMem, hbmMem);
@@ -159,19 +203,6 @@ CFrameBuffer g_Framebuffer(300, 300);
 
 	void RenderFrame( HDC hdc )
 	{
-
-#if defined ONE_FRAME
-		static int s = 0;
-		s++;
-		if (s > 1)
-		{
-			PaintFrameBuffer(hdc);
-			return;
-		}
-#endif
-
-		if (m_init)
-			g_Framebuffer.Update(m_octree);
 
 		PaintFrameBuffer(hdc);
 	}
@@ -194,19 +225,6 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
-//////////////////////////////////////////////////////////////////////////////////
-
-
-ObjectRef<Object> CreateObject()
-{
-	ObjectRef<Object> ref;
-
-	ref.object = new BoxObject(new Metal(Vector3(0.7, 0.6, 0.2), 0.05), Vector3(4, 1.0, 0.0), Vector3(1));
-	m_objects.push_back(ref.object);
-
-	return ref;
-
-}
 
 //////////////////////////////////////////////////////////////////////////////////
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -232,14 +250,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	// Initialize global strings
 	MyRegisterClass(hInstance);
 
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
 
-
-	HDC hdc = GetDC(g_hWnd);
 
 	//-----------------------------------------------------------
 	//------ game types
@@ -250,6 +261,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	REGISTER_USER_TYPE_REF(Object);
 	REGISTER_USER_TYPE(BoxObject);
 	REGISTER_USER_TYPE_REF(BoxObject);
+
+	REGISTER_TYPE_EXPLCIT(ObjectDesc, ObjectDesc, ObjectDesc::ToLua, ObjectDesc::FromLua);
+
 	//--------------------------------------
 	
 	
@@ -257,22 +271,26 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	Lua_State::GetInstance()->Init();
 	lua_State* L = *Lua_State::GetInstance();
 	lua_bind(L, CreateObject);
+	lua_bind(L, InitFrame);
 
 	Lua_State::GetInstance()->execute_program("data/raytracer/raytracer.lua");
 
-	InitScene();
-	BuildSceneOctree();
 
-	while (true)
+
+	// Perform application initialization:
+	if (!InitInstance(hInstance, nCmdShow))
 	{
-		FPS++;
-		currentTime = GetTickCount();
-		elapsedTime = currentTime - lastTime;
-		deltaTime = (currentTime - lastframeTime) / 1000;
+		DestroyObjects();
+		return FALSE;
+	}
+	HDC hdc = GetDC(g_hWnd);
 
+	InitScene();
+	bool should_close = false;
 
-
-
+	lastTime = GetTickCount();
+	while (!should_close)
+	{
 		// Main message loop:
 		while (PeekMessage(&msg, NULL, 0, 0,TRUE))
 		{
@@ -290,19 +308,51 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		InvalidateRect(g_hWnd,0,FALSE);
 
 #if defined ONE_FRAME
-		static int st = 0;
-		st++;
-		if (st == 1)
-#else
-		if (elapsedTime >= 100)
-#endif
+		static int s = 0;
+		if (s == 1)
 		{
-			
-			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f", (UINT)(FPS * 1000.0 / elapsedTime), (float)(currentTime - lastframeTime));
+
+			// write image to log
+			const unsigned int* f = g_Framebuffer->GetFrameBuffer();
+			std::ofstream out("ray_log.txt");
+
+			out << "P3" << std::endl;
+			out << g_Framebuffer->GetWidth() << " " << g_Framebuffer->GetHeight() << std::endl;
+			out << "255 " << std::endl;
+
+			for (int j = 0; j < g_Framebuffer->GetHeight(); j++)
+				for (int i = 0; i < g_Framebuffer->GetWidth(); i++)
+				{
+					int r = int(f[j* g_Framebuffer->GetWidth() + i]) >> 16;
+					int g = (int(f[j* g_Framebuffer->GetWidth() + i]) & 0xff00) >> 8;
+					int b = int(f[j* g_Framebuffer->GetWidth() + i]) & 0xff;
+					out << r << " " << g << " " << b << std::endl;
+				}
+
+			out.close();
+			Sleep(1000);
+//			should_close = true;
+			continue;
+		}
+
+		s++;
+#endif
+
+		g_Framebuffer->Update(m_octree, s_numberOfSamples);
+
+
+
+		FPS++;
+		currentTime = GetTickCount();
+		elapsedTime = currentTime - lastTime;
+		deltaTime = (currentTime - lastframeTime) / 1000;
+
+		if (elapsedTime >= 100)		
+		{
+			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f", (UINT)(FPS * 1000.0 / elapsedTime), elapsedTime);
 			SetWindowText(g_hWnd, szTitle);
 			FPS = 0;
 			lastTime = currentTime;
-
 		}
 
 		lastframeTime = currentTime;
@@ -366,8 +416,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
 
-	 int width = g_Framebuffer.GetWidth() + 20;
-	 int height = g_Framebuffer.GetHeight() + 50;
+	 int width = g_Framebuffer->GetWidth() + 20;
+	 int height = g_Framebuffer->GetHeight() + 50;
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT, width,height, 0, NULL, hInstance, NULL);
 
@@ -438,6 +488,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_DESTROY:
+		DestroyObjects();
 
 		PostQuitMessage(0);
 		break;

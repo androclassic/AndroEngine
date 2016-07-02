@@ -41,11 +41,11 @@ namespace TakeTwo
 			glm::vec4 color_specular; // *
 			glm::vec4 color_transparent;
 
-			float opacity;
-			float reflectivity;
-			float refractivity;
-			float shininess;
-			float shininess_strength;
+			afloat opacity;
+			afloat reflectivity;
+			afloat refractivity;
+			afloat shininess;
+			afloat shininess_strength;
 
 			std::string textureName;
 			std::string programName;

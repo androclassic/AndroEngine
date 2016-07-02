@@ -22,13 +22,13 @@ u32 KeyUpEvent::GetKey()
 	return m_key;
 }
 
-MouseLButtonPressed::MouseLButtonPressed(float x,float y):Event(ID())
+MouseLButtonPressed::MouseLButtonPressed(afloat x,afloat y):Event(ID())
 {
 	m_x=x;
 	m_y=y;
 }
 
-MouseLButtonUp::MouseLButtonUp(float x,float y):Event(ID())
+MouseLButtonUp::MouseLButtonUp(afloat x,afloat y):Event(ID())
 {
 	
 	m_x=x;
@@ -36,10 +36,10 @@ MouseLButtonUp::MouseLButtonUp(float x,float y):Event(ID())
 }
 
 
-float MouseMove::m_lastx=0;
-float MouseMove::m_lasty=0;
+afloat MouseMove::m_lastx=0;
+afloat MouseMove::m_lasty=0;
 
-MouseMove::MouseMove(float x,float y):Event(ID())
+MouseMove::MouseMove(afloat x,afloat y):Event(ID())
 {
 	
 	m_x=x;

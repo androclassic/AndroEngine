@@ -24,8 +24,8 @@ class GameObject
 public:
 	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
 	~GameObject();
-	void SetPosition(float x, float y, float z);
-	void SetScale(float scale);
+	void SetPosition(afloat x, afloat y, afloat z);
+	void SetScale(afloat scale);
 
 	static ObjectRef<GameObject> CreateGameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);

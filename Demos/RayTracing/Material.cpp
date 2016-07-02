@@ -17,12 +17,12 @@ Vector3 Reflect(const Vector3& vector, const Vector3& normal)
 
 
 //Snell's law
-bool Refract(const Vector3& v, const Vector3& n, float refractive_idx_ratio, Vector3& refracted)
+bool Refract(const Vector3& v, const Vector3& n, afloat refractive_idx_ratio, Vector3& refracted)
 {
 	Vector3 unit_v = v.Normalise();
 
-	float dt = unit_v * n;
-	float discriminant = 1.0 - refractive_idx_ratio*refractive_idx_ratio * (1 - dt*dt);
+	afloat dt = unit_v * n;
+	afloat discriminant = 1.0 - refractive_idx_ratio*refractive_idx_ratio * (1 - dt*dt);
 	if (discriminant > 0)
 	{
 		refracted = (unit_v - (n*dt)) * refractive_idx_ratio  - n * sqrtf(discriminant);
@@ -33,9 +33,9 @@ bool Refract(const Vector3& v, const Vector3& n, float refractive_idx_ratio, Vec
 }
 
 
-float Schlick(float cosine, float ref_idx)
+afloat Schlick(afloat cosine, afloat ref_idx)
 {
-	float r0 = (1 - ref_idx) / (1 + ref_idx);
+	afloat r0 = (1 - ref_idx) / (1 + ref_idx);
 	r0 = r0 *r0;
 	return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
@@ -55,7 +55,7 @@ bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 {
 	Vector3 outward_normal;
 	Vector3 refracted;
-	float refractive_index_ratio, reflect_prob, cosine;
+	afloat refractive_index_ratio, reflect_prob, cosine;
 
 	Vector3 reflected = Reflect(ray_in.dir, rec.normal);
 	attenuation = Vector3(1.0f, 1.0f, 1.0f);

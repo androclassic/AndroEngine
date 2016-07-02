@@ -23,30 +23,30 @@ namespace TakeTwo
         glm::vec4 GetClearColor() const;
 
         void SetAngleAxis(const glm::vec4& pAngleAxis);
-        void SetAngleAxis(float pAngle, const glm::vec3& pAxis);
+        void SetAngleAxis(afloat pAngle, const glm::vec3& pAxis);
         glm::vec4 GetAngleAxis() const;
-        float GetAngle() const;
+        afloat GetAngle() const;
         glm::vec3 GetAxis() const;
         void Rotate(const glm::vec4& pAngleAxis);
-        void Rotate(float pAngle, const glm::vec3& pAxis);
+        void Rotate(afloat pAngle, const glm::vec3& pAxis);
 
         void LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp = glm::vec3(0.0f, 1.0f, 0.0f));
         glm::vec3 GetFrontDir();
         glm::vec3 GetUpDir();
         glm::vec3 GetRightDir();
 
-        void SetPerspective(float pFOV, float pAspectRatio, float pNearPlane, float pFarPlane);
-		void SetPerspectiveFOV(float pFOV, float width, float height, float pNearPlane, float pFarPlane);
-		void SetOrthographic(float pLeft, float pRight, float pTop, float pBottom, float pNearPlane, float pFarPlane);
+        void SetPerspective(afloat pFOV, afloat pAspectRatio, afloat pNearPlane, afloat pFarPlane);
+		void SetPerspectiveFOV(afloat pFOV, afloat width, afloat height, afloat pNearPlane, afloat pFarPlane);
+		void SetOrthographic(afloat pLeft, afloat pRight, afloat pTop, afloat pBottom, afloat pNearPlane, afloat pFarPlane);
 
-        float GetNearPlane() const { return mNearPlane; }
-        float GetFarPlane() const { return mFarPlane; }
-        float GetFOV() const { assert(mCameraType == CameraType::PERSPECTIVE); return mFOV; }
-        float GetAspectRatio() const { assert(mCameraType == CameraType::PERSPECTIVE); return mAspectRatio; }
-        float GetLeft() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mLeft; }
-        float GetRight() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mRight; }
-        float GetTop() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mTop; }
-        float GetBottom() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mBottom; }
+        afloat GetNearPlane() const { return mNearPlane; }
+        afloat GetFarPlane() const { return mFarPlane; }
+        afloat GetFOV() const { assert(mCameraType == CameraType::PERSPECTIVE); return mFOV; }
+        afloat GetAspectRatio() const { assert(mCameraType == CameraType::PERSPECTIVE); return mAspectRatio; }
+        afloat GetLeft() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mLeft; }
+        afloat GetRight() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mRight; }
+        afloat GetTop() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mTop; }
+        afloat GetBottom() const { assert(mCameraType == CameraType::ORTHOGRAPHIC); return mBottom; }
 
         inline glm::mat4 GetProjectionMatrix() const { return mProjection; }
         //non const because GetTransformMatrix updates it's members if dirty
@@ -61,16 +61,16 @@ namespace TakeTwo
 
         //for projection matrix:
         //common
-        float mNearPlane;
-        float mFarPlane;
+        afloat mNearPlane;
+        afloat mFarPlane;
         //perspective
-        float mFOV;
-        float mAspectRatio;
+        afloat mFOV;
+        afloat mAspectRatio;
         //orthographic
-        float mLeft;
-        float mRight;
-        float mBottom;
-        float mTop;
+        afloat mLeft;
+        afloat mRight;
+        afloat mBottom;
+        afloat mTop;
 
         glm::mat4 mProjection;
         //view matrix is the matrix from the inherited transformation

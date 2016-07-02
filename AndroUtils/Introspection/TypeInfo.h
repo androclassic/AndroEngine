@@ -136,7 +136,7 @@ void ObjRefFromLua(lua_State *L, int index, Variable *var)
 						REGISTER_TYPE(char*,CharPToLua, CharPTFromLua);\
 						REGISTER_TYPE(const char*,CharPToLua, CharPTFromLua);\
 						REGISTER_TYPE(int, IntToLua, IntFromLua);\
-						REGISTER_TYPE(float, FloatToLua, FloatFromLua);\
+						REGISTER_TYPE(afloat, FloatToLua, FloatFromLua);\
 						REGISTER_TYPE(double, FloatToLua, DoubleFromLua); \
 						REGISTER_TYPE(unsigned char, CharToLua, CharFromLua);\
 						REGISTER_TYPE(unsigned int, UIntToLua, IntFromLua);

@@ -12,11 +12,11 @@ namespace andro
 		perlin_generate_perm(perm_z);
 
 	}
-	float perlin_noise::get_value(const Vector3& p) const
+	afloat perlin_noise::get_value(const Vector3& p) const
 	{
-		//float u = p.x - floorf(p.x);
-		//float v = p.y - floorf(p.y);
-		//float w = p.z - floorf(p.z);
+		//afloat u = p.x - floorf(p.x);
+		//afloat v = p.y - floorf(p.y);
+		//afloat w = p.z - floorf(p.z);
 
 		int i = int(m_size * p.x) & 255;
 		int j = int(m_size * p.y) & 255;

@@ -28,6 +28,12 @@ namespace TakeTwo
     {
         glUniform1fv(mId, mCount, &mValue);
     }
+	template<>
+	void ShaderParam<double>::SendToShader()
+	{
+		float value = mValue;
+		glUniform1fv(mId, mCount, &value);
+	}
 
     //vectors
     template<>

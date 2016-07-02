@@ -14,7 +14,7 @@ namespace andro
 			, _time(0.0f)
 		{};
 
-		ray(const Vector3& pOrigin, const Vector3& pDir, float pTime = 0.0f)
+		ray(const Vector3& pOrigin, const Vector3& pDir, afloat pTime = 0.0f)
 			: origin(pOrigin)
 			, dir(pDir)
 			, _time(pTime)
@@ -22,11 +22,11 @@ namespace andro
 			dir.NormalizeInto();
 		}
 
-		inline Vector3 get_point_at(float t) const
+		inline Vector3 get_point_at(afloat t) const
 		{
 			return origin + (dir * t);
 		}
-		inline float get_time() const
+		inline afloat get_time() const
 		{
 			return _time;
 		}
@@ -36,13 +36,13 @@ namespace andro
 
 		//exit time(optional)
 	private:
-		float _time; 
+		afloat _time; 
 
 	};
 
 	struct hit_record
 	{
-		float t;
+		afloat t;
 		Vector2 uv;
 		Vector3 normal;
 		Vector3 point;
@@ -52,7 +52,7 @@ namespace andro
 	class Hitable
 	{
 		public:
-			virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;
+			virtual bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const = 0;
 			virtual Vector2 getUV(const Vector3& point) const = 0;
 
 	};

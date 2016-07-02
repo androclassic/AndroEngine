@@ -6,31 +6,31 @@ namespace andro
 	Vector2 Sphere::getUV(const Vector3& point) const
 	{
 		Vector2 uv;
-		float phi = atan2f(point.z, point.x);
-		float theta = asinf(point.y);
+		afloat phi = atan2f(point.z, point.x);
+		afloat theta = asinf(point.y);
 		uv.x = 1 - (phi + math::PI) / (2 * math::PI);
 		uv.y = (theta + math::PI / 2.0f) / math::PI;
 
 		return uv;
 	}
 
-	 bool Sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	 bool Sphere::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 		// p(t) = (origin + t * dir)) - center)
 		//dot( ( p(t), p(t)) = R* R
 
 		Vector3 oc = r.origin - center;
-		float a = r.dir * r.dir;
-		float b = (oc * r.dir);
-		float c = (oc * oc) - (radius * radius);
+		afloat a = r.dir * r.dir;
+		afloat b = (oc * r.dir);
+		afloat c = (oc * oc) - (radius * radius);
 
-		float discriminant = b*b - a*c;
+		afloat discriminant = b*b - a*c;
 
 		if (discriminant < 0)
 			return false;
 
-		float temp = (-b - sqrtf(discriminant) / a);
+		afloat temp = (-b - sqrtf(discriminant) / a);
 		if (temp > t_min && temp < t_max)
 		{
 			rec.t = temp;
@@ -92,16 +92,16 @@ namespace andro
 		return bbx;
 	}
 
-	 bool BoundingBox::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	 bool BoundingBox::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 
 		for (int a = 0; a < 3; a++)
 		{
-			float t0 = fminf((min.v[a] - r.origin.v[a]) / r.dir.v[a],
+			afloat t0 = fminf((min.v[a] - r.origin.v[a]) / r.dir.v[a],
 				(max.v[a] - r.origin.v[a]) / r.dir.v[a]);
 
-			float t1 = fmaxf((min.v[a] - r.origin.v[a]) / r.dir.v[a],
+			afloat t1 = fmaxf((min.v[a] - r.origin.v[a]) / r.dir.v[a],
 				(max.v[a] - r.origin.v[a]) / r.dir.v[a]);
 
 			t_min = fmaxf(t0, t_min);
@@ -113,7 +113,7 @@ namespace andro
 
 		Vector3 hit_point = r.get_point_at(t_min);
 		Vector3 normal(0, 1, 1);
-		static float delta = 0.005f;
+		static afloat delta = 0.005f;
 
 		if (fabs(hit_point.x - min.x) < delta)
 			normal = Vector3(-1, 0, 0);
@@ -141,14 +141,14 @@ namespace andro
 
 
 //--------------------------------------------------------------------------------------------------
-	bool xy_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	bool xy_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
-		float t = (k - r.origin.z) / r.dir.z;
+		afloat t = (k - r.origin.z) / r.dir.z;
 		if (t < t_min || t > t_max)
 			return false;
 
-		float x = r.origin.x + t * r.dir.x;
-		float y = r.origin.y + t * r.dir.y;
+		afloat x = r.origin.x + t * r.dir.x;
+		afloat y = r.origin.y + t * r.dir.y;
 
 		if (x < x0 || x > x1 || y < y0 || y > y1)
 			return false;
@@ -165,14 +165,14 @@ namespace andro
 		return Vector2((p.x - x0)/ (x1-x0), (p.y - y0)/(y1 - y0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	bool xz_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	bool xz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
-		float t = (k - r.origin.y) / r.dir.y;
+		afloat t = (k - r.origin.y) / r.dir.y;
 		if (t < t_min || t > t_max)
 			return false;
 
-		float x = r.origin.x + t * r.dir.x;
-		float z = r.origin.z + t * r.dir.z;
+		afloat x = r.origin.x + t * r.dir.x;
+		afloat z = r.origin.z + t * r.dir.z;
 
 		if (x < x0 || x > x1 || z < z0 || z > z1)
 			return false;
@@ -189,14 +189,14 @@ namespace andro
 		return Vector2((p.x - x0) / (x1 - x0), (p.z - z0) / (z1 - z0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	bool yz_rect::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	bool yz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
-		float t = (k - r.origin.x) / r.dir.x;
+		afloat t = (k - r.origin.x) / r.dir.x;
 		if (t < t_min || t > t_max)
 			return false;
 
-		float y = r.origin.y + t * r.dir.y;
-		float z = r.origin.z + t * r.dir.z;
+		afloat y = r.origin.y + t * r.dir.y;
+		afloat z = r.origin.z + t * r.dir.z;
 
 		if (y < y0 || y > y1 || z < z0 || z > z1)
 			return false;
@@ -215,7 +215,7 @@ namespace andro
 
 	//------------------------------------------------------------------
 	//intersections
-	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, float distance)
+	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, afloat distance)
 	{
 		BoundingBox center_box;
 		Vector3 halfsize = box.GetHalfSize();
@@ -309,7 +309,7 @@ namespace andro
 		Vector3 e0 = v[1] - v[0];
 		Vector3 e1 = v[2] - v[1];
 		Vector3 plane_normal = e0.vectorProduct(e1).Normalise();
-		float d = v[0] * plane_normal;
+		afloat d = v[0] * plane_normal;
 
 		// test triangle plane intersects bbx
 		if (!Box_Plane_Overlap(box, plane_normal, d))
@@ -320,19 +320,19 @@ namespace andro
 
 		Vector3 e2 = v[2] - v[0];
 
-		float min, max, p0, p1, p2, rad, fex, fey, fez;
+		afloat min, max, p0, p1, p2, rad, fex, fey, fez;
 		const unsigned int X = 0; const unsigned  int Y = 1; const unsigned  int Z = 2;
 
-		float* v0 = v[0].v;
-		float* v1 = v[1].v;
-		float* v2 = v[2].v;
+		afloat* v0 = v[0].v;
+		afloat* v1 = v[1].v;
+		afloat* v2 = v[2].v;
 
 		fex = fabs(e0.x);
 		fey = fabs(e0.y);
 		fez = fabs(e0.z);
 
-		float* boxhalfsize = halfSize.v;
-		float* normal = plane_normal.v;
+		afloat* boxhalfsize = halfSize.v;
+		afloat* normal = plane_normal.v;
 		AXISTEST_X01(e0.z, e0.y, fez, fey);
 		AXISTEST_Y02(e0.z, e0.x, fez, fex);
 		AXISTEST_Z12(e0.y, e0.x, fey, fex);

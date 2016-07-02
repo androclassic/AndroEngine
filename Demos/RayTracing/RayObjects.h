@@ -8,13 +8,13 @@
 struct Object
 {
 	virtual andro::Sphere GetBoundingSphere() const = 0;
-	const material* m_material;
+	material* m_material;
 	andro::Hitable*	m_shape;
 };
 
 struct SphereObject : public Object
 {
-	SphereObject(material* p_material, const Vector3& c, float r)
+	SphereObject(material* p_material, const Vector3& c, afloat r)
 	{
 		m_material = p_material;
 		m_shape = new andro::Sphere(c, r);

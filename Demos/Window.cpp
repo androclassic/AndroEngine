@@ -65,7 +65,7 @@
         glfwTerminate();
     }
 
-    void Window::Update(float dt)
+    void Window::Update(afloat dt)
     {
 
         //get the events

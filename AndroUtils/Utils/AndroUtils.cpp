@@ -7,20 +7,20 @@
 
 namespace andro
 {
-	float random_float(float max )
+	afloat random_float(afloat max )
 	{
 		unsigned int number;
 		rand_s(&number);
 
-		return (float)number / ((float)UINT_MAX + 1) * max;
+		return (afloat)number / ((afloat)UINT_MAX + 1) * max;
 	}
 
-	float GetTimeMS()
+	afloat GetTimeMS()
 	{
-		return (float)GetTickCount();
+		return (afloat)GetTickCount();
 	}
-	float GetTimeS()
+	afloat GetTimeS()
 	{
-		return (float)GetTickCount() / 1000.0f;
+		return (afloat)GetTickCount() / 1000.0f;
 	}
 }

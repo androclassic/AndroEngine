@@ -15,7 +15,7 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, float(iWidth) / iHeight, 4, 0.02f,0,0)
+	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, afloat(iWidth) / iHeight, 4, 0.02f,0,0)
 	, thread_pool(8)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
@@ -39,7 +39,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 
 	andro::hit_record rec, temp_rec;
 	bool hit = false;
-	float closest_so_far = 99999.0f;
+	afloat closest_so_far = 99999.0f;
 	const material* current_mat = nullptr;
 
 	Object* objects[500];
@@ -78,19 +78,22 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 			color.y *=attenuation.y;
 			color.z *=attenuation.z;
 		}
-		return emited + color;
+		Vector3 col =  emited + color;
+		return col;
+
 	}
 
 	Vector3 unit_v = ray.dir.Normalise();
-	float t = 0.5 * (unit_v.y + 1.0f);
+	afloat t = 0.5 * (unit_v.y + 1.0f);
 
 	//return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
-	return   andro::Vector3(0.005, 0.005, 0.005);
+	return   andro::Vector3(0.0025, 0.0025, 0.0025);
  }
 
 
-void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree)
+void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int numberOfSamples)
 {
+	m_nbSamples = numberOfSamples;
 	Clear();
 
 
@@ -115,9 +118,9 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree)
 void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& rect)
 {
 
-	float ratio = m_iWidth / m_iHeight;
+	afloat ratio = m_iWidth / m_iHeight;
 
-	unsigned int ns = 5;
+	unsigned int ns = m_nbSamples;
 
 	unsigned int start_x = rect.left * m_iWidth;
 	unsigned int start_y = rect.top * m_iHeight;
@@ -131,20 +134,17 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 			andro::Vector3 color;
 			for (unsigned int s = 0; s < ns; s++)
 			{
-				float u = float(x + random_float(1)) / m_iWidth;
-				float v = (float(y + random_float(1)) / m_iHeight);
+				afloat u = afloat(x + random_float(1)) / m_iWidth;
+				afloat v = (afloat(y + random_float(1)) / m_iHeight);
 				andro::ray r = m_camera.getRay(u, v);
 				andro::Vector3 col = get_color(r, octree);
 				color = color + col;
+
 			}
 			color = color * (1.0f / ns);
 
 			//gamma correction
 			color = andro::Vector3(sqrtf(color.x), sqrtf(color.y), sqrtf(color.z));
-
-			color.x = min(color.x, 1.0f);
-			color.y = min(color.y, 1.0f);
-			color.z = min(color.z, 1.0f);
 
 			m_FramebufferArray[x + y * m_iWidth] = int(color.x * 255) << 16;
 			m_FramebufferArray[x + y * m_iWidth] |= int(color.y * 255) << 8;

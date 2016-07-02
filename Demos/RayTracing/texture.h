@@ -7,7 +7,7 @@ using namespace andro;
 class texture
 {
 	public:
-		virtual Vector3 sample(float u, float v, const Vector3& p) const = 0;
+		virtual Vector3 sample(afloat u, afloat v, const Vector3& p) const = 0;
 };
 
 class constant_texture : public texture
@@ -19,7 +19,7 @@ class constant_texture : public texture
 			: m_color(color)
 		{}
 
-		Vector3 sample(float u, float v, const Vector3& p) const
+		Vector3 sample(afloat u, afloat v, const Vector3& p) const
 		{
 			return m_color;
 		}
@@ -36,7 +36,7 @@ public:
 	image_texture(unsigned char* pixels, unsigned int w, unsigned int h) : data(pixels), m_width(w), m_height(h)
 	{}
 
-	Vector3 sample(float u, float v, const Vector3& p) const;
+	Vector3 sample(afloat u, afloat v, const Vector3& p) const;
 private:
 	unsigned char* data;
 	unsigned int m_width, m_height;
@@ -54,7 +54,7 @@ public:
 		, m_size(size)
 	{}
 
-	Vector3 sample(float u, float v, const Vector3& p) const;
+	Vector3 sample(afloat u, afloat v, const Vector3& p) const;
 
 private:
 	Vector3 m_color1;
@@ -72,7 +72,7 @@ public:
 		, noise()
 	{}
 
-	Vector3 sample(float u, float v, const Vector3& p) const
+	Vector3 sample(afloat u, afloat v, const Vector3& p) const
 	{
 		return m_color * noise.get_value(p);
 	}

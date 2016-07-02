@@ -1,4 +1,5 @@
 #pragma once
+#include "../../AndroUtils/Utils/AndroTypes.h"
 
 namespace TakeTwo
 {

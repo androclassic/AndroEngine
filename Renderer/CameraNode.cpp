@@ -31,9 +31,9 @@ void TakeTwo::CameraNode::SetAngleAxis(const glm::vec4& pAngleAxis)
     SetRotation(glm::angleAxis(pAngleAxis.x, glm::vec3(pAngleAxis.y, pAngleAxis.z, pAngleAxis.w)));
 }
 
-void TakeTwo::CameraNode::SetAngleAxis(float pAngle, const glm::vec3& pAxis)
+void TakeTwo::CameraNode::SetAngleAxis(afloat pAngle, const glm::vec3& pAxis)
 {
-    SetRotation(glm::angleAxis(pAngle, pAxis));
+	SetRotation(glm::angleAxis((float)pAngle, pAxis));
 }
 
 glm::vec4 TakeTwo::CameraNode::GetAngleAxis() const
@@ -42,7 +42,7 @@ glm::vec4 TakeTwo::CameraNode::GetAngleAxis() const
     return glm::vec4(glm::angle(quat), glm::axis(quat));
 }
 
-float TakeTwo::CameraNode::GetAngle() const
+afloat TakeTwo::CameraNode::GetAngle() const
 {
     return glm::angle(GetRotation());
 }
@@ -59,9 +59,9 @@ void TakeTwo::CameraNode::Rotate(const glm::vec4& pAngleAxis)
     );
 }
 
-void TakeTwo::CameraNode::Rotate(float pAngle, const glm::vec3& pAxis)
+void TakeTwo::CameraNode::Rotate(afloat pAngle, const glm::vec3& pAxis)
 {
-    SetRotation(GetRotation() * glm::angleAxis(pAngle, pAxis));
+	SetRotation(GetRotation() * glm::angleAxis((float)pAngle, pAxis));
 }
 
 void TakeTwo::CameraNode::LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp)
@@ -95,7 +95,7 @@ glm::vec3 TakeTwo::CameraNode::GetRightDir()
 	return glm::vec3(-mat[0][0], -mat[0][1], -mat[0][2]);
 }
 
-void TakeTwo::CameraNode::SetPerspective(float pFOV, float pAspectRatio, float pNearPlane, float pFarPlane)
+void TakeTwo::CameraNode::SetPerspective(afloat pFOV, afloat pAspectRatio, afloat pNearPlane, afloat pFarPlane)
 {
     assert(mCameraType == CameraType::PERSPECTIVE);
     mFOV = pFOV;
@@ -106,7 +106,7 @@ void TakeTwo::CameraNode::SetPerspective(float pFOV, float pAspectRatio, float p
     mProjection = static_cast<glm::mat4>(glm::perspective(pFOV, pAspectRatio, pNearPlane, pFarPlane));
 }
 
-void TakeTwo::CameraNode::SetPerspectiveFOV(float pFOV, float width, float height, float pNearPlane, float pFarPlane)
+void TakeTwo::CameraNode::SetPerspectiveFOV(afloat pFOV, afloat width, afloat height, afloat pNearPlane, afloat pFarPlane)
 {
 	assert(mCameraType == CameraType::PERSPECTIVE);
 	mFOV = pFOV;
@@ -116,7 +116,7 @@ void TakeTwo::CameraNode::SetPerspectiveFOV(float pFOV, float width, float heigh
 
 	mProjection = static_cast<glm::mat4>(glm::perspectiveFov(pFOV,  width, height, pNearPlane, pFarPlane));
 }
-void TakeTwo::CameraNode::SetOrthographic(float pLeft, float pRight, float pTop, float pBottom, float pNearPlane, float pFarPlane)
+void TakeTwo::CameraNode::SetOrthographic(afloat pLeft, afloat pRight, afloat pTop, afloat pBottom, afloat pNearPlane, afloat pFarPlane)
 {
     assert(mCameraType == CameraType::ORTHOGRAPHIC);
     mLeft = pLeft;

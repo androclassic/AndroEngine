@@ -73,13 +73,13 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 		{
 			Vertex  p;
 
-			bbx.min.x = std::min(shape.mesh.positions[i    ], bbx.min.x);
-			bbx.min.y = std::min(shape.mesh.positions[i + 1], bbx.min.y);
-			bbx.min.z = std::min(shape.mesh.positions[i + 2], bbx.min.z);
+			bbx.min.x = std::min(shape.mesh.positions[i    ], (float)bbx.min.x);
+			bbx.min.y = std::min(shape.mesh.positions[i + 1], (float)bbx.min.y);
+			bbx.min.z = std::min(shape.mesh.positions[i + 2], (float)bbx.min.z);
 
-			bbx.max.x = std::max(shape.mesh.positions[i],     bbx.max.x);
-			bbx.max.y = std::max(shape.mesh.positions[i + 1], bbx.max.y);
-			bbx.max.z = std::max(shape.mesh.positions[i + 2], bbx.max.z);
+			bbx.max.x = std::max(shape.mesh.positions[i],     (float)bbx.max.x);
+			bbx.max.y = std::max(shape.mesh.positions[i + 1], (float)bbx.max.y);
+			bbx.max.z = std::max(shape.mesh.positions[i + 2], (float)bbx.max.z);
 
 			p.position = glm::vec3(shape.mesh.positions[i], shape.mesh.positions[i + 1], shape.mesh.positions[i + 2]);
 			if (hasNormals)

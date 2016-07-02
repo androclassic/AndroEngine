@@ -3,7 +3,7 @@
 
 using namespace andro;
 
-Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, float aspect_ratio, float focus_dist, float aperture, float t0, float t1)
+Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, afloat vfov, afloat aspect_ratio, afloat focus_dist, afloat aperture, afloat t0, afloat t1)
 	: m_origin(position)
 	, focus_distance(focus_dist)
 	, lens_radius(aperture / 2.0f)
@@ -16,7 +16,7 @@ Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, flo
 	REGISTER_LISTENER(MouseLButtonPressed::ID(), this);
 
 
-	float theta = DEG2RAD(vfov);
+	afloat theta = DEG2RAD(vfov);
 	half_height = tan(theta / 2);
 	half_width = aspect_ratio * half_height;
 
@@ -31,7 +31,7 @@ Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, float vfov, flo
 }
 
 
-void  Camera::Move(float dx, float dz)
+void  Camera::Move(afloat dx, afloat dz)
 {
 	if (dz)
 	{
@@ -87,8 +87,8 @@ void Camera::OnEvent(andro::Event *e)
 	else if (e->GetID() == MouseMove::ID() && m_mousemove)
 	{
 		MouseMove* event = static_cast<MouseMove*>(e);
-		float angle_y = ((float)(event->m_x - event->m_lastx) / 5 );
-		float angle_x = ((float)(event->m_y - event->m_lasty) / 5);
+		afloat angle_y = ((afloat)(event->m_x - event->m_lastx) / 5 );
+		afloat angle_x = ((afloat)(event->m_y - event->m_lasty) / 5);
 		angle_x = DEG2RAD(angle_x);
 		angle_y = DEG2RAD(angle_y);
 
@@ -132,11 +132,11 @@ andro::Vector3 random_in_unit_disk()
 	return p;
 }
 
-andro::ray Camera::getRay(float u, float v) const
+andro::ray Camera::getRay(afloat u, afloat v) const
 {
 	andro::Vector3 rd = random_in_unit_disk() * lens_radius;
 	andro::Vector3 offset = m_right * rd.x + m_up*rd.y;
-	andro::Vector3 origin = m_origin + offset;
+	andro::Vector3 origin = m_origin;// +offset;
 	return andro::ray(origin, m_top_left_corner + (m_horizontal * u) + (m_vertical * v) - origin, andro::GetTimeMS());
 }
 

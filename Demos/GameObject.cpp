@@ -39,11 +39,11 @@ GameObject::~GameObject()
 	TakeTwo::Engine::GetInstance()->RemoveRenderObject(&mNode);
 }
 
-void GameObject::SetPosition(float x, float y, float z)
+void GameObject::SetPosition(afloat x, afloat y, afloat z)
 {
 	mNode.SetPosition(glm::vec3(x, y, z));
 }
-void GameObject::SetScale(float scale)
+void GameObject::SetScale(afloat scale)
 {
 	mNode.SetScale(glm::vec3(scale, scale, scale));
 }

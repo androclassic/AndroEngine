@@ -128,7 +128,7 @@ namespace andro
 		if (node == nullptr)//TODO
 			return;
 
-		float txm, tym, tzm;
+		afloat txm, tym, tzm;
 		int currNode;
 
 		if (tx1 < 0 || ty1 < 0 || tz1 < 0) return;

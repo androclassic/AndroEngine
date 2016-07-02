@@ -12,17 +12,17 @@ Camera::Camera()
 }
 
 
-void  Camera::Move(float dx, float dz)
+void  Camera::Move(afloat dx, afloat dz)
 {
 	glm::vec3 pos = m_camera->GetPosition();
 	if (dz)
 	{
-		pos = pos - (m_camera->GetFrontDir() * dz);
+		pos = pos - (m_camera->GetFrontDir() * (float)dz);
 
 	}
 	else if (dx)
 	{
-		pos = pos - (m_camera->GetRightDir() * dx);
+		pos = pos - (m_camera->GetRightDir() * (float)dx);
 	}
 
 	m_camera->SetPosition(pos);

@@ -1,4 +1,5 @@
 #pragma once
+#include "../AndroUtils/Utils/AndroTypes.h"
 #include "OGL_Platform.h"
 #include "PD_Texture.h"
 #include <vector>
@@ -23,7 +24,7 @@ namespace TakeTwo
 		void Draw(unsigned int pVertex_count, unsigned int pStart_vertex_location);
 		void DrawIndexed(unsigned int pIndex_count, unsigned int pStart_index_location, unsigned int pBase_vertex_location);
 
-		void Clear(float r, float g, float b, float a);
+		void Clear(afloat r, afloat g, afloat b, afloat a);
 
 	private:
 		GLuint			m_fbo; // The FBO ID

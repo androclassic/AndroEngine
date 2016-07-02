@@ -11,7 +11,7 @@ public:
 	Game();
 
 	void Initialise();
-	void Update(float dt);
+	void Update(afloat dt);
 	void End();
 
 	inline Window& GetWindow() { return *mWindow.get(); }

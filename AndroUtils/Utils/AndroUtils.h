@@ -18,8 +18,8 @@
 
 namespace andro
 {
-	float random_float(float max = 1.0f);
+	afloat random_float(afloat max = 1.0f);
 
-	float GetTimeMS();
-	float GetTimeS();
+	afloat GetTimeMS();
+	afloat GetTimeS();
 }
