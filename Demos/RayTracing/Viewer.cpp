@@ -43,10 +43,10 @@ CFrameBuffer* g_Framebuffer = NULL;
 	}
 ///////////////////////////////////////////////////////////////////////////////////
 
-	void InitFrame(unsigned int ns, unsigned w, unsigned h)
+	void InitFrame(andro::Vector3 frameWHZ, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook) //TODO CHECK FOR MEM LEAKS
 	{
-		g_Framebuffer = new CFrameBuffer(w, h);
-		s_numberOfSamples = ns;
+		g_Framebuffer = new CFrameBuffer(frameWHZ.x, frameWHZ.y, bgColour, cameraPos, cameraLook);
+		s_numberOfSamples = frameWHZ.z;
 	}
 
 
@@ -143,23 +143,26 @@ CFrameBuffer* g_Framebuffer = NULL;
 		//------------------------------------------------------------
 		if (desc.m_type == ObjectType::OBJ_Sphere)
 		{
-			object = new SphereObject(mat, desc.m_position, desc.m_size);
+			object = new SphereObject(mat, desc.m_position, desc.m_size.x);
 		}
 		else if (desc.m_type == ObjectType::OBJ_Box)
 		{
-			object = new BoxObject(mat, desc.m_position, andro::Vector3(desc.m_size, desc.m_size, desc.m_size));
+			object = new BoxObject(mat, desc.m_position, desc.m_size);
 		}
 		else if (desc.m_type == ObjectType::OBJ_RectObjectXY)
 		{
-			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::XY);
+			Vector2 size(desc.m_size.x, desc.m_size.y);
+			object = new RectObject(mat, desc.m_position, size, RectObjectType::XY);
 		}
 		else if (desc.m_type == ObjectType::OBJ_RectObjectYZ)
 		{
-			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::YZ);
+			Vector2 size(desc.m_size.x, desc.m_size.y);
+			object = new RectObject(mat, desc.m_position, size, RectObjectType::YZ);
 		}
 		else if (desc.m_type == ObjectType::OBJ_RectObjectXZ)
 		{
-			object = new RectObject(mat, desc.m_position, andro::Vector2(desc.m_size, desc.m_size), RectObjectType::XZ);
+			Vector2 size(desc.m_size.x, desc.m_size.y);
+			object = new RectObject(mat, desc.m_position, size, RectObjectType::XZ);
 		}
 		else
 			ASSERT(false);
@@ -226,6 +229,15 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+using namespace andro;
+
+ObjectRef<Vector3> CreateVector3(float x, float y, float z)
+{
+	ObjectRef<Vector3> obj;
+	obj.object = new Vector3(x,y,z);
+	return obj;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -262,6 +274,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	REGISTER_USER_TYPE(BoxObject);
 	REGISTER_USER_TYPE_REF(BoxObject);
 
+	REGISTER_USER_TYPE(Vector3);
+	REGISTER_USER_TYPE_REF(Vector3);
+
 	REGISTER_TYPE_EXPLCIT(ObjectDesc, ObjectDesc, ObjectDesc::ToLua, ObjectDesc::FromLua);
 
 	//--------------------------------------
@@ -270,6 +285,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	//initialise Lua
 	Lua_State::GetInstance()->Init();
 	lua_State* L = *Lua_State::GetInstance();
+
+	lua_bind_explicit(L, CreateVector3, vec3);
+
 	lua_bind(L, CreateObject);
 	lua_bind(L, InitFrame);
 

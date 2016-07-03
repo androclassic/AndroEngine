@@ -47,7 +47,7 @@ struct RenderSliceTask
 class CFrameBuffer
 {
 public:
-	CFrameBuffer( const int iWidth, const int iHeight );
+	CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3  bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook );
 	~CFrameBuffer();
 
 	void Clear();
@@ -73,6 +73,7 @@ private:
 	int m_iWidth, m_iHeight;
 	Camera m_camera;
 	andro::ThreadPool<RenderSliceTask> thread_pool;
+	andro::Vector3 m_bgColour;
 
 
 };

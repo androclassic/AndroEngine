@@ -43,8 +43,9 @@ struct ObjectDesc
 	MaterialType m_material;
 	andro::Vector3 m_colour;
 	andro::Vector3 m_position;
+	andro::Vector3 m_size;
+
 	float m_roughness;
-	float m_size;
 
 	static void FromLua(lua_State * L, int index, Variable * ref)
 	{
@@ -55,12 +56,13 @@ struct ObjectDesc
 		lua_getfield(L, index, "Type");
 		lua_getfield(L, index, "Material");
 		lua_getfield(L, index, "Texture");
-		lua_getfield(L, index, "Size");
 		lua_getfield(L, index, "Roughness");
+		lua_getfield(L, index, "Size");
 		lua_getfield(L, index, "Position");
 		lua_getfield(L, index, "Colour");
 
 
+// colour
 		ASSERT(lua_istable(L, -1));
 		lua_getfield(L, -1, "r");
 		float r = lua_tonumber(L, -1);
@@ -74,6 +76,8 @@ struct ObjectDesc
 		float b = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 		lua_pop(L, 1);
+
+// position
 
 		ASSERT(lua_istable(L, -1));
 		lua_getfield(L, -1, "x");
@@ -89,13 +93,38 @@ struct ObjectDesc
 		lua_pop(L, 1);
 		lua_pop(L, 1);
 
+// size
+
+		if(lua_istable(L, -1))
+		{
+			lua_getfield(L, -1, "x");
+			float x = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+
+			lua_getfield(L, -1, "y");
+			float y = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+
+			lua_getfield(L, -1, "z");
+			float z = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+			lua_pop(L, 1);
+			ref_objectDesc->m_size = andro::Vector3(x, y, z);
+		}
+		else
+		{
+			float size = lua_tonumber(L, -1);
+			ref_objectDesc->m_size = andro::Vector3(size, size, size);
+			lua_pop(L, 1);
+
+		}			
+
+
+
 		ref_objectDesc->m_colour = andro::Vector3(r, g, b);
 		ref_objectDesc->m_position = andro::Vector3(x, y, z);
 
 		ref_objectDesc->m_roughness = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-
-		ref_objectDesc->m_size = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 
 

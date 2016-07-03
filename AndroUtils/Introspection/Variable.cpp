@@ -49,20 +49,20 @@ void IntFromLua(lua_State *L, int index, Variable *ref)
 
 void FloatToLua(lua_State *L, Variable& var)
 {
-	lua_pushnumber(L, var.GetValue<afloat>());
+	lua_pushnumber(L, var.GetValue<float>());
 }
 
 void FloatFromLua(lua_State *L, int index, Variable *ref)
 {
 	ASSERT(lua_isnumber(L, index)); // Type mismatch! Passed wrong argument type in Lua call to C++ function?
-	afloat temp = (afloat)lua_tonumber(L, index);
-	*(afloat*)ref->GetVoidPtr() = temp;
+	float temp = (float)lua_tonumber(L, index);
+	*(float*)ref->GetVoidPtr() = temp;
 }
 
 void DoubleFromLua(lua_State *L, int index, Variable *ref)
 {
 	ASSERT(lua_isnumber(L, index)); // Type mismatch! Passed wrong argument type in Lua call to C++ function?
-	afloat temp = (afloat)lua_tonumber(L, index);
+	double temp = lua_tonumber(L, index);
 	*(double*)ref->GetVoidPtr() = temp;
 }
 

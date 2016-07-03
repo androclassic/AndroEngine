@@ -14,9 +14,12 @@ void RenderSliceTask::operator()()
 
 //////////////////////////////////////////////////////////////////////////
 
-CFrameBuffer::CFrameBuffer( const int iWidth, const int iHeight )
-	:m_iWidth(iWidth), m_iHeight(iHeight), m_camera(andro::Vector3(5, 1.5,3.5), andro::Vector3(0.0f, 0.0f, -1.0f), 90, afloat(iWidth) / iHeight, 4, 0.02f,0,0)
+CFrameBuffer::CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook)
+	:m_iWidth(iWidth)
+	, m_iHeight(iHeight)
+	, m_camera(cameraPos, cameraLook, 90, afloat(iWidth) / iHeight, 2, 0.05f, 0, 0)
 	, thread_pool(8)
+	,m_bgColour(bgColour)
 {
 	m_FramebufferArray.resize(iWidth*iHeight,0);
 
@@ -82,12 +85,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		return col;
 
 	}
-
-	Vector3 unit_v = ray.dir.Normalise();
-	afloat t = 0.5 * (unit_v.y + 1.0f);
-
-	//return   andro::Vector3(0.1, 0.1,0.3) * (1.0f - t) + andro::Vector3(0.5f, 0.6f, 0.9) * t;
-	return   andro::Vector3(0.0025, 0.0025, 0.0025);
+	return   m_bgColour;
  }
 
 
