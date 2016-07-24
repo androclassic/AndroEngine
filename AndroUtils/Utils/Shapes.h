@@ -1,10 +1,15 @@
 #pragma once
 #include "Ray.h"
+#include "Octree.h"
+#include <vector>
 
 namespace andro
 {
-	struct Triangle //TODO hitable
+	struct Triangle : public Hitable
 	{
+		bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		Vector2 getUV(const Vector3& point) const;
+
 		Vector3 P1, P2, P3;
 	};
 
@@ -12,7 +17,7 @@ namespace andro
 	struct Sphere : public Hitable
 	{
 		Sphere() {}
-		Sphere(Vector3 c, afloat r) :center(c), radius(r) {}
+		Sphere(const Vector3& c, afloat r) :center(c), radius(r) {}
 		bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		Vector2 getUV(const Vector3& point) const;
 
@@ -37,6 +42,19 @@ namespace andro
 
 		Vector3		min;
 		Vector3		max;
+	};
+
+
+	struct Mesh : public Hitable
+	{
+		Mesh(const Vector3& c, const char* filename);
+		bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		Vector2 getUV(const Vector3& point) const;
+
+		Vector3 center;
+		std::vector<Triangle> m_triangles;
+		void* m_octree;
+		BoundingBox m_bounds;
 	};
 
 
@@ -82,6 +100,8 @@ namespace andro
 	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, afloat distance);
 	bool  TriangleBoxOverlap(const BoundingBox& box, Triangle& triangle);
 	bool  Box_Sphere_Overlap(const BoundingBox& box, Sphere& sphere);
+
+	Sphere GetTriangleBoundingSphere(const Triangle* t);
 }
 
 

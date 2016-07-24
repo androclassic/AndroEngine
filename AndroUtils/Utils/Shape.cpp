@@ -1,7 +1,171 @@
 #include "Shapes.h"
+#include "Trace.h"
+#include "AndroUtils.h"
+#include "../../External/tinyOBJ/tiny_obj_loader.h"
+#include "../../Renderer\Log.h"
 
 namespace andro
 {
+
+
+	Mesh::Mesh(const Vector3& c, const char* filename) :center(c)
+	{
+
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+
+		std::string err;
+		bool ret = tinyobj::LoadObj(shapes, materials, err, filename, NULL, TRUE);
+
+		if (!err.empty()) {
+			LOG_MSG(err);
+		}
+
+		if (!ret) {
+			return;
+		}
+
+
+		//Read vertices and indices
+		std::vector<andro::Vector3> vertices;
+		std::vector<unsigned int> indices;
+		m_bounds.max = andro::Vector3(-999, -999, -999);
+		m_bounds.min = andro::Vector3(999, 999, 999);
+
+		unsigned int base = 0;
+		for (auto shape : shapes)
+		{
+			for (int i = 0, n = 0, t = 0; i < shape.mesh.positions.size(); i += 3, t += 2, n += 3)
+			{
+				andro::Vector3 p;
+
+				m_bounds.min.x = (std::min)(shape.mesh.positions[i],	 (float)m_bounds.min.x);
+				m_bounds.min.y = (std::min)(shape.mesh.positions[i + 1], (float)m_bounds.min.y);
+				m_bounds.min.z = (std::min)(shape.mesh.positions[i + 2], (float)m_bounds.min.z);
+
+				m_bounds.max.x = (std::max)(shape.mesh.positions[i],	 (float)m_bounds.max.x);
+				m_bounds.max.y = (std::max)(shape.mesh.positions[i + 1], (float)m_bounds.max.y);
+				m_bounds.max.z = (std::max)(shape.mesh.positions[i + 2], (float)m_bounds.max.z);
+
+				p = andro::Vector3(shape.mesh.positions[i], shape.mesh.positions[i + 1], shape.mesh.positions[i + 2]);
+				vertices.push_back(p);
+			}
+			for (int i = 0; i < shape.mesh.indices.size(); i++)
+			{
+				indices.push_back(base + shape.mesh.indices[i]);
+			}
+
+			base += (shape.mesh.positions.size() / 3);
+		}
+
+		for (int i = 0; i < indices.size() - 2; i++)
+		{
+			andro::Triangle t;
+			t.P1 = vertices[indices[i]];
+			t.P2 = vertices[indices[i + 1]];
+			t.P3 = vertices[indices[i + 2]];
+
+			m_triangles.push_back(t);
+		}
+
+		std::vector<Triangle*> triangles;
+		for (auto& t : m_triangles)
+		{
+			triangles.push_back(&t);
+		}
+
+
+		// build octree of the scene
+		//TODO custom octree step 
+		m_octree = andro::BuildOctree<Triangle*>(triangles, m_bounds, 4, [](const andro::BoundingBox& box, Triangle* t)	{ return TriangleBoxOverlap(box, *t); }, true);
+
+	}
+
+	Vector2 Mesh::getUV(const Vector3& point) const
+	{
+		//TODO
+		Vector2 uv;
+		return uv;
+	}
+
+	bool Mesh::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	{
+		Triangle* objects[500];
+
+		ray _ray = r;
+		_ray.origin = _ray.origin - center;
+
+		andro::hit_record temp_rec;
+		bool hit = false;
+		afloat closest_so_far = t_max;
+
+		unsigned int size = 0;
+		OctreeNode<Triangle*>* octree = (OctreeNode<Triangle*>*)m_octree;
+		andro::ray_octree_traversal(octree, _ray, objects, size);
+
+		for (int i = 0; i < size; i++)
+		{
+			Triangle* t = objects[i];
+			if (t->hit(_ray, t_min, closest_so_far, temp_rec))
+			{
+				hit = true;
+				closest_so_far = temp_rec.t;
+				rec = temp_rec;
+			}
+		}
+
+		return hit;
+	}
+
+
+
+
+	Vector2 Triangle::getUV(const Vector3& point) const
+	{
+		//TODO
+		Vector2 uv;
+		return uv;
+	}
+
+	bool Triangle::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	{
+		static float eps = 0.000001f;
+
+		andro::Vector3 e1 = P2 - P1;
+		andro::Vector3 e2 = P3 - P1;
+		andro::Vector3 q = r.dir.vectorProduct(e2);
+		float a = e1 * q;
+		if (a > -eps && a < eps)
+			return false;
+
+		float f = 1.0f / a;
+
+		andro::Vector3 s = r.origin - P1;
+		float u = f * (s * q);
+
+		if (u < 0.0)
+			return false;
+
+		andro::Vector3 _r = s.vectorProduct(e1);
+
+		float v = f * (r.dir * _r);
+		if (v < 0.0 || v+u > 1.0)
+			return false;
+
+		float t  = f * (e2 * _r);
+
+		if (t< t_min || t > t_max)
+			return false;
+
+		rec.normal = e1.vectorProduct(e2);
+		rec.normal.NormalizeInto();
+		rec.t = t;
+		rec.point = r.get_point_at(t);
+		rec.uv = getUV(rec.point);
+
+
+		return true;
+	}
 
 	Vector2 Sphere::getUV(const Vector3& point) const
 	{
@@ -58,9 +222,10 @@ namespace andro
 
 
 
-	BoundingBox::BoundingBox() : min(99999.0f, 99999.0f, 99999.0f), max(-99999.0f, -99999.0f, -99999.0f)
+	BoundingBox::BoundingBox()
 	{
-
+		min = andro::Vector3(99999.0f, 99999.0f, 99999.0f);
+		max = andro::Vector3(-99999.0f, -99999.0f, -99999.0f);
 	}
 
 	Vector3 BoundingBox::GetHalfSize() const
@@ -80,13 +245,13 @@ namespace andro
 		BoundingBox bbx;
 		for (unsigned int i = 0; i < num; i++)
 		{
-			bbx.min.x = std::min(points[i].x, bbx.min.x);
-			bbx.min.y = std::min(points[i].y, bbx.min.y);
-			bbx.min.z = std::min(points[i].z, bbx.min.z);
+			bbx.min.x = (std::min)(points[i].x, bbx.min.x);
+			bbx.min.y = (std::min)(points[i].y, bbx.min.y);
+			bbx.min.z = (std::min)(points[i].z, bbx.min.z);
 
-			bbx.max.x = std::max(points[i].x, bbx.max.x);
-			bbx.max.y = std::max(points[i].y, bbx.max.y);
-			bbx.max.z = std::max(points[i].z, bbx.max.z);
+			bbx.max.x = (std::max)(points[i].x, bbx.max.x);
+			bbx.max.y = (std::max)(points[i].y, bbx.max.y);
+			bbx.max.z = (std::max)(points[i].z, bbx.max.z);
 
 		}
 		return bbx;
@@ -363,5 +528,61 @@ namespace andro
 		// within the sphere's radius
 		return distanceSquared < (sphere.radius * sphere.radius);
 	}
+
+
+
+	//---------------------------------------------------------------------------------------
+
+	Sphere GetTriangleBoundingSphere(const Triangle* t)
+	{
+		// Calculate relative distances
+		float A = (t->P2 - t->P1).Lenght();
+		float B = (t->P2 - t->P3).Lenght();
+		float C = (t->P3 - t->P1).Lenght();
+
+		// Re-orient triangle (make A longest side)
+		const andro::Vector3 *a = &t->P3, *b = &t->P1, *c = &t->P2;
+		if (B < C)
+		{
+			//swap B C
+			float temp = B;
+			B = C;
+			C = temp;
+
+			//swap b c
+			b = &t->P2;
+			c = &t->P1;
+		}
+		if (A < B)
+		{
+			//swap A B
+			float temp = A;
+			A = B;
+			B = temp;
+
+			const andro::Vector3 * tem = a;
+			a = b;
+			b = tem;
+		}
+
+		// If obtuse, just use longest diameter, otherwise circumscribe
+		if ((B*B) + (C*C) <= (A*A))
+		{
+			float radius = A / 2.f;
+			andro::Vector3 position = (*b + *c) * (1.0 / 2.f);
+			return andro::Sphere(position, radius);
+		}
+		else {
+			// http://en.wikipedia.org/wiki/Circumscribed_circle
+			float cos_a = (B*B + C*C - A*A) / (B*C * 2);
+			float radius = A / (sqrt(1 - cos_a*cos_a)*2.f);
+			andro::Vector3 alpha = *a - *c, beta = *b - *c;
+			andro::Vector3 position = (beta *(alpha * alpha) - alpha * (beta*beta)).vectorProduct(alpha.vectorProduct(beta))* (1.0 / (alpha.vectorProduct(beta)*(alpha.vectorProduct(beta)) * 2.f)) + *c;
+
+			return andro::Sphere(position, radius);
+
+		}
+	}
+	
 
 }

@@ -136,6 +136,7 @@ namespace andro
 
 		if (node->m_objects.size())
 		{
+//			if (node->m_objects.size() + current_size < 500)
 //			TRACE(L"Adding %d objects \n", node->m_objects.size());
 			memcpy_s(objects_list + current_size, node->m_objects.size() * sizeof(T), node->m_objects.data(), node->m_objects.size() * sizeof(T));
 			current_size += node->m_objects.size();

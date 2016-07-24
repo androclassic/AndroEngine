@@ -34,6 +34,58 @@ struct SphereObject : public Object
 };
 
 
+struct TriangleObject : public Object
+{
+	TriangleObject(material* p_material, const Triangle& t)
+	{
+		m_material = p_material;
+		m_shape = new andro::Triangle(t);
+	}
+
+	~TriangleObject()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+
+	inline andro::Sphere GetBoundingSphere() const
+	{
+		Triangle* t = (Triangle*)m_shape;
+		return GetTriangleBoundingSphere(t);
+	}
+
+};
+
+
+
+
+struct MeshObject : public Object
+{
+	MeshObject(material* p_material, const char* filename, const Vector3& c)
+	{
+		m_material = p_material;
+		m_shape = new andro::Mesh(c, filename);
+		m_center = c;
+	}
+
+	~MeshObject()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+
+	inline andro::Sphere GetBoundingSphere() const
+	{
+		//TODO
+		return Sphere(m_center, ((andro::Mesh*)m_shape)->m_bounds.GetHalfSize().Lenght());
+	}
+
+	andro::Vector3 m_center;
+
+};
+
 struct BoxObject : public Object
 {
 	BoxObject(material* p_material, const Vector3& c, const Vector3& half_size)

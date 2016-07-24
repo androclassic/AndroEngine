@@ -15,6 +15,7 @@ set(LINK_DIRS
     )
 
 link_directories(${LINK_DIRS})
+include_directories(${ANDRO_SDK}/GLEW/include  ${ANDRO_SDK}/GLFW/include ${ANDRO_SDK}/glm/)
 include_directories(${ANDRO_SDK}/../)
 include_directories(${ANDRO_SDK}/../Demos)
 
@@ -36,4 +37,4 @@ else(PLATFORM STREQUAL "Win32")
 endif(PLATFORM STREQUAL "Win32")
 		
 add_executable (RayTracing WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
-target_link_libraries(RayTracing  AndroUtils Lua ${LINK_FILES})
+target_link_libraries(RayTracing Force AndroUtils Renderer Lua TinyObj SOIL ${LINK_FILES})

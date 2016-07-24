@@ -27,7 +27,7 @@ unsigned int s_numberOfSamples;
 
 CFrameBuffer* g_Framebuffer = NULL;
 
-#define ONE_FRAME 1
+//#define ONE_FRAME 1
 //////////////////////////////////////////////////////////////////////////////////
 	void DestroyObjects()
 	{
@@ -303,7 +303,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	}
 	HDC hdc = GetDC(g_hWnd);
 
+/*	Object* obj = new MeshObject(new Metal(andro::Vector3(184.0 / 255, 115.0 / 255, 51.0 / 255), 0.3), "data/catmark_torus_creases0.obj", andro::Vector3(0, 0.0, -1));
+	m_objects.push_back(obj);*/
+
 	InitScene();
+
+
 	bool should_close = false;
 
 	lastTime = GetTickCount();
