@@ -34,12 +34,12 @@ function init()
 	math.randomseed( 9741 )
 	local light_intensity = 7
 
-	local bgColour = vec3(0.032,0.025,0.03)
+	local bgColour = vec3(0.32,0.25,0.3)
 	local cameraPosition = vec3(-2.3,0.65,0)
 	local cameraLook = vec3(0,0,0)
 --	local width = 1980	local height = 1080	local samples = 1
-	local width = 1280	local height = 640	local samples = 1
---	local width = 400	local height = 300	local samples = 1
+--	local width = 1280	local height = 640	local samples = 1
+	local width = 400	local height = 300	local samples = 1
 
 	InitFrame(vec3(width,height,samples), bgColour, cameraPosition, cameraLook)
 -- add lights to the scene		

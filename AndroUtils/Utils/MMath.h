@@ -48,6 +48,7 @@ namespace andro
 
 			Vector3 vectorProduct(const Vector3 &vector) const;
 
+			inline Vector3 Vector3::Multiply(const Vector3 &vector) const 	{ return Vector3(x*vector.x, y*vector.y, z*vector.z); }
 
 			inline Vector3 Min(const Vector3 &rhs) const { return Vector3(fminf(x, rhs.x), fminf(y, rhs.y), fminf(z, rhs.z)); }
 			inline Vector3 Max(const Vector3 &rhs) const { return Vector3(fmaxf(x, rhs.x), fmaxf(y, rhs.y), fmaxf(z, rhs.z)); }

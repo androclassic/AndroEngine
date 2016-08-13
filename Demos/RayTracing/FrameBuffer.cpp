@@ -40,52 +40,63 @@ void CFrameBuffer::Clear()
 andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<Object*>const * octree, unsigned int depth)
 {
 
-	andro::hit_record rec, temp_rec;
-	bool hit = false;
-	afloat closest_so_far = 99999.0f;
-	const material* current_mat = nullptr;
+	Object* objects[50000];
+	uint16_t nbBounce = 30;
+	andro::ray current_ray = ray;
+	andro::Vector3 attenuation(1);
+	andro::Vector3 final_colour(0.0);
 
-	Object* objects[500];
-	ray.dir.NormalizeInto();
+	for (uint16_t bounce = 0; bounce < nbBounce; bounce++)
+	{
 
-	unsigned int size = 0;
-
-	andro::ray_octree_traversal(octree, ray, objects, size);
+		afloat closest_so_far = 99999.0f;
+		andro::hit_record rec, temp_rec;
+		bool hit = false;
+		const material* current_mat = nullptr;
+		unsigned int size = 0;
+		current_ray.dir.NormalizeInto();
+		andro::ray_octree_traversal(octree, current_ray, objects, size);
 
 #ifdef OBJECT_LIST_DEBUG_TEST
-	for (auto obj : debug_objects){
+		for (auto obj : debug_objects){
 #else
-	for (int i = 0; i < size; i++)
-	{
-		Object* obj = objects[i];
+		for (int i = 0; i < size; i++)
+		{
+			Object* obj = objects[i];
 #endif
-		if (obj->m_shape->hit(ray, 0.0001f, closest_so_far, temp_rec))
-		{
-			hit = true;
-			closest_so_far = temp_rec.t;
-			rec = temp_rec;
-			current_mat = obj->m_material;
+			if (obj->m_shape->hit(current_ray, 0.0001f, closest_so_far, temp_rec))
+			{
+				hit = true;
+				closest_so_far = temp_rec.t;
+				rec = temp_rec;
+				current_mat = obj->m_material;
+			}
 		}
-	}
 
-	if (hit && rec.t > 0)
-	{
-		andro::Vector3  color;
-		andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
-		andro::Vector3 attenuation;
-		andro::ray new_ray;
-		if (depth < 300 && current_mat->scatter(ray, rec, attenuation, new_ray))
+		if (hit && rec.t > 0)
 		{
-			color =  get_color(new_ray, octree, ++depth);
-			color.x *=attenuation.x;
-			color.y *=attenuation.y;
-			color.z *=attenuation.z;
-		}
-		Vector3 col =  emited + color;
-		return col;
+			andro::Vector3  color;
+			andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
+			final_colour = final_colour + attenuation.Multiply(emited);
+			andro::Vector3  new_att;
+			andro::ray new_ray;
+			bool scatter = current_mat->scatter(current_ray, rec, new_att, new_ray);
 
+			if (scatter)
+			{
+				current_ray = new_ray;
+				attenuation = attenuation.Multiply(new_att);
+				if (attenuation.LenghtSq() < 0.0025)
+					return final_colour;
+			}
+			else
+				return final_colour;
+
+		}
+		else
+			return final_colour + attenuation.Multiply( m_bgColour);
 	}
-	return   m_bgColour;
+	return final_colour;
  }
 
 
