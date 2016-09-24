@@ -48,12 +48,12 @@ namespace andro
 
 			Vector3 vectorProduct(const Vector3 &vector) const;
 
-			inline Vector3 Vector3::Multiply(const Vector3 &vector) const 	{ return Vector3(x*vector.x, y*vector.y, z*vector.z); }
+			inline Vector3 Multiply(const Vector3 &vector) const 	{ return Vector3(x*vector.x, y*vector.y, z*vector.z); }
 
 			inline Vector3 Min(const Vector3 &rhs) const { return Vector3(fminf(x, rhs.x), fminf(y, rhs.y), fminf(z, rhs.z)); }
 			inline Vector3 Max(const Vector3 &rhs) const { return Vector3(fmaxf(x, rhs.x), fmaxf(y, rhs.y), fmaxf(z, rhs.z)); }
 
-			inline Vector3 Vector3::Normalise() const
+			inline Vector3 Normalise() const
 			{
 				Vector3 v;
 				afloat lenght = Lenght();
@@ -62,12 +62,12 @@ namespace andro
 				v.z = z / lenght;
 				return v;
 			}
-			inline afloat Vector3::Lenght() const
+			inline afloat Lenght() const
 			{
 				return sqrt(x*x + y*y + z*z);
 			}
 
-			inline afloat Vector3::LenghtSq() const
+			inline afloat LenghtSq() const
 			{
 				return (x*x + y*y + z*z);
 			}
@@ -130,9 +130,6 @@ namespace andro
 	};
 
 
-	struct BoundingBox;
-
-
 
 	void  RotateYaw(Matrix4&  mat,afloat angle);
 	void  RotatePitch(Matrix4& mat, afloat angle);
@@ -142,12 +139,6 @@ namespace andro
 	void  SetPos(Matrix4& mat, afloat x, afloat y, afloat z);
 	void ComputeFrontAndRight(Vector3& front, Vector3& right, afloat pitch, afloat heading);
 	afloat Distance(const Vector3& p1, const Vector3& p2);
-
-
-
-	//TODO move
-	void CreateCubeModel(const BoundingBox& aabb, Vector3 points[8], unsigned int  indices[36]);
-	BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num);
 
 
 

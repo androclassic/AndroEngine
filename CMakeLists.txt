@@ -7,7 +7,8 @@ if(UNIX)
   if(APPLE)
     set(PLATFORM "Apple")
   else(APPLE)
-    set(PLATFORM "Linux")
+    SET(PLATFORM "Linux")
+    add_definitions(-std=gnu++0x)
   endif(APPLE)
 else(UNIX)
   if(WIN32)
@@ -18,6 +19,9 @@ else(UNIX)
 endif(UNIX)
 
 set(ANDRO_SDK "${CMAKE_CURRENT_SOURCE_DIR}/AndroSDK")
+
+
+MESSAGE(${PLATFORM})
 
 ADD_SUBDIRECTORY( Renderer )
 ADD_SUBDIRECTORY( Force )

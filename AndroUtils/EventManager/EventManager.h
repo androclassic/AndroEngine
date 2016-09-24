@@ -9,9 +9,8 @@
 #define ANDRO_EVENT_MANAGER 
 #endif
 
-#ifdef _WIN32
+#include "Event.h"
 #include "WindowsInputEvents.h"
-#endif
 
 using namespace std;
 
@@ -42,7 +41,7 @@ namespace andro
 	void AddEvent(Event* rhs);
 	void RegisterEventListener(u32 EventID,EventListener* newListner);
 	private:
-		std::map<u32, std::vector<EventListener*>> m_listenersMap;
+		std::map<u32, std::vector<EventListener*> > m_listenersMap;
 		std::vector<Event*>    m_newEvents;
 		std::vector<Event*>    m_oldEvents;
 	};

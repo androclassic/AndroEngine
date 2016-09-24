@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Material.h"
-#include "AndroUtils\Utils\ThreadPool.h"
-#include "AndroUtils\Utils\Shapes.h"
-#include "AndroUtils\Utils\Octree.h"
+#include "AndroUtils/Utils/ThreadPool.h"
+#include "AndroUtils/Utils/Shapes.h"
+#include "AndroUtils/Utils/Octree.h"
 
 struct Object
 {

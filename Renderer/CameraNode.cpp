@@ -79,19 +79,19 @@ void TakeTwo::CameraNode::LookAt(const glm::vec3& pLookAt, const glm::vec3& pUp)
 
 glm::vec3 TakeTwo::CameraNode::GetFrontDir() 
 {
-    glm::mat4& mat = GetTransformMatrix();
+    const glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[2][0], -mat[2][1], -mat[2][2]);
 }
 
 glm::vec3 TakeTwo::CameraNode::GetUpDir() 
 {
-	glm::mat4& mat = GetTransformMatrix();
+	const glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[1][0], -mat[1][1],-mat[1][2]);
 }
 
 glm::vec3 TakeTwo::CameraNode::GetRightDir() 
 {
-	glm::mat4& mat = GetTransformMatrix();
+	const glm::mat4& mat = GetTransformMatrix();
 	return glm::vec3(-mat[0][0], -mat[0][1], -mat[0][2]);
 }
 

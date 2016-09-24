@@ -1,5 +1,7 @@
 #pragma once
 
+
+
 //----------------------------------------------------------------------- 0 arg
 template<typename FunctionType, FunctionType FunctionPtr>
 void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
@@ -21,6 +23,7 @@ void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCoun
 	ASSERT(argCount == 1);
 	(*FunctionPtr)(args[0].GetValue<Arg1>());
 }
+
 template<typename FunctionType, FunctionType FunctionPtr, typename Arg1>
 Function BuildFuncion(void(*fn)(Arg1 a))
 {
@@ -29,6 +32,14 @@ Function BuildFuncion(void(*fn)(Arg1 a))
 }
 
 //----------------------------------------------------------------------- 2 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2>
+void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 2);
+	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2>
 Function BuildFuncion(void(*fn)(Arg1, Arg2))
 {
@@ -38,15 +49,14 @@ Function BuildFuncion(void(*fn)(Arg1, Arg2))
 
 	return Function(&Call<FunctionType, FunctionPtr, Arg1, Arg2>, types, 2);
 }
+//----------------------------------------------------------------------- 3 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2>
+template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3>
 void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 2);
-	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+	ASSERT(argCount == 3);
+	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
 }
-
-//----------------------------------------------------------------------- 3 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3>
 Function BuildFuncion(void(*fn)(Arg1, Arg2, Arg3))
 {
@@ -57,14 +67,16 @@ Function BuildFuncion(void(*fn)(Arg1, Arg2, Arg3))
 
 	return Function(&Call<FunctionType, FunctionPtr, Arg1, Arg2, Arg3>, types, 3);
 }
+//----------------------------------------------------------------------- 4 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3>
+
+template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 3);
-	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
+	ASSERT(argCount == 4);
+	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
 }
-//----------------------------------------------------------------------- 4 arg
+
 template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 Function BuildFuncion(void(*fn)(Arg1, Arg2, Arg3, Arg4))
 {
@@ -75,14 +87,6 @@ Function BuildFuncion(void(*fn)(Arg1, Arg2, Arg3, Arg4))
 	types[3] = GET_TYPE(Arg4);
 
 	return Function(&Call<FunctionType, FunctionPtr, Arg1, Arg2, Arg3, Arg4>, types, 4);
-}
-
-
-template<typename FunctionType, FunctionType FunctionPtr, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-void Call(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 4);
-	(*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
 }
 
 
@@ -106,6 +110,14 @@ Function BuildFuncion(R(*fn)())
 }
 
 //----------------------------------------------------------------------- 1 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1>
+void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 1);
+	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1>
 Function BuildFuncion(R(*fn)(Arg1))
 {
@@ -115,15 +127,15 @@ Function BuildFuncion(R(*fn)(Arg1))
 	return Function(&CallReturn<FunctionType, FunctionPtr, R, Arg1>, &type, 1, retType);
 }
 
-template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1>
+//----------------------------------------------------------------------- 2 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2>
 void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 1);
-	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>());
+	ASSERT(argCount == 2);
+	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
 }
 
-
-//----------------------------------------------------------------------- 2 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2>
 Function BuildFuncion(R(*fn)(Arg1, Arg2))
 {
@@ -135,15 +147,15 @@ Function BuildFuncion(R(*fn)(Arg1, Arg2))
 
 	return Function(&CallReturn<FunctionType, FunctionPtr, R, Arg1, Arg2>, types, 2, retType);
 }
+//----------------------------------------------------------------------- 3 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2>
+template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3>
 void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 2);
-	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+	ASSERT(argCount == 3);
+	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
 }
 
-//----------------------------------------------------------------------- 3 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3>
 Function BuildFuncion(R(*fn)(Arg1, Arg2, Arg3))
 {
@@ -156,15 +168,15 @@ Function BuildFuncion(R(*fn)(Arg1, Arg2, Arg3))
 
 	return Function(&CallReturn<FunctionType, FunctionPtr, R, Arg1, Arg2, Arg3>, types, 3, retType);
 }
+//----------------------------------------------------------------------- 4 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3>
+template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 3);
-	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
+	ASSERT(argCount == 4);
+	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
 }
 
-//----------------------------------------------------------------------- 4 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 Function BuildFuncion(R(*fn)(Arg1, Arg2, Arg3, Arg4))
 {
@@ -179,13 +191,6 @@ Function BuildFuncion(R(*fn)(Arg1, Arg2, Arg3, Arg4))
 	return Function(&CallReturn<FunctionType, FunctionPtr, R, Arg1, Arg2, Arg3, Arg4>, types, 4, retType);
 }
 
-template<typename FunctionType, FunctionType FunctionPtr, typename R, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 4);
-	ret.GetValue<R>() = (*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
-}
-
 
 
 
@@ -197,6 +202,13 @@ void CallReturn(Variable& context, Variable& ret, Variable* args, unsigned int a
 
 
 //----------------------------------------------------------------------- 4 arg
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 4);
+	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 Function BuildFuncion(void(S::*fn)(Arg1, Arg2, Arg3, Arg4))
 {
@@ -210,15 +222,16 @@ Function BuildFuncion(void(S::*fn)(Arg1, Arg2, Arg3, Arg4))
 	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S, Arg1, Arg2, Arg3, Arg4>, types, 4, nullptr, slef_type);
 }
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 4);
-	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
-}
 
 
 //----------------------------------------------------------------------- 3 arg
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3>
+void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 3);
+	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3>
 Function BuildFuncion(void(S::*fn)(Arg1, Arg2, Arg3))
 {
@@ -231,15 +244,17 @@ Function BuildFuncion(void(S::*fn)(Arg1, Arg2, Arg3))
 	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S, Arg1, Arg2, Arg3>, types, 3, nullptr, slef_type);
 }
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2, typename Arg3>
-void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 3);
-	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
-}
 
 
 //----------------------------------------------------------------------- 2 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2>
+void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 2);
+	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2>
 Function BuildFuncion(void(S::*fn)(Arg1, Arg2))
 {
@@ -251,14 +266,15 @@ Function BuildFuncion(void(S::*fn)(Arg1, Arg2))
 	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S, Arg1, Arg2>, types, 2, nullptr, slef_type);
 }
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1, typename Arg2>
+//----------------------------------------------------------------------- 1 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1>
 void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 2);
-	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+	ASSERT(argCount == 1);
+	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>());
 }
 
-//----------------------------------------------------------------------- 1 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1>
 Function BuildFuncion(void(S::*fn)(Arg1))
 {
@@ -268,21 +284,7 @@ Function BuildFuncion(void(S::*fn)(Arg1))
 	const TypeInfo* slef_type = GET_TYPE(S);
 	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S, Arg1>, types, 1, nullptr, slef_type);
 }
-
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename Arg1>
-void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 1);
-	(((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>());
-}
-
 //----------------------------------------------------------------------- 0  arg
-template<typename FunctionType, FunctionType FunctionPtr, typename S>
-Function BuildFuncion(void(S::*fn)())
-{
-	const TypeInfo* slef_type = GET_TYPE(S);
-	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S>, nullptr, 0, nullptr, slef_type);
-}
 
 template<typename FunctionType, FunctionType FunctionPtr, typename S>
 void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
@@ -291,6 +293,12 @@ void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned i
 	(((S *)context.GetVoidPtr())->*FunctionPtr)();
 }
 
+template<typename FunctionType, FunctionType FunctionPtr, typename S>
+Function BuildFuncion(void(S::*fn)())
+{
+	const TypeInfo* slef_type = GET_TYPE(S);
+	return Function(&CallVoidMethod<FunctionType, FunctionPtr, S>, nullptr, 0, nullptr, slef_type);
+}
 
 //------------------------------------------------------------------------------------------------------------------
 // Methods  with return 
@@ -298,6 +306,14 @@ void CallVoidMethod(Variable& context, Variable& ret, Variable* args, unsigned i
 
 
 //----------------------------------------------------------------------- 4 arg
+
+template<typename FunctionType, FunctionType FunctionPtr, typename S,typename R, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
+{
+	ASSERT(argCount == 4);
+	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
+}
+
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R ,typename Arg1, typename Arg2, typename Arg3, typename Arg4>
 Function BuildFuncion(R (S::*fn)(Arg1, Arg2, Arg3, Arg4))
 {
@@ -312,15 +328,15 @@ Function BuildFuncion(R (S::*fn)(Arg1, Arg2, Arg3, Arg4))
 
 	return Function(&CallReturnMethod<FunctionType, FunctionPtr, S, R, Arg1, Arg2, Arg3, Arg4>, types, 4, retType, slef_type);
 }
+//----------------------------------------------------------------------- 3 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S,typename R, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2, typename Arg3>
 void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 4);
-	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>(), args[3].GetValue<Arg4>());
+	ASSERT(argCount == 3);
+	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
 }
 
-//----------------------------------------------------------------------- 3 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2, typename Arg3>
 Function BuildFuncion(R(S::*fn)(Arg1, Arg2, Arg3))
 {
@@ -334,15 +350,15 @@ Function BuildFuncion(R(S::*fn)(Arg1, Arg2, Arg3))
 
 	return Function(&CallReturnMethod<FunctionType, FunctionPtr, S, R, Arg1, Arg2, Arg3>, types, 3, retType, slef_type);
 }
+//----------------------------------------------------------------------- 2 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2, typename Arg3>
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2>
 void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 3);
-	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>(), args[2].GetValue<Arg3>());
+	ASSERT(argCount == 2);
+	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
 }
 
-//----------------------------------------------------------------------- 2 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2>
 Function BuildFuncion(R(S::*fn)(Arg1, Arg2))
 {
@@ -355,15 +371,15 @@ Function BuildFuncion(R(S::*fn)(Arg1, Arg2))
 
 	return Function(&CallReturnMethod<FunctionType, FunctionPtr, S, R, Arg1, Arg2>, types, 2, retType, slef_type);
 }
+//----------------------------------------------------------------------- 1 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1, typename Arg2>
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1>
 void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 2);
-	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>(), args[1].GetValue<Arg2>());
+	ASSERT(argCount == 1);
+	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>());
 }
 
-//----------------------------------------------------------------------- 1 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1>
 Function BuildFuncion(R(S::*fn)(Arg1))
 {
@@ -375,15 +391,14 @@ Function BuildFuncion(R(S::*fn)(Arg1))
 
 	return Function(&CallReturnMethod<FunctionType, FunctionPtr, S, R, Arg1>, types, 1, retType, slef_type);
 }
+//----------------------------------------------------------------------- 0 arg
 
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R, typename Arg1>
+template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R>
 void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
 {
-	ASSERT(argCount == 1);
-	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)(args[0].GetValue<Arg1>());
+	ASSERT(argCount == 0);
+	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)();
 }
-
-//----------------------------------------------------------------------- 0 arg
 template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R>
 Function BuildFuncion(R(S::*fn)())
 {
@@ -391,11 +406,4 @@ Function BuildFuncion(R(S::*fn)())
 	const TypeInfo* retType = GET_TYPE(R);
 
 	return Function(&CallReturnMethod<FunctionType, FunctionPtr, S, R>, nullptr, 0, retType, slef_type);
-}
-
-template<typename FunctionType, FunctionType FunctionPtr, typename S, typename R>
-void CallReturnMethod(Variable& context, Variable& ret, Variable* args, unsigned int argCount)
-{
-	ASSERT(argCount == 0);
-	ret.GetValue<R>() = (((S *)context.GetVoidPtr())->*FunctionPtr)();
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "Ray.h"
-#include "Octree.h"
 #include <vector>
 
 namespace andro
@@ -30,12 +29,12 @@ namespace andro
 	{
 		BoundingBox();
 		BoundingBox(const Vector3& pCenter, const Vector3& pHalfSize) { min = pCenter - pHalfSize; max = pCenter + pHalfSize; }
-		inline void SetExtents(Vector3& pMin, Vector3&  pMax) { min = pMin; max = pMax; }
+		inline void SetExtents(const Vector3& pMin,const  Vector3&  pMax) { min = pMin; max = pMax; }
 		Vector3 GetHalfSize() const;
 		Vector3 GetCenter() const;
 
-		inline bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
-		inline Vector2 getUV(const Vector3& point) const
+		bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		Vector2 getUV(const Vector3& point) const
 		{
 			return Vector2(); //todo
 		}
@@ -102,6 +101,11 @@ namespace andro
 	bool  Box_Sphere_Overlap(const BoundingBox& box, Sphere& sphere);
 
 	Sphere GetTriangleBoundingSphere(const Triangle* t);
+
+		//TODO move
+	void CreateCubeModel(const BoundingBox& aabb, Vector3 points[8], unsigned int  indices[36]);
+	BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num);
+
 }
 
 

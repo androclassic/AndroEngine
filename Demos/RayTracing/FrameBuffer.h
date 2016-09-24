@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include<Windows.h>
+//#include<Windows.h>
 #include<algorithm>
 #include "Camera.h"
 #include "RayObjects.h"
-#include "AndroUtils\Utils\ThreadPool.h"
+#include "AndroUtils/Utils/ThreadPool.h"
 //#define OBJECT_LIST_DEBUG_TEST 1
 
 

@@ -30,13 +30,16 @@ if(PLATFORM STREQUAL "Win32")
 		opengl32
 		GlU32.lib
         )
+    add_executable (Demonstration WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
+
 else(PLATFORM STREQUAL "Win32")
     set(LINK_FILES
         glfw
         GLEW
         GL
         )
+    add_executable (Demonstration ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
+
 endif(PLATFORM STREQUAL "Win32")
 		
-add_executable (Demonstation WIN32 ${HEADERS} ${GL_HEADERS} ${GL_CPPSOURCE} ${CSOURCE}  ${CPPSOURCE}) 
-target_link_libraries(Demonstation Force  AndroUtils Renderer Lua TinyObj SOIL ${LINK_FILES})
+target_link_libraries(Demonstration Force Lua Renderer AndroUtils Lua  TinyObj SOIL ${LINK_FILES})

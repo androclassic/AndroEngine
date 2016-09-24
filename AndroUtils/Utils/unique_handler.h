@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Trace.h"
-
+#ifdef _WIN32
 namespace andro
 {
 	template <typename Traits>
@@ -97,5 +97,5 @@ namespace andro
 
 }
 
-
+#endif
 

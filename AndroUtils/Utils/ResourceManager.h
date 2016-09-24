@@ -1,6 +1,13 @@
 #pragma once
 #include "Resource.h"
-#include<unordered_map>
+
+#ifdef _WIN32
+	#include <unordered_map>
+	using namespace std;
+#else
+	#include <tr1/unordered_map>
+	using namespace std::tr1;
+#endif
 
 namespace andro
 {
@@ -18,7 +25,7 @@ namespace andro
 			std::string FileName = filename;
 			to_lower(FileName);
 
-			std::unordered_map< std::string, Resource* >::iterator it = Map.find(FileName);
+			unordered_map< std::string, Resource* >::iterator it = Map.find(FileName);
 			if (it != Map.end())
 			{
 
@@ -45,7 +52,7 @@ namespace andro
 			std::string FileName = filename;
 			to_lower(FileName);
 
-			std::unordered_map< std::string, Resource* >::iterator it = Map.find(FileName);
+			unordered_map< std::string, Resource* >::iterator it = Map.find(FileName);
 			if (it != Map.end())
 			{
 				(*it).second->DecReferences();
@@ -87,11 +94,11 @@ namespace andro
 		}
 	private:
 
-		std::unordered_map< std::string, Resource* > Map;
+		unordered_map< std::string, Resource* > Map;
 		std::string	Name;
 		void ReleaseAll()
 		{
-			std::unordered_map< std::string, Resource* >::iterator it = Map.begin();
+			unordered_map< std::string, Resource* >::iterator it = Map.begin();
 
 			while (it != Map.end())
 			{

@@ -99,22 +99,6 @@ struct ObjectRef
 	T* object;
 };
 
-template<typename T>
-void ObjRefToLua(lua_State *L, Variable& var)
-{
-	Variable reference = *((ObjectRef<T> *)var.GetVoidPtr())->object;
-	GenericToLua(L, reference);
-}
-
-template<typename T>
-void ObjRefFromLua(lua_State *L, int index, Variable *var)
-{
-	Variable* temp = ((Variable *)lua_touserdata(L, index));
-	ObjectRef<T> ref;
-	ref.object = (T*)temp->GetVoidPtr();
-	Variable reference(ref);
-	memcpy(var->GetVoidPtr(), reference.GetVoidPtr(), var->GetType()->Size());
-}
 
 
 #define AS_STRING( s ) #s

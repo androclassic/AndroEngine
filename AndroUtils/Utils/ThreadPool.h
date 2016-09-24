@@ -17,7 +17,7 @@ class ThreadPool
 {
 public:
 
-	ThreadPool::ThreadPool(int threads) :
+	ThreadPool(int threads) :
 		terminate(false),
 		busy(ATOMIC_VAR_INIT(0U)),
 		stopped(false)
@@ -28,7 +28,7 @@ public:
 		}
 	}
 
-	void ThreadPool::Enqueue(TaskContext& task)
+	void Enqueue(TaskContext& task)
 	{
 		{
 			unique_lock<mutex> lock(tasksMutex);
@@ -38,9 +38,9 @@ public:
 		condition.notify_one();
 	}
 
-	void ThreadPool::Invoke() {
+	void Invoke() {
 
-		RenderSliceTask task;
+		TaskContext task;
 		while (true)
 		{
 			{
@@ -74,7 +74,7 @@ public:
 		}
 	}
 
-	void ThreadPool::ShutDown()
+	void ShutDown()
 	{
 		if (!stopped)
 		{
@@ -96,7 +96,7 @@ public:
 			stopped = true;
 		}
 	}
-	ThreadPool::~ThreadPool()
+	~ThreadPool()
 	{
 		ShutDown();
 	}

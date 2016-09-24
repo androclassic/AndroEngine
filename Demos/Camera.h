@@ -4,7 +4,8 @@
 #include "../../Renderer/CameraNode.h"
 #include "../../AndroUtils/Utils/AndroTypes.h"
 #include <memory>
-#include "GLFW\glfw3.h"
+
+#include "GLFW/glfw3.h"
 
 class Camera : public andro::EventListener
 {

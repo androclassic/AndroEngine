@@ -5,14 +5,14 @@
 #ifndef _PRECISION_H_
 #define _PRECISION_H_
 
-#include<math.h>
+#include <math.h>
 #include <assert.h>
 
 #define real double
 
 #define real_sqrt	sqrt
 #define real_pow	pow
-#define real_abs	abs
+#define real_abs	fabs
 #ifndef PI
 #define PI 3.14159265
 #endif

@@ -347,7 +347,7 @@ static inline real penetrationOnAxis(
 static inline bool tryAxis(
     const Box &one,
     const Box &two,
-    Vector3& axis,
+    const Vector3& axis,
     const Vector3& toCentre,
     unsigned index,
 
@@ -358,7 +358,7 @@ static inline bool tryAxis(
 {
     // Make sure we have a normalized axis, and don't check almost parallel axes
     if (axis.squareMagnitude() < 0.0001) return true;
-    axis.normalise();
+//    axis.normalise(); TODO
 
     real penetration = penetrationOnAxis(one, two, axis, toCentre);
 

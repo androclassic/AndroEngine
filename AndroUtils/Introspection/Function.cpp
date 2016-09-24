@@ -12,6 +12,10 @@ Function::Function(Function& f)
 	: m_signeture(f.m_signeture)
 	, m_callFunction(f.m_callFunction)
 {}
+Function::Function(Function&& f)
+	: m_signeture(f.m_signeture)
+	, m_callFunction(f.m_callFunction)
+{}
 Function& Function::operator=(const Function& f)
 {
 	m_callFunction = f.m_callFunction;

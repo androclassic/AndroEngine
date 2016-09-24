@@ -48,7 +48,9 @@ namespace TakeTwo
 	{
 		EffectLibrary* lib = GetInstance();
 		if(lib->m_effects[pEffectdesc.name] == nullptr)
+		{
 			lib->m_effects[pEffectdesc.name] = new Program(pEffectdesc.vertex_shader, pEffectdesc.pixel_shader);
+		}
 		else
 		{
 			ASSERT(false); //the effect already exists

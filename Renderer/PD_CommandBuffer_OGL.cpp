@@ -47,8 +47,10 @@ namespace TakeTwo
 		{
 			// Check if all worked fine and unbind the FBO
 			GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+#if defined _WIN32
 			if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 				throw new std::exception("Can't initialize an FBO render texture. FBO initialization failed.");
+#endif
 		}
 		// Specify what to render an start acquiring
 		static GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT, GL_COLOR_ATTACHMENT4_EXT };
@@ -77,9 +79,10 @@ namespace TakeTwo
 
 				// Check if all worked fine and unbind the FBO
 				GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+#if defined _WIN32
 				if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 					throw new std::exception("Can't initialize an FBO render texture. FBO initialization failed.");
-
+#endif
 			}
 
 			// Specify what to render an start acquiring

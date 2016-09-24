@@ -2,8 +2,8 @@
 #include "FrameBuffer.h"
 #include <math.h>
 #include <algorithm>
-#include "AndroUtils\Utils\MMath.h"
-#include "AndroUtils\Utils\Ray.h"
+#include "AndroUtils/Utils/MMath.h"
+#include "AndroUtils/Utils/Ray.h"
 
 
 
@@ -115,8 +115,9 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int num
 		Rect rect(0,0,1,1);
 		rect.top = (1.0f / num_jobs) * (i);
 		rect.bottom = (1.0f / num_jobs) * (i + 1);
+		RenderSliceTask slice_task(*this, octree, rect);
 
-		thread_pool.Enqueue(RenderSliceTask(*this, octree, rect));
+		thread_pool.Enqueue(slice_task);
 	}
 	thread_pool.FlushQueue();
 

@@ -71,6 +71,7 @@ class Function
 public:
 		Function(void(*fn)(Variable& self, Variable& ret, Variable *args, unsigned int argCount), const TypeInfo** args, unsigned int argCount, const TypeInfo* ret = nullptr, const TypeInfo* self = nullptr);
 		Function(Function& f);
+		Function(Function&& f);
 		Function& operator=(const Function& f);
 		void operator()(Variable& self, Variable& ret, Variable *args, unsigned int argCount);
 		const Signeture*  GetSigneture() const;

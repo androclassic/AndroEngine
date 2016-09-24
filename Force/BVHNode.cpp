@@ -5,6 +5,7 @@ namespace force
 	template<class BoundingVolume>
 	BVHNode<BoundingVolume>::~BVHNode()
 	{
+		/*
 		// If we don’t have a parent, then we ignore the sibling processing.
 		if (parent)
 		{
@@ -43,11 +44,13 @@ namespace force
 			children[1]->parent = NULL;
 			delete children[0];
 		}
+		*/
 	}
 
 	template<class BoundingVolume>
     void BVHNode<BoundingVolume>::recalculateBoundingVolume()
     {
+    	/*
         if (isLeaf()) return;
 
         // Use the bounding volume combining constructor.
@@ -55,19 +58,27 @@ namespace force
 
         // Recurse up the tree
         if (parent) parent->recalculateBoundingVolume();
+		*/
 	}
 	template<class BoundingVolume>
 	unsigned int BVHNode<BoundingVolume>::getPotentialContacts(PotentialContacts *contacts, unsigned int limit)
 	{
+		return 0;
+
+    	/*
 		if(isLeaf() || limit == 0)
 			return 0;
 
 		return childrens[0]->getPotentialContactsWith(contacts, childrens[1], limit);
+		*/
 	}
 
 	template<class BoundingVolume>
 	unsigned int BVHNode<BoundingVolume>::getPotentialContactsWith(PotentialContacts *contacts,BVHNode* other, unsigned int limit)
 	{
+		return 0;
+
+    	/*
 		if(!Overlaps(other) || limit == 0)
 			return 0;
 
@@ -97,11 +108,13 @@ namespace force
 			else
 				return count;
 		}
+		*/
 	}
 
 	template<class BoundingVolume>
 	void BVHNode<BoundingVolume>::Insert(RigidBody *rb, const BoundingVolume& bv)
 	{
+		/*
 		if(isLeaf())
 		{
 
@@ -123,7 +136,8 @@ namespace force
 			childrens[0]->Insert(rb, bv);
 		else
 			childrens[1]->Insert(rb, bv);
-
+	*/
+		
 	}
 
 }

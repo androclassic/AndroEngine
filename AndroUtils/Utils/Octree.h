@@ -1,4 +1,6 @@
 #pragma once
+#include <math.h>
+#include <string.h>
 #include <vector>
 #include <functional>
 #include "Shapes.h"
@@ -8,7 +10,7 @@
 namespace andro
 {
 
-	enum NodePosition
+	enum NodePosition0
 	{
 		NEAR_BOTTOM_LEFT = 4,
 		NEAR_BOTTOM_RIGHT = 0,
@@ -123,7 +125,7 @@ namespace andro
 	int new_node(double txm, int x, double tym, int y, double tzm, int z);
 
 	template<typename T>
-	void proc_subtree(unsigned int a, double tx0, double ty0, double tz0, double tx1, double ty1, double tz1, const OctreeNode<T> const* node, T* objects_list, unsigned int& current_size)
+	void proc_subtree(unsigned int a, double tx0, double ty0, double tz0, double tx1, double ty1, double tz1, OctreeNode<T> const* node, T* objects_list, unsigned int& current_size)
 	{
 		if (node == nullptr)//TODO
 			return;
@@ -138,7 +140,11 @@ namespace andro
 		{
 //			if (node->m_objects.size() + current_size < 500)
 //			TRACE(L"Adding %d objects \n", node->m_objects.size());
+#ifdef _WIN32
 			memcpy_s(objects_list + current_size, node->m_objects.size() * sizeof(T), node->m_objects.data(), node->m_objects.size() * sizeof(T));
+#else
+			memcpy(objects_list + current_size, node->m_objects.data(), node->m_objects.size() * sizeof(T));
+#endif
 			current_size += node->m_objects.size();
 		}
 
@@ -198,7 +204,7 @@ namespace andro
 	}
 
 	template<typename T>
-	void ray_octree_traversal(const OctreeNode<T> const* octree, andro::ray ray, T* objects_list, unsigned int& current_size) {
+	void ray_octree_traversal(OctreeNode<T> const* octree, andro::ray ray, T* objects_list, unsigned int& current_size) {
 		unsigned int a = 0;
 		andro::Vector3 min = octree->m_bounds.min;
 		andro::Vector3 max = octree->m_bounds.max;
@@ -231,7 +237,7 @@ namespace andro
 		double tz0 = (octree->m_bounds.min.z - ray.origin.z) * divz;
 		double tz1 = (octree->m_bounds.max.z - ray.origin.z) * divz;
 
-		if (max(max(tx0, ty0), tz0) < min(min(tx1, ty1), tz1)) {
+		if (std::max(std::max(tx0, ty0), tz0) < std::min(std::min(tx1, ty1), tz1)) {
 			proc_subtree(a, tx0, ty0, tz0, tx1, ty1, tz1, octree, objects_list, current_size);
 		}
 	}

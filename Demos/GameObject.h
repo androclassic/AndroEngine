@@ -1,5 +1,9 @@
 #pragma once
+
+#ifdef _WIN32
 #include <windows.h>
+#endif
+
 #include <time.h>
 #include <memory.h>
 #include <sstream>

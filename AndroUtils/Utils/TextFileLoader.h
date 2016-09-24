@@ -1,5 +1,6 @@
 #pragma once
 #include "Resource.h"
+#include "ResourceManager.h"
 #include <string>
 
 namespace andro

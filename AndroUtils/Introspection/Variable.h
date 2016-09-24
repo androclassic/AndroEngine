@@ -1,5 +1,6 @@
 #pragma once
 #include "TypeInfo.h"
+#include <cstring>
 
 class Variable
 {
@@ -7,12 +8,12 @@ public:
 	Variable();
 
 	
-	Variable::Variable(const Variable& rhs)
+	Variable(const Variable& rhs)
 	{
 		m_data = rhs.m_data;
 		m_typeinfo = rhs.m_typeinfo;
 	}
-	Variable& Variable::operator=(const Variable& rhs)
+	Variable& operator=(const Variable& rhs)
 	{
 		m_data = rhs.m_data;
 		m_typeinfo = rhs.m_typeinfo;
@@ -35,11 +36,11 @@ public:
 	T* operator=(T* data);
 
 
-	inline void* Variable::GetVoidPtr()
+	inline void* GetVoidPtr()
 	{
 		return m_data;
 	}
-	inline const TypeInfo* Variable::GetType() const
+	inline const TypeInfo* GetType() const
 	{
 		return m_typeinfo;
 	}
@@ -86,6 +87,27 @@ private:
 	void* m_data;
 	const TypeInfo* m_typeinfo;
 };
+
+
+template<typename T>
+void ObjRefToLua(lua_State *L, Variable& var)
+{
+	Variable reference = *((ObjectRef<T> *)var.GetVoidPtr())->object;
+	GenericToLua(L, reference);
+}
+
+template<typename T>
+void ObjRefFromLua(lua_State *L, int index, Variable *var)
+{
+	Variable* temp = ((Variable *)lua_touserdata(L, index));
+	ObjectRef<T> ref;
+	ref.object = (T*)temp->GetVoidPtr();
+	Variable reference(ref);
+	memcpy(var->GetVoidPtr(), reference.GetVoidPtr(), var->GetType()->Size());
+}
+
+
+
 
 template<typename T>
 Variable::Variable(const T& data)

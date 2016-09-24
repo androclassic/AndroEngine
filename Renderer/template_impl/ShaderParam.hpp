@@ -1,4 +1,4 @@
-#include "ShaderParam.h"
+#include "../ShaderParam.h"
 #include <string>
 
 template<typename T>

@@ -1,8 +1,10 @@
+#include <string.h>
 #include "Shapes.h"
+#include "Octree.h"
 #include "Trace.h"
 #include "AndroUtils.h"
 #include "../../External/tinyOBJ/tiny_obj_loader.h"
-#include "../../Renderer\Log.h"
+#include "../../Renderer/Log.h"
 
 namespace andro
 {
@@ -584,5 +586,54 @@ namespace andro
 		}
 	}
 	
+	//-------------------------------------------------------------------------------
+	void CreateCubeModel(const BoundingBox& aabb, Vector3 points[8], unsigned int  indices[36])
+	{
+
+		andro::Vector3 center = aabb.GetCenter();
+		afloat half_x = aabb.GetHalfSize().x;
+		afloat half_y = aabb.GetHalfSize().y;
+		afloat half_z = aabb.GetHalfSize().z;
+
+
+		/* init_resources */
+		unsigned int cube_elements[] = {
+			// front
+			0, 1, 2,
+			2, 3, 0,
+			// top
+			1, 5, 6,
+			6, 2, 1,
+			// back
+			7, 6, 5,
+			5, 4, 7,
+			// bottom
+			4, 0, 3,
+			3, 7, 4,
+			// left
+			4, 5, 1,
+			1, 0, 4,
+			// right
+			3, 2, 6,
+			6, 7, 3,
+		};
+
+		//front
+		points[0] = center + andro::Vector3(-half_x, -half_y, half_z);
+		points[1] = center + andro::Vector3(half_x, -half_y, half_z);
+		points[2] = center + andro::Vector3(half_x, half_y, half_z);
+		points[3] = center + andro::Vector3(-half_x, half_y, half_z);
+		//back
+		points[4] = center + andro::Vector3(-half_x, -half_y, -half_z);
+		points[5] = center + andro::Vector3(half_x, -half_y, -half_z);
+		points[6] = center + andro::Vector3(half_x, half_y, -half_z);
+		points[7] = center + andro::Vector3(-half_x, half_y, -half_z);
+
+#ifdef _WIN32
+		memcpy_s(indices, sizeof(cube_elements), cube_elements, sizeof(cube_elements));
+#else
+		memcpy(indices, cube_elements, sizeof(cube_elements));
+#endif		
+	}
 
 }

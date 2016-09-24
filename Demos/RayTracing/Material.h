@@ -1,6 +1,6 @@
 #pragma once
 #include "texture.h"
-#include "AndroUtils\Utils\Ray.h"
+#include "AndroUtils/Utils/Ray.h"
 
 using namespace andro;
 

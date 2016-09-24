@@ -16,7 +16,14 @@ andro::TextFile::TextFile(const std::string & resourcefilename, void * args)
 
 std::string andro::TextFile::LoadTextFile(const std::string& filePath)
 {
+
     std::ifstream fileStream(filePath);
+    if(! fileStream.is_open())
+    {
+
+    	ASSERT(false,filePath.c_str());
+    }
+
     std::stringstream buffer;
     buffer << fileStream.rdbuf();
     return buffer.str();

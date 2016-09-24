@@ -1,6 +1,6 @@
 #pragma once
-#include "AndroUtils\Utils\Ray.h"
-#include "AndroUtils\Utils\perlin_noise.h"
+#include "AndroUtils/Utils/Ray.h"
+#include "AndroUtils/Utils/perlin_noise.h"
 
 using namespace andro;
 
