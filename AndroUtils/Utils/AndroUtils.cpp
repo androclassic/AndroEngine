@@ -30,19 +30,26 @@ namespace andro
 #else
 	afloat random_float(afloat max )
 	{
-		ASSERT(false);
-		return (afloat) 0.0f;
+		unsigned int number = rand();
+
+		return (afloat)number / ((afloat)UINT_MAX + 1) * max;
 	}
 
 	afloat GetTimeMS()
 	{
-		ASSERT(false);
-		return (afloat) 0.0f;
+		  struct timespec now;
+		  if (clock_gettime(CLOCK_MONOTONIC, &now))
+		    return 0;
+	
+		  return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
 	}
 	afloat GetTimeS()
 	{
-		ASSERT(false);
-		return (afloat) 0.0f;
+	  struct timespec now;
+	  if (clock_gettime(CLOCK_MONOTONIC, &now))
+	    return 0;
+
+	  return now.tv_sec;	
 	}
 #endif	
 }
