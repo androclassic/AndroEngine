@@ -32,11 +32,12 @@ radius =  15;
 	end,
 	
 	OnUpdate = function( o )
-		o.timestep = o.timestep + 0.001
+		o.timestep = o.timestep + 0.0001
 
 		local x = radius * math.cos(angle * (o.index + o.timestep))
 		local y = radius * math.sin(angle * (o.index + o.timestep))
-		o:SetPosition(x ,(o.index - 35) / 2 , y)
+--		o:SetPosition(x ,(o.index - 35) / 2 , y)
+		o:SetPosition(x , 0 , y)
 	end,
 	
 	OnDestroy = function( o )

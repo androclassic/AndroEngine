@@ -237,8 +237,13 @@ namespace andro
 		double tz0 = (octree->m_bounds.min.z - ray.origin.z) * divz;
 		double tz1 = (octree->m_bounds.max.z - ray.origin.z) * divz;
 
+#ifdef _WIN32
+		if ((std::max)((std::max)(tx0, ty0), tz0) < (std::min)((std::min)(tx1, ty1), tz1)) {
+			proc_subtree(a, tx0, ty0, tz0, tx1, ty1, tz1, octree, objects_list, current_size);
+#else
 		if (std::max(std::max(tx0, ty0), tz0) < std::min(std::min(tx1, ty1), tz1)) {
 			proc_subtree(a, tx0, ty0, tz0, tx1, ty1, tz1, octree, objects_list, current_size);
+#endif
 		}
 	}
 

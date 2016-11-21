@@ -3,7 +3,7 @@ mkdir build
 cd ./build
 
 ECHO  "Generate Project"
-"C:\Program Files (x86)\CMake\bin\cmake.exe" ../
+cmake.exe ../
 cd ../
 
 ECHO  "Copy dll files"
