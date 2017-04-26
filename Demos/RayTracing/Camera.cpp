@@ -120,9 +120,11 @@ void Camera::OnEvent(andro::Event *e)
 	UpdateCamera();
 
 }
-
-andro::Vector3 random_in_unit_disk()
+DEVICE andro::Vector3 random_in_unit_disk()
 {
+#ifdef _USE_CUDA
+	return andro::Vector3(1, 1, 1);
+#endif
 	andro::Vector3 p;
 	do
 	{
@@ -132,12 +134,5 @@ andro::Vector3 random_in_unit_disk()
 	return p;
 }
 
-andro::ray Camera::getRay(afloat u, afloat v) const
-{
-	andro::Vector3 rd = random_in_unit_disk() * lens_radius;
-	andro::Vector3 offset = m_right * rd.x + m_up*rd.y;
-	andro::Vector3 origin = m_origin;// +offset;
-	return andro::ray(origin, m_top_left_corner + (m_horizontal * u) + (m_vertical * v) - origin, andro::GetTimeMS());
-}
 
 

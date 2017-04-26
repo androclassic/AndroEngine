@@ -1,10 +1,11 @@
 #pragma once
 #include "AndroUtils/Utils/Ray.h"
-#include "../../AndroUtils/EventManager/EventManager.h"
+#include "AndroUtils/Utils/AndroUtils.h"
+#include "AndroUtils/EventManager/EventManager.h"
 
 #include <memory>
 
-
+DEVICE andro::Vector3 random_in_unit_disk();
 class Camera : public andro::EventListener
 {
 private:
@@ -15,7 +16,15 @@ public:
 	void OnEvent(andro::Event *e);
 	void Move(afloat dx, afloat dz);
 	void UpdateCamera();
-	andro::ray getRay(afloat u, afloat v) const;
+
+
+	DEVICE andro::ray Camera::getRay(afloat u, afloat v) const
+	{
+		andro::Vector3 rd = random_in_unit_disk() * lens_radius;
+		andro::Vector3 offset = m_right * rd.x + m_up*rd.y;
+		andro::Vector3 origin = m_origin;// +offset;
+		return andro::ray(origin, m_top_left_corner + (m_horizontal * u) + (m_vertical * v) - origin, andro::GetTimeMS());
+	}
 
 	andro::Vector3 m_top_left_corner;
 	andro::Vector3 m_horizontal; 

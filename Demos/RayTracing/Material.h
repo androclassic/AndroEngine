@@ -7,30 +7,30 @@ using namespace andro;
 class material
 {
 	public:
-		virtual bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const = 0;
-		virtual Vector3 emitted(afloat u, afloat v, const Vector3& p) const
+		DEVICE virtual bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const = 0;
+		DEVICE_HOST virtual Vector3 emitted(afloat u, afloat v, const Vector3& p) const
 		{
 			return Vector3();
 		}
-		virtual void Destroy() {};
+		DEVICE_HOST virtual void Destroy() {};
 };
 
 class Lambertian : public material
 {
 	public:
-		Lambertian() {}
-		Lambertian(texture* pTexture) : m_texture(pTexture) {}
-		virtual void Destroy()  { if (m_texture){ delete m_texture; m_texture = NULL; } }
-		bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
-		texture* m_texture;
+		DEVICE_HOST Lambertian() {}
+		DEVICE_HOST Lambertian(CTexture* pTexture) : m_texture(pTexture) {}
+		DEVICE_HOST virtual void Destroy()  { if (m_texture){ delete m_texture; m_texture = NULL; } }
+		DEVICE bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
+		CTexture* m_texture;
 };
 
 class Metal : public material
 {
 public:
-	Metal() { }
-	Metal(const andro::Vector3& color, afloat pRoughness ) : albedo(color), roughness(pRoughness){}
-	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
+	DEVICE_HOST Metal() { }
+	DEVICE_HOST Metal(const andro::Vector3& color, afloat pRoughness) : albedo(color), roughness(pRoughness){}
+	DEVICE bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
 	Vector3 albedo;
 	afloat	roughness;
 };
@@ -38,9 +38,9 @@ public:
 class Dielectric : public material
 {
 public:
-	Dielectric(){}
-	Dielectric(afloat refractive_idx) : refractive_index(refractive_idx) {}
-	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
+	DEVICE_HOST Dielectric(){}
+	DEVICE_HOST Dielectric(afloat refractive_idx) : refractive_index(refractive_idx) {}
+	DEVICE bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
 
 	afloat refractive_index;
 
@@ -50,14 +50,14 @@ public:
 class diffuse_light : public material
 {
 public:
-	diffuse_light() {}
-	diffuse_light(texture* pTexture) : m_texture(pTexture) {}
-	virtual void Destroy() { if (m_texture){ delete m_texture; m_texture = NULL; } }
-	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const { return false; }
-	Vector3 emitted(afloat u, afloat v, const Vector3& p) const
+	DEVICE_HOST diffuse_light() {}
+	DEVICE_HOST diffuse_light(CTexture* pTexture) : m_texture(pTexture) {}
+	DEVICE_HOST virtual void Destroy() { if (m_texture){ delete m_texture; m_texture = NULL; } }
+	DEVICE	bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const { return false; }
+	DEVICE_HOST Vector3 emitted(afloat u, afloat v, const Vector3& p) const
 	{
 		return m_texture->sample(u, v, p);
 	}
 
-	texture* m_texture;
+	CTexture* m_texture;
 };

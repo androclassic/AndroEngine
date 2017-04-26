@@ -14,15 +14,15 @@ namespace andro
 	class Vector2
 	{
 		public:
-			Vector2(afloat xx , afloat yy ): x(xx), y(yy){};
-			Vector2(): x(0.0f), y(0.0f){};
+			DEVICE_HOST Vector2(afloat xx, afloat yy) : x(xx), y(yy){};
+			DEVICE_HOST Vector2() : x(0.0f), y(0.0f){};
 	
-			afloat Lenght() const;
-			void Normalize();
-			Vector2 operator+(const Vector2 &rhs) const;
-			Vector2 operator-(const Vector2 &rhs) const;
-			afloat   operator*(const Vector2& rhs) const;
-			Vector2& operator=(const Vector2 &rhs);
+			DEVICE_HOST afloat Lenght() const;
+			DEVICE_HOST void Normalize();
+			DEVICE_HOST Vector2 operator+(const Vector2 &rhs) const;
+			DEVICE_HOST Vector2 operator-(const Vector2 &rhs) const;
+			DEVICE_HOST afloat   operator*(const Vector2& rhs) const;
+			DEVICE_HOST Vector2& operator=(const Vector2 &rhs);
 
 			afloat x;
 			afloat y;
@@ -32,42 +32,40 @@ namespace andro
 	class Vector3
 	{
 		public:
-			Vector3(afloat xx) : x(xx), y(xx), z(xx){};
-			Vector3(afloat xx, afloat yy, afloat zz) : x(xx), y(yy), z(zz){};
-			Vector3(const afloat v[3]) : x(v[0]), y(v[1]), z(v[2]){};
-			Vector3() : x(0.0f), y(0.0f), z(0.0f){};
+			DEVICE_HOST Vector3(afloat xx) : x(xx), y(xx), z(xx){};
+			DEVICE_HOST Vector3(afloat xx, afloat yy, afloat zz) : x(xx), y(yy), z(zz){};
+			DEVICE_HOST Vector3(const afloat v[3]) : x(v[0]), y(v[1]), z(v[2]){};
+			DEVICE_HOST Vector3() : x(0.0f), y(0.0f), z(0.0f){};
 	
-			void NormalizeInto();
+			DEVICE_HOST void NormalizeInto();
 
-			Vector3  operator+(const Vector3 &rhs) const;
-			Vector3  operator-(const Vector3 &rhs) const;
-			afloat	 operator*(const Vector3& rhs) const;
-			Vector3  operator*(afloat scalar) const;
-			Vector3& operator=(const Vector3 &rhs);
-			afloat&	 operator[](unsigned int i);
+			DEVICE_HOST Vector3  operator+(const Vector3 &rhs) const;
+			DEVICE_HOST Vector3  operator-(const Vector3 &rhs) const;
+			DEVICE_HOST afloat	 operator*(const Vector3& rhs) const;
+			DEVICE_HOST Vector3  operator*(afloat scalar) const;
+			DEVICE_HOST Vector3& operator=(const Vector3 &rhs);
+			DEVICE_HOST afloat&	 operator[](unsigned int i);
 
-			Vector3 vectorProduct(const Vector3 &vector) const;
+			DEVICE_HOST Vector3 vectorProduct(const Vector3 &vector) const;
 
-			inline Vector3 Multiply(const Vector3 &vector) const 	{ return Vector3(x*vector.x, y*vector.y, z*vector.z); }
-
-			inline Vector3 Min(const Vector3 &rhs) const { return Vector3(fminf(x, rhs.x), fminf(y, rhs.y), fminf(z, rhs.z)); }
-			inline Vector3 Max(const Vector3 &rhs) const { return Vector3(fmaxf(x, rhs.x), fmaxf(y, rhs.y), fmaxf(z, rhs.z)); }
-
-			inline Vector3 Normalise() const
+			DEVICE_HOST inline Vector3 Multiply(const Vector3 &vector) const 	{ return Vector3(x*vector.x, y*vector.y, z*vector.z); }
+			DEVICE_HOST inline Vector3 Min(const Vector3 &rhs) const { return Vector3(fminf(x, rhs.x), fminf(y, rhs.y), fminf(z, rhs.z)); }
+			DEVICE_HOST inline Vector3 Max(const Vector3 &rhs) const { return Vector3(fmaxf(x, rhs.x), fmaxf(y, rhs.y), fmaxf(z, rhs.z)); }
+			DEVICE_HOST inline Vector3 Normalise() const
 			{
 				Vector3 v;
-				afloat lenght = Lenght();
-				v.x = x / lenght;
-				v.y = y / lenght;
-				v.z = z / lenght;
+				afloat inv_lenght = 1.0f / Lenght();
+				v.x = x * inv_lenght;
+				v.y = y * inv_lenght;
+				v.z = z * inv_lenght;
 				return v;
 			}
-			inline afloat Lenght() const
+			DEVICE_HOST inline afloat Lenght() const
 			{
 				return sqrt(x*x + y*y + z*z);
 			}
 
-			inline afloat LenghtSq() const
+			DEVICE_HOST inline afloat LenghtSq() const
 			{
 				return (x*x + y*y + z*z);
 			}
@@ -142,6 +140,6 @@ namespace andro
 
 
 
-	Vector3 random_in_unit_sphere();
+	DEVICE Vector3 random_in_unit_sphere();
 
 }

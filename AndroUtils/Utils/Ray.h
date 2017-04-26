@@ -8,13 +8,13 @@ namespace andro
 
 	struct ray
 	{
-		ray()
+		DEVICE_HOST ray()
 			:origin()
 			, dir()
 			, _time(0.0f)
 		{};
 
-		ray(const Vector3& pOrigin, const Vector3& pDir, afloat pTime = 0.0f)
+		DEVICE_HOST ray(const Vector3& pOrigin, const Vector3& pDir, afloat pTime = 0.0f)
 			: origin(pOrigin)
 			, dir(pDir)
 			, _time(pTime)
@@ -22,11 +22,11 @@ namespace andro
 			dir.NormalizeInto();
 		}
 
-		inline Vector3 get_point_at(afloat t) const
+		DEVICE_HOST inline Vector3 get_point_at(afloat t) const
 		{
 			return origin + (dir * t);
 		}
-		inline afloat get_time() const
+		DEVICE_HOST inline afloat get_time() const
 		{
 			return _time;
 		}
@@ -52,8 +52,9 @@ namespace andro
 	class Hitable
 	{
 		public:
-			virtual bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const = 0;
-			virtual Vector2 getUV(const Vector3& point) const = 0;
+			DEVICE_HOST	Hitable() {};
+			DEVICE_HOST virtual bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const = 0;
+			DEVICE_HOST virtual Vector2 getUV(const Vector3& point) const = 0;
 
 	};
 

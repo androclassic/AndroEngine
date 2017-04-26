@@ -22,56 +22,56 @@ namespace andro
 		front.z = cosP * cosH;
 	}
 
-
-	afloat Vector2::operator* (const Vector2& rhs) const
+#if defined(_USE_CUDA) && !defined(ANDRO_UTILS) ||  !defined(_USE_CUDA) 
+	DEVICE_HOST afloat Vector2::operator* (const Vector2& rhs) const
 	{
 		return x*rhs.x + y*rhs.y;
 	}
 
 
 
-	Vector2& Vector2::operator=(const Vector2& rhs) 
+	DEVICE_HOST Vector2& Vector2::operator=(const Vector2& rhs)
 	{
 		x=rhs.x;
 		y=rhs.y;
 
 		return *this;
 	}
-	void Vector2::Normalize()
+	DEVICE_HOST void Vector2::Normalize()
 	{
 		afloat lenght=Lenght();
 		x=x/lenght;
 		y=y/lenght;
 	}
 
-	Vector2 Vector2::operator+(const Vector2& rhs)const
+	DEVICE_HOST Vector2 Vector2::operator+(const Vector2& rhs)const
 	{
 		return Vector2(x+rhs.x,y+rhs.y);
 	}
-	Vector2 Vector2::operator-(const Vector2& rhs) const
+	DEVICE_HOST Vector2 Vector2::operator-(const Vector2& rhs) const
 	{
 		return Vector2(x-rhs.x,y-rhs.y);
 	}
 
 
-	afloat Vector2::Lenght() const
+	DEVICE_HOST afloat Vector2::Lenght() const
 	{
 		return sqrt(x*x + y*y);
 	}
 
-	afloat Vector3::operator*(const Vector3& rhs) const
+	DEVICE_HOST afloat Vector3::operator*(const Vector3& rhs) const
 	{
 		return x*rhs.x + y*rhs.y + z*rhs.z;
 	}
 
-	Vector3 Vector3::vectorProduct(const Vector3 &vector) const
+	DEVICE_HOST Vector3 Vector3::vectorProduct(const Vector3 &vector) const
     {
         return Vector3(y*vector.z-z*vector.y,
                         z*vector.x-x*vector.z,
                         x*vector.y-y*vector.x);
     }
 
-	Vector3& Vector3::operator=(const Vector3& rhs)
+	DEVICE_HOST Vector3& Vector3::operator=(const Vector3& rhs)
 	{
 		x=rhs.x;
 		y=rhs.y;
@@ -79,12 +79,12 @@ namespace andro
 
 		return *this;
 	}
-	afloat & Vector3::operator[](unsigned int i) 
+	DEVICE_HOST afloat & Vector3::operator[](unsigned int i)
 	{
 		ASSERT(i < 3);
 		return this->v[i];
 	}
-	void Vector3::NormalizeInto()
+	DEVICE_HOST void Vector3::NormalizeInto()
 	{
 		afloat lenght=Lenght();
 		x=x/lenght;
@@ -93,22 +93,38 @@ namespace andro
 	}
 
 
-	Vector3 Vector3::operator+(const Vector3& rhs) const
+	DEVICE_HOST Vector3 Vector3::operator+(const Vector3& rhs) const
 	{
 		return Vector3(x+rhs.x,y+rhs.y,z+rhs.z);
 	}
-	Vector3 Vector3::operator-(const Vector3& rhs) const
+	DEVICE_HOST Vector3 Vector3::operator-(const Vector3& rhs) const
 	{
 		return Vector3(x-rhs.x,y-rhs.y,z-rhs.z);
 	}
 
-	Vector3 Vector3::operator*(afloat scalar) const
+	DEVICE_HOST Vector3 Vector3::operator*(afloat scalar) const
 	{
 		return Vector3(scalar * x,scalar * y,scalar * z);
 	}
 
 
+	//----------------------------------------------------------------------------------
 
+
+	DEVICE Vector3 random_in_unit_sphere()
+	{
+		Vector3 random_vector;
+		do
+		{
+
+			random_vector = Vector3(random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f);
+		} while (random_vector.Lenght() > 1.0f);
+
+		return random_vector;
+	}
+
+	//----------------------------------------------------------------------------------
+#endif //defined(_USE_CUDA) && !defined(ANDRO_UTILS) ||  !defined(_USE_CUDA) 
 
 	afloat Distance(const Vector3& p1, const  Vector3& p2)
 	{
@@ -205,22 +221,7 @@ namespace andro
 	}
 
 
-	//----------------------------------------------------------------------------------
 
-
-	Vector3 random_in_unit_sphere()
-	{
-		Vector3 random_vector;
-		do
-		{
-			
-			random_vector = Vector3(random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f, random_float(2.0f) - 1.0f);
-		} while (random_vector.Lenght() > 1.0f);
-
-		return random_vector;
-	}
-
-	//----------------------------------------------------------------------------------
 
 
 

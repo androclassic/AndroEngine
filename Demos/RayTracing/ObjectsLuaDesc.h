@@ -5,7 +5,6 @@
 #include "AndroUtils/Utils/Shapes.h"
 #include "AndroUtils/Introspection/LuaState.h"
 
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -154,3 +153,6 @@ struct ObjectDesc
 		ASSERT(false); //not implemented
 	}
 };
+
+class Object;
+extern DEVICE_HOST Object* CreateFromObjectDesc(ObjectDesc& desc);

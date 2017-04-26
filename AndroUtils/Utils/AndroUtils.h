@@ -7,6 +7,61 @@
 #include <assert.h>
 #include <memory>
 
+#ifdef _USE_CUDA
+#include <host_defines.h>
+#include <host_config.h>
+
+
+
+#ifndef GLOBAL
+#define GLOBAL __global__
+#endif
+
+#ifndef DEVICE
+#define DEVICE __device__
+#endif
+
+#ifndef HOST
+#define HOST __host__
+#endif
+
+#ifndef CONSTANT
+#define CONSTANT __constant__
+#endif
+
+#ifndef DEVICE_HOST
+#define DEVICE_HOST DEVICE HOST
+#endif
+
+DEVICE extern afloat get_random_float();
+
+#else
+
+#ifndef GLOBAL
+#define GLOBAL 
+#endif
+
+#ifndef DEVICE
+#define DEVICE
+#endif
+
+#ifndef HOST
+#define HOST
+#endif
+
+#ifndef CONSTANT
+#define CONSTANT
+#endif
+
+
+#ifndef DEVICE_HOST
+#define DEVICE_HOST 
+#endif
+
+#endif
+
+
+
 #ifdef _WIN32
 #define ASSERT _ASSERTE
 #else
@@ -35,8 +90,9 @@ namespace std
 
 namespace andro
 {
-	afloat random_float(afloat max = 1.0f);
+	DEVICE afloat random_float(afloat max = 1.0f);
+	DEVICE_HOST afloat GetTimeMS();
+	DEVICE_HOST afloat GetTimeS();
 
-	afloat GetTimeMS();
-	afloat GetTimeS();
+
 }

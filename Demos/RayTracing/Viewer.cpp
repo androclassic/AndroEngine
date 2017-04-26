@@ -17,6 +17,19 @@
 #include "ObjectsLuaDesc.h"
 
 
+#ifdef _USE_CUDA
+#include "cuda_device_runtime_api.h"
+#include <cuda_runtime.h>
+#include <curand.h>
+#include <curand_kernel.h>
+
+extern int FrameUpdateCuda(unsigned int *p, const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize);
+extern unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockSize, const Vector3& bgColour);
+extern int CreateCudaObject(Object** object, ObjectDesc& desc);
+extern void cudaFreeOjects();
+#endif
+
+
 std::vector<Object*> m_objects;
 andro::OctreeNode<Object*>* m_octree;
 andro::BoundingBox m_scene_bbx;
@@ -26,6 +39,12 @@ HBITMAP hbmMem = 0;
 unsigned int s_numberOfSamples;
 
 CFrameBuffer* g_Framebuffer = NULL;
+
+#ifdef _USE_CUDA
+Object** objectsVec;
+static int sBlockSize = 256;
+unsigned int* cudaFrameBuffer = 0;
+#endif
 
 //#define ONE_FRAME 1
 //////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +64,9 @@ CFrameBuffer* g_Framebuffer = NULL;
 
 	void InitFrame(andro::Vector3 frameWHZ, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook) //TODO CHECK FOR MEM LEAKS
 	{
+#ifdef _USE_CUDA
+		cudaFrameBuffer = AllocateBuffer(frameWHZ.x, frameWHZ.y, sBlockSize, bgColour);
+#endif
 		g_Framebuffer = new CFrameBuffer(frameWHZ.x, frameWHZ.y, bgColour, cameraPos, cameraLook);
 		s_numberOfSamples = frameWHZ.z;
 	}
@@ -80,7 +102,7 @@ CFrameBuffer* g_Framebuffer = NULL;
 		// buid scene bbx
 		afloat min_radius = 10000;
 
-
+		int i = 0;
 		for (auto object : m_objects)
 		{
 #ifdef OBJECT_LIST_DEBUG_TEST
@@ -106,74 +128,17 @@ CFrameBuffer* g_Framebuffer = NULL;
 	ObjectRef<Object> CreateObject(ObjectDesc desc)
 	{
 		ObjectRef<Object> ref;
-		Object* object = nullptr;
-		material* mat = nullptr;
-		texture* tex = nullptr;
+		ref.object = CreateFromObjectDesc(desc);
 
-		if (desc.m_material == MaterialType::M_Lambertian)
-		{
-
-			if (desc.m_texture == TextureType::Tex_Constant)
-				tex = new constant_texture(desc.m_colour);
-			else
-				tex = new noise_texture(desc.m_colour);
-
-			mat = new Lambertian(tex);
-		}
-		else if (desc.m_material == MaterialType::M_LIGHT)
-		{
-			if (desc.m_texture == TextureType::Tex_Constant)
-				tex = new constant_texture(desc.m_colour);
-			else
-				tex = new noise_texture(desc.m_colour);
-
-			mat = new diffuse_light(tex);
-		}
-		else if (desc.m_material == MaterialType::M_Metal)
-		{
-			mat = new Metal(desc.m_colour, desc.m_roughness);
-		}
-		else if (desc.m_material == MaterialType::M_Dielectric)
-		{
-			mat = new Dielectric(desc.m_roughness); //refractive index
-		}
-		else
-			ASSERT(false);
-
-		//------------------------------------------------------------
-		if (desc.m_type == ObjectType::OBJ_Sphere)
-		{
-			object = new SphereObject(mat, desc.m_position, desc.m_size.x);
-		}
-		else if (desc.m_type == ObjectType::OBJ_Box)
-		{
-			object = new BoxObject(mat, desc.m_position, desc.m_size);
-		}
-		else if (desc.m_type == ObjectType::OBJ_RectObjectXY)
-		{
-			Vector2 size(desc.m_size.x, desc.m_size.y);
-			object = new RectObject(mat, desc.m_position, size, RectObjectType::XY);
-		}
-		else if (desc.m_type == ObjectType::OBJ_RectObjectYZ)
-		{
-			Vector2 size(desc.m_size.x, desc.m_size.y);
-			object = new RectObject(mat, desc.m_position, size, RectObjectType::YZ);
-		}
-		else if (desc.m_type == ObjectType::OBJ_RectObjectXZ)
-		{
-			Vector2 size(desc.m_size.x, desc.m_size.y);
-			object = new RectObject(mat, desc.m_position, size, RectObjectType::XZ);
-		}
-		else
-			ASSERT(false);
-
-
-		ref.object = object;
+#ifdef _USE_CUDA
+		CreateCudaObject(&objectsVec[m_objects.size()], desc);
+#endif
 		m_objects.push_back(ref.object);
 
 		return ref;
 
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////////////
 	void PaintFrameBuffer(HDC hdc)
@@ -291,8 +256,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	lua_bind(L, CreateObject);
 	lua_bind(L, InitFrame);
 
-	Lua_State::GetInstance()->execute_program("data/raytracer/raytracer.lua");
 
+#ifdef _USE_CUDA
+	cudaMalloc((void**)&objectsVec, (sizeof(Object*) * 1024));
+#endif
+
+	Lua_State::GetInstance()->execute_program("data/raytracer/raytracer.lua");
 
 
 	// Perform application initialization:
@@ -361,8 +330,13 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		s++;
 #endif
 
-		g_Framebuffer->Update(m_octree, s_numberOfSamples);
+#ifdef _USE_CUDA
+		FrameUpdateCuda(cudaFrameBuffer, g_Framebuffer->GetCamera(), objectsVec, m_objects.size(), (afloat)GetTickCount() / 1000.0f, s_numberOfSamples, sBlockSize);
+		cudaMemcpy(g_Framebuffer->GetFrameBuffer(), cudaFrameBuffer, sizeof(unsigned int) * g_Framebuffer->GetHeight() * g_Framebuffer->GetWidth(), cudaMemcpyDeviceToHost);
 
+#else
+		g_Framebuffer->Update(m_octree, s_numberOfSamples);
+#endif
 
 
 		FPS++;
@@ -381,6 +355,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		lastframeTime = currentTime;
 
 	}
+
+#ifdef _USE_CUDA
+	cudaFreeOjects();
+#endif
 
 	ReleaseDC(g_hWnd,hdc);
 

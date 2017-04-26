@@ -6,7 +6,6 @@
 #include "AndroUtils/Utils/Ray.h"
 
 
-
 void RenderSliceTask::operator()()
 {
 	mfb->Render(m_octree, mRect);
@@ -15,23 +14,26 @@ void RenderSliceTask::operator()()
 //////////////////////////////////////////////////////////////////////////
 
 CFrameBuffer::CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook)
-	:m_iWidth(iWidth)
-	, m_iHeight(iHeight)
-	, m_camera(cameraPos, cameraLook, 90, afloat(iWidth) / iHeight, 2, 0.05f, 0, 0)
-	, thread_pool(8)
-	,m_bgColour(bgColour)
+:m_iWidth(iWidth)
+, m_iHeight(iHeight)
+, m_camera(cameraPos, cameraLook, 90, afloat(iWidth) / iHeight, 2, 0.05f, 0, 0)
+, thread_pool(8)
+, m_bgColour(bgColour)
 {
-	m_FramebufferArray.resize(iWidth*iHeight,0);
+	m_FramebufferArray = new unsigned int[iWidth*iHeight];
+	memset(m_FramebufferArray,0 ,iWidth*iHeight * sizeof(int));
 
 }
 
 CFrameBuffer::~CFrameBuffer()
 {
+	delete[] m_FramebufferArray;
 }
 
 void CFrameBuffer::Clear()
 {
-	std::fill(m_FramebufferArray.begin(), m_FramebufferArray.end(), 0xFF);
+	memset(m_FramebufferArray, 1, m_iWidth*m_iHeight * sizeof(int));
+//	std::fill(m_FramebufferArray.begin(), m_FramebufferArray.end(), 0xFF);
 
 }
 
@@ -41,11 +43,11 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 {
 
 	Object* objects[50000];
-	uint16_t nbBounce = 30;
+	uint16_t nbBounce = depth;
 	andro::ray current_ray = ray;
 	andro::Vector3 attenuation(1);
 	andro::Vector3 final_colour(0.0);
-
+#ifndef _USE_CUDA
 	for (uint16_t bounce = 0; bounce < nbBounce; bounce++)
 	{
 
@@ -96,6 +98,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		else
 			return final_colour + attenuation.Multiply( m_bgColour);
 	}
+#endif
 	return final_colour;
  }
 
@@ -127,7 +130,7 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int num
 }
 void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& rect)
 {
-
+#ifndef _USE_CUDA
 	afloat ratio = m_iWidth / m_iHeight;
 
 	unsigned int ns = m_nbSamples;
@@ -147,7 +150,7 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 				afloat u = afloat(x + random_float(1)) / m_iWidth;
 				afloat v = (afloat(y + random_float(1)) / m_iHeight);
 				andro::ray r = m_camera.getRay(u, v);
-				andro::Vector3 col = get_color(r, octree);
+				andro::Vector3 col = get_color(r, octree, 10);
 				color = color + col;
 
 			}
@@ -162,11 +165,12 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 		}
 
 	}
+#endif
 }
 	
-const unsigned int* CFrameBuffer::GetFrameBuffer() const
+unsigned int* CFrameBuffer::GetFrameBuffer() const
 {
-	return static_cast<const unsigned int*>(&m_FramebufferArray[0]);
+	return /*static_cast<const unsigned int*>*/(&m_FramebufferArray[0]);
 };
 
 

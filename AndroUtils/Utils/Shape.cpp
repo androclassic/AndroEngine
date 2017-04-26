@@ -8,9 +8,9 @@
 
 namespace andro
 {
+#if defined(_USE_CUDA) && !defined(ANDRO_UTILS) ||  !defined(_USE_CUDA) 
 
-
-	Mesh::Mesh(const Vector3& c, const char* filename) :center(c)
+	DEVICE_HOST Mesh::Mesh(const Vector3& c, const char* filename) :center(c)
 	{
 
 		std::vector<tinyobj::shape_t> shapes;
@@ -83,14 +83,14 @@ namespace andro
 
 	}
 
-	Vector2 Mesh::getUV(const Vector3& point) const
+	DEVICE_HOST Vector2 Mesh::getUV(const Vector3& point) const
 	{
 		//TODO
 		Vector2 uv;
 		return uv;
 	}
 
-	bool Mesh::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Mesh::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		Triangle* objects[500];
 
@@ -122,14 +122,14 @@ namespace andro
 
 
 
-	Vector2 Triangle::getUV(const Vector3& point) const
+	DEVICE_HOST Vector2 Triangle::getUV(const Vector3& point) const
 	{
 		//TODO
 		Vector2 uv;
 		return uv;
 	}
 
-	bool Triangle::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Triangle::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		static float eps = 0.000001f;
 
@@ -169,18 +169,18 @@ namespace andro
 		return true;
 	}
 
-	Vector2 Sphere::getUV(const Vector3& point) const
+	DEVICE_HOST Vector2 Sphere::getUV(const Vector3& point) const
 	{
 		Vector2 uv;
 		afloat phi = atan2f(point.z, point.x);
 		afloat theta = asinf(point.y);
-		uv.x = 1 - (phi + math::PI) / (2 * math::PI);
-		uv.y = (theta + math::PI / 2.0f) / math::PI;
+		uv.x = 1 - (phi + _PI_) / (2 * _PI_);
+		uv.y = (theta + _PI_ / 2.0f) / _PI_;
 
 		return uv;
 	}
 
-	 bool Sphere::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Sphere::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 		// p(t) = (origin + t * dir)) - center)
@@ -224,25 +224,25 @@ namespace andro
 
 
 
-	BoundingBox::BoundingBox()
+	DEVICE_HOST BoundingBox::BoundingBox()
 	{
 		min = andro::Vector3(99999.0f, 99999.0f, 99999.0f);
 		max = andro::Vector3(-99999.0f, -99999.0f, -99999.0f);
 	}
 
-	Vector3 BoundingBox::GetHalfSize() const
+	DEVICE_HOST Vector3 BoundingBox::GetHalfSize() const
 	{
 		Vector3 halfSize = (min + max)*0.5f - min;
 		return halfSize;
 	}
 
-	Vector3 BoundingBox::GetCenter() const
+	DEVICE_HOST Vector3 BoundingBox::GetCenter() const
 	{
 		return (min + max)*0.5f;
 	}
 
 
-	BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num)
+	DEVICE_HOST BoundingBox GetMinimumBoundingBox(Vector3* points, unsigned int num)
 	{
 		BoundingBox bbx;
 		for (unsigned int i = 0; i < num; i++)
@@ -259,7 +259,7 @@ namespace andro
 		return bbx;
 	}
 
-	 bool BoundingBox::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool BoundingBox::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 
@@ -308,7 +308,7 @@ namespace andro
 
 
 //--------------------------------------------------------------------------------------------------
-	bool xy_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool xy_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.z) / r.dir.z;
 		if (t < t_min || t > t_max)
@@ -324,15 +324,15 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(0, 0, n);
 		rec.uv = getUV(rec.point);
-
+		return true;
 	}
 
-	Vector2 xy_rect::getUV(const Vector3& p) const
+	DEVICE_HOST Vector2 xy_rect::getUV(const Vector3& p) const
 	{
 		return Vector2((p.x - x0)/ (x1-x0), (p.y - y0)/(y1 - y0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	bool xz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool xz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.y) / r.dir.y;
 		if (t < t_min || t > t_max)
@@ -348,15 +348,15 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(0, n, 0);
 		rec.uv = getUV(rec.point);
-
+		return true;
 	}
 
-	Vector2 xz_rect::getUV(const Vector3& p) const
+	DEVICE_HOST Vector2 xz_rect::getUV(const Vector3& p) const
 	{
 		return Vector2((p.x - x0) / (x1 - x0), (p.z - z0) / (z1 - z0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	bool yz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool yz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.x) / r.dir.x;
 		if (t < t_min || t > t_max)
@@ -372,17 +372,17 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(n, 0, 0);
 		rec.uv = getUV(rec.point);
-
+		return true;
 	}
 
-	Vector2 yz_rect::getUV(const Vector3& p) const
+	DEVICE_HOST Vector2 yz_rect::getUV(const Vector3& p) const
 	{
 		return Vector2((p.y - y0) / (y1 - y0), (p.z - z0) / (z1 - z0));
 	}
 
 	//------------------------------------------------------------------
 	//intersections
-	bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, afloat distance)
+	DEVICE_HOST bool  Box_Plane_Overlap(const BoundingBox& box, Vector3 planeNormal, afloat distance)
 	{
 		BoundingBox center_box;
 		Vector3 halfsize = box.GetHalfSize();
@@ -453,7 +453,7 @@ namespace andro
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];   \
 	if(min>rad || max<-rad) return false;
 
-	bool TriangleBoxOverlap(const BoundingBox& box, Triangle & triangle)
+	DEVICE_HOST bool TriangleBoxOverlap(const BoundingBox& box, Triangle & triangle)
 	{
 
 		Vector3 center = box.GetCenter();
@@ -521,7 +521,7 @@ namespace andro
 
 		return true;
 	}
-	bool Box_Sphere_Overlap(const BoundingBox & box, Sphere & sphere)
+	DEVICE_HOST bool Box_Sphere_Overlap(const BoundingBox & box, Sphere & sphere)
 	{
 		Vector3 closestPointInAabb = box.max.Min(box.min.Max(sphere.center));
 		double distanceSquared = (closestPointInAabb - sphere.center).LenghtSq();
@@ -535,7 +535,7 @@ namespace andro
 
 	//---------------------------------------------------------------------------------------
 
-	Sphere GetTriangleBoundingSphere(const Triangle* t)
+	DEVICE_HOST Sphere GetTriangleBoundingSphere(const Triangle* t)
 	{
 		// Calculate relative distances
 		float A = (t->P2 - t->P1).Lenght();
@@ -585,6 +585,8 @@ namespace andro
 
 		}
 	}
+
+#endif //#if defined(_USE_CUDA) && !defined(ANDRO_UTILS) ||  !defined(_USE_CUDA) 
 	
 	//-------------------------------------------------------------------------------
 	void CreateCubeModel(const BoundingBox& aabb, Vector3 points[8], unsigned int  indices[36])

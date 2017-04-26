@@ -1,6 +1,6 @@
 #include "Material.h"
 
-bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
+DEVICE bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
 {
 	Vector3 dir = (rec.normal + random_in_unit_sphere());
 	scattered = ray(rec.point, dir);
@@ -10,14 +10,14 @@ bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vector3 & a
 }
 
 
-Vector3 Reflect(const Vector3& vector, const Vector3& normal)
+DEVICE_HOST Vector3 Reflect(const Vector3& vector, const Vector3& normal)
 {
 	return vector - (normal * (vector * normal)* 2.0f);
 }
 
 
 //Snell's law
-bool Refract(const Vector3& v, const Vector3& n, afloat refractive_idx_ratio, Vector3& refracted)
+DEVICE_HOST bool Refract(const Vector3& v, const Vector3& n, afloat refractive_idx_ratio, Vector3& refracted)
 {
 	Vector3 unit_v = v.Normalise();
 
@@ -33,7 +33,7 @@ bool Refract(const Vector3& v, const Vector3& n, afloat refractive_idx_ratio, Ve
 }
 
 
-afloat Schlick(afloat cosine, afloat ref_idx)
+DEVICE_HOST afloat Schlick(afloat cosine, afloat ref_idx)
 {
 	afloat r0 = (1 - ref_idx) / (1 + ref_idx);
 	r0 = r0 *r0;
@@ -41,7 +41,7 @@ afloat Schlick(afloat cosine, afloat ref_idx)
 }
 
 
-bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const
+DEVICE bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const
 {
 	Vector3 ray_dir = ray_in.dir.Normalise();
 	Vector3 reflect = Reflect(ray_dir, rec.normal) + (random_in_unit_sphere() *  roughness);
@@ -51,7 +51,7 @@ bool Metal::scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuati
 	return ((scattered.dir *  rec.normal) > 0.0f);
 
 }
-bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
+DEVICE bool Dielectric::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
 {
 	Vector3 outward_normal;
 	Vector3 refracted;

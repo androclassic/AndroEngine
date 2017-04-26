@@ -1,12 +1,14 @@
 #pragma once
+
+
 #include <vector>
 //#include<Windows.h>
 #include<algorithm>
 #include "Camera.h"
 #include "RayObjects.h"
 #include "AndroUtils/Utils/ThreadPool.h"
-//#define OBJECT_LIST_DEBUG_TEST 1
 
+//#define OBJECT_LIST_DEBUG_TEST 1
 
 class CFrameBuffer;
 struct Rect
@@ -47,7 +49,7 @@ struct RenderSliceTask
 class CFrameBuffer
 {
 public:
-	CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3  bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook );
+	CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3  bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook);
 	~CFrameBuffer();
 
 	void Clear();
@@ -55,11 +57,12 @@ public:
 	void Render(const andro::OctreeNode<Object*>const* octree, Rect& rect);
 
 
-	const unsigned int* GetFrameBuffer() const;
+	unsigned int* GetFrameBuffer() const;
 	int GetWidth() const { return m_iWidth; }
 	int GetHeight() const { return m_iHeight; }
 
 	int GetValue(int index) { return m_FramebufferArray[index]; }
+	const Camera* GetCamera() const { return &m_camera;  }
 
 #ifdef OBJECT_LIST_DEBUG_TEST
 	std::vector<Object*> debug_objects;
@@ -69,7 +72,7 @@ private:
 	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
 	int	m_nbSamples;
 
-	std::vector<unsigned int> m_FramebufferArray;
+	unsigned int* m_FramebufferArray;
 	int m_iWidth, m_iHeight;
 	Camera m_camera;
 	andro::ThreadPool<RenderSliceTask> thread_pool;

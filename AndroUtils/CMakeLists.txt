@@ -1,6 +1,6 @@
 # Create a library called "AndroUtils" which includes the source files.
 # The extension is already found. Any number of sources could be listed here.
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.1.0 FATAL_ERROR)
 
 
 FILE(GLOB CPPSOURCE "*.cpp")
@@ -38,4 +38,5 @@ source_group(Utils 		   FILES  ${UTILS_CPPSOURCE}  ${UTILS_CSOURCE}  ${UTILS_HEA
 source_group(Introspection FILES  ${I_CPPSOURCE}  ${I_CSOURCE}  ${I_HEADERS})
 
 add_library (AndroUtils ${HEADERS} ${CSOURCE} ${CPPSOURCE} ${EM_CPPSOURCE} ${EM_CSOURCE} ${EM_HEADERS} ${UTILS_CPPSOURCE} ${UTILS_CSOURCE} ${UTILS_HEADERS} ${I_CPPSOURCE} ${I_CSOURCE} ${I_HEADERS} ) 
+
 SET_TARGET_PROPERTIES(AndroUtils PROPERTIES LINKER_LANGUAGE C)

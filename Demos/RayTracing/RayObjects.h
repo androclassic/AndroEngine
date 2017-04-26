@@ -7,26 +7,26 @@
 
 struct Object
 {
-	virtual andro::Sphere GetBoundingSphere() const = 0;
+	DEVICE_HOST virtual andro::Sphere GetBoundingSphere() const = 0;
 	material* m_material;
 	andro::Hitable*	m_shape;
 };
 
 struct SphereObject : public Object
 {
-	SphereObject(material* p_material, const Vector3& c, afloat r)
+	DEVICE_HOST SphereObject(material* p_material, const Vector3& c, afloat r)
 	{
 		m_material = p_material;
 		m_shape = new andro::Sphere(c, r);
 	}
 
-	~SphereObject()
+	DEVICE_HOST ~SphereObject()
 	{
 		delete m_shape;
 		m_shape = nullptr;
 	}
 
-	inline andro::Sphere GetBoundingSphere() const
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
 	{
 		return *(andro::Sphere*)m_shape;
 	}
@@ -36,20 +36,20 @@ struct SphereObject : public Object
 
 struct TriangleObject : public Object
 {
-	TriangleObject(material* p_material, const Triangle& t)
+	DEVICE_HOST TriangleObject(material* p_material, const Triangle& t)
 	{
 		m_material = p_material;
 		m_shape = new andro::Triangle(t);
 	}
 
-	~TriangleObject()
+	DEVICE_HOST ~TriangleObject()
 	{
 		delete m_shape;
 		m_shape = nullptr;
 	}
 
 
-	inline andro::Sphere GetBoundingSphere() const
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
 	{
 		Triangle* t = (Triangle*)m_shape;
 		return GetTriangleBoundingSphere(t);
@@ -60,35 +60,35 @@ struct TriangleObject : public Object
 
 
 
-struct MeshObject : public Object
-{
-	MeshObject(material* p_material, const char* filename, const Vector3& c)
-	{
-		m_material = p_material;
-		m_shape = new andro::Mesh(c, filename);
-		m_center = c;
-	}
-
-	~MeshObject()
-	{
-		delete m_shape;
-		m_shape = nullptr;
-	}
-
-
-	inline andro::Sphere GetBoundingSphere() const
-	{
-		//TODO
-		return Sphere(m_center, ((andro::Mesh*)m_shape)->m_bounds.GetHalfSize().Lenght());
-	}
-
-	andro::Vector3 m_center;
-
-};
+//struct MeshObject : public Object
+//{
+//	MeshObject(material* p_material, const char* filename, const Vector3& c)
+//	{
+//		m_material = p_material;
+//		m_shape = new andro::Mesh(c, filename);
+//		m_center = c;
+//	}
+//
+//	~MeshObject()
+//	{
+//		delete m_shape;
+//		m_shape = nullptr;
+//	}
+//
+//
+//	inline andro::Sphere GetBoundingSphere() const
+//	{
+//		//TODO
+//		return Sphere(m_center, ((andro::Mesh*)m_shape)->m_bounds.GetHalfSize().Lenght());
+//	}
+//
+//	andro::Vector3 m_center;
+//
+//};
 
 struct BoxObject : public Object
 {
-	BoxObject(material* p_material, const Vector3& c, const Vector3& half_size)
+	DEVICE_HOST BoxObject(material* p_material, const Vector3& c, const Vector3& half_size)
 		: m_center(c)
 		, m_HalfSize(half_size)
 	{
@@ -96,13 +96,13 @@ struct BoxObject : public Object
 		m_shape = new andro::BoundingBox(c, half_size);
 	}
 
-	~BoxObject()
+	DEVICE_HOST ~BoxObject()
 	{
 		delete m_shape;
 		m_shape = nullptr;
 	}
 
-	inline andro::Sphere GetBoundingSphere() const
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
 	{
 		return  andro::Sphere(m_center, m_HalfSize.Lenght());
 	}
@@ -120,7 +120,7 @@ enum RectObjectType
 struct RectObject : public Object
 {
 
-	RectObject(material* p_material, const Vector3& c, const Vector2& half_size, RectObjectType type)
+	DEVICE_HOST RectObject(material* p_material, const Vector3& c, const Vector2& half_size, RectObjectType type)
 	{
 		m_material = p_material;
 		m_center = c;
@@ -133,13 +133,13 @@ struct RectObject : public Object
 			m_shape = new andro::yz_rect(c.y - half_size.y, c.y + half_size.y, c.z - half_size.x, c.z + half_size.x, c.x);
 	}
 
-	~RectObject()
+	DEVICE_HOST ~RectObject()
 	{
 		delete m_shape;
 		m_shape = nullptr;
 	}
 
-	inline andro::Sphere GetBoundingSphere() const
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
 	{
 		return  andro::Sphere(m_center, m_halfSize.Lenght());
 	}

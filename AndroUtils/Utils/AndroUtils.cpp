@@ -1,32 +1,58 @@
 #include "AndroUtils.h"
-#include "Trace.h"
-#include "unique_handler.h"
 #include <stdio.h>
 #include <limits.h>
+#include <stdlib.h>
+
+
+#ifndef _USE_CUDA
+#include "Trace.h"
+#include "unique_handler.h"
+#endif
+
+#if defined(_USE_CUDA) && !defined(ANDRO_UTILS) ||  !defined(_USE_CUDA) 
 
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef _USE_CUDA
+#include <cuda_runtime_api.h>
+#endif
 
 namespace andro
 {
+
 #ifdef _WIN32
-	afloat random_float(afloat max )
+
+	DEVICE afloat random_float(afloat max)
 	{
+#ifndef _USE_CUDA
 		unsigned int number;
 		rand_s(&number);
 
 		return (afloat)number / ((afloat)UINT_MAX + 1) * max;
+#else
+		return  get_random_float() * max;
+#endif
 	}
 
-	afloat GetTimeMS()
-	{
-		return (afloat)GetTickCount();
-	}
-	afloat GetTimeS()
-	{
-		return (afloat)GetTickCount() / 1000.0f;
-	}
+	 DEVICE_HOST afloat GetTimeMS()
+	 {
+#ifndef _USE_CUDA
+		 return (afloat)GetTickCount();
+#else
+		 return 0.0f; 
+#endif
+	 }
+
+	 DEVICE_HOST  afloat GetTimeS()
+	 {
+#ifndef _USE_CUDA
+		 return (afloat)GetTickCount() / 1000.0f;
+#else
+		 return 0.0f; 
+#endif
+	 }
+
 #else
 	afloat random_float(afloat max )
 	{
@@ -53,3 +79,5 @@ namespace andro
 	}
 #endif	
 }
+
+#endif //defined(_USE_CUDA) && !defined(ANDRO_UTILS)
