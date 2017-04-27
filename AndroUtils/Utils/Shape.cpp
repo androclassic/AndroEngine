@@ -324,6 +324,7 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(0, 0, n);
 		rec.uv = getUV(rec.point);
+		rec.object = this;
 		return true;
 	}
 
@@ -348,6 +349,7 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(0, n, 0);
 		rec.uv = getUV(rec.point);
+		rec.object = this;
 		return true;
 	}
 
@@ -372,6 +374,7 @@ namespace andro
 		rec.t = t;
 		rec.normal = Vector3(n, 0, 0);
 		rec.uv = getUV(rec.point);
+		rec.object = this;
 		return true;
 	}
 

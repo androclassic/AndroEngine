@@ -43,6 +43,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 {
 
 	Object* objects[50000];
+	Object* objects2[50000];
 	uint16_t nbBounce = depth;
 	andro::ray current_ray = ray;
 	andro::Vector3 attenuation(1);
@@ -58,6 +59,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		unsigned int size = 0;
 		current_ray.dir.NormalizeInto();
 		andro::ray_octree_traversal(octree, current_ray, objects, size);
+
 
 #ifdef OBJECT_LIST_DEBUG_TEST
 		for (auto obj : debug_objects){
@@ -78,8 +80,56 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		if (hit && rec.t > 0)
 		{
 			andro::Vector3  color;
-			andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
+			andro::Vector3  emited;
+
+			{
+				for (int l = 0; l < light_objects.size(); l++)
+				{
+
+					//if (rec.object == light_objects[l]->m_shape && bounce == 0)
+					//{
+					//	emited = current_mat->emitted(0, 0, rec.point);
+					//	continue;
+					//}
+
+					afloat light_closest_so_far = 99999.0f;
+					afloat light_distance_t = 99999.0f;
+
+					andro::Vector3 toLightDir = light_objects[l]->GetBoundingSphere().center - rec.point;
+					float inv_rsq = 1.0 / toLightDir.LenghtSq();
+					toLightDir.NormalizeInto();
+					andro::ray lightRay(rec.point, toLightDir);
+					andro::hit_record hit;
+					Vector3 emittedTemp;
+
+					unsigned int size2 = 0;
+					andro::ray_octree_traversal(octree, lightRay, objects2, size2);
+
+					for (int k = 0; k < size2; k++)
+					{
+						Object* obj = objects2[k];
+						if (obj->m_shape->hit(lightRay, 0.0001f, light_closest_so_far, hit))
+						{
+							light_closest_so_far = hit.t;
+							if (hit.object == light_objects[l]->m_shape)
+							{
+								emittedTemp = light_objects[l]->m_material->emitted(0, 0, rec.point);
+								light_distance_t = light_closest_so_far;
+							}
+						}
+					}
+
+					if (light_distance_t != light_closest_so_far)
+					{
+						emittedTemp = Vector3();
+					}
+					emited = emited + emittedTemp * inv_rsq * (toLightDir * rec.normal);
+				}
+			}
+
 			final_colour = final_colour + attenuation.Multiply(emited);
+
+
 			andro::Vector3  new_att;
 			andro::ray new_ray;
 			bool scatter = current_mat->scatter(current_ray, rec, new_att, new_ray);

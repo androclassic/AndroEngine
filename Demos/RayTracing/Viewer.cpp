@@ -127,8 +127,15 @@ unsigned int* cudaFrameBuffer = 0;
 	
 	ObjectRef<Object> CreateObject(ObjectDesc desc)
 	{
+
 		ObjectRef<Object> ref;
 		ref.object = CreateFromObjectDesc(desc);
+
+		if(desc.m_material == MaterialType::M_LIGHT)
+		{
+			g_Framebuffer->AddLight(ref.object);
+		}
+
 
 #ifdef _USE_CUDA
 		CreateCudaObject(&objectsVec[m_objects.size()], desc);

@@ -67,7 +67,7 @@ public:
 #ifdef OBJECT_LIST_DEBUG_TEST
 	std::vector<Object*> debug_objects;
 #endif
-
+	void AddLight(Object* obj) { light_objects.push_back(obj); }
 private:
 	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
 	int	m_nbSamples;
@@ -78,6 +78,7 @@ private:
 	andro::ThreadPool<RenderSliceTask> thread_pool;
 	andro::Vector3 m_bgColour;
 
+	std::vector<Object*> light_objects;
 
 };
 
