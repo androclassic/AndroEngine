@@ -86,10 +86,10 @@ namespace andro
 	}
 	DEVICE_HOST void Vector3::NormalizeInto()
 	{
-		afloat lenght=Lenght();
-		x=x/lenght;
-		y=y/lenght;
-		z=z/lenght;
+		afloat inv_lenght = 1.0 / Lenght();
+		x = x * inv_lenght;
+		y = y * inv_lenght;
+		z = z * inv_lenght;
 	}
 
 

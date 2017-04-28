@@ -23,7 +23,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-extern int FrameUpdateCuda(unsigned int *p, const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize);
+extern int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize);
 extern unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockSize, const Vector3& bgColour);
 extern int CreateCudaObject(Object** object, ObjectDesc& desc);
 extern void cudaFreeOjects();
@@ -306,14 +306,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 		InvalidateRect(g_hWnd,0,FALSE);
 
-#if defined ONE_FRAME
-		static int s = 0;
-		if (s == 1)
+		if (g_Framebuffer->m_frameCount > s_numberOfSamples)
 		{
 
 			// write image to log
 			const unsigned int* f = g_Framebuffer->GetFrameBuffer();
-			std::ofstream out("ray_log.txt");
+			std::ofstream out("ray_log.ppm");
 
 			out << "P3" << std::endl;
 			out << g_Framebuffer->GetWidth() << " " << g_Framebuffer->GetHeight() << std::endl;
@@ -330,15 +328,13 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 			out.close();
 			Sleep(1000);
-//			should_close = true;
+			should_close = true;
 			continue;
 		}
 
-		s++;
-#endif
 
 #ifdef _USE_CUDA
-		FrameUpdateCuda(cudaFrameBuffer, g_Framebuffer->GetCamera(), objectsVec, m_objects.size(), (afloat)GetTickCount() / 1000.0f, s_numberOfSamples, sBlockSize);
+		FrameUpdateCuda( g_Framebuffer->GetCamera(), objectsVec, m_objects.size(), (afloat)GetTickCount() / 1000.0f, s_numberOfSamples, sBlockSize);
 		cudaMemcpy(g_Framebuffer->GetFrameBuffer(), cudaFrameBuffer, sizeof(unsigned int) * g_Framebuffer->GetHeight() * g_Framebuffer->GetWidth(), cudaMemcpyDeviceToHost);
 
 #else

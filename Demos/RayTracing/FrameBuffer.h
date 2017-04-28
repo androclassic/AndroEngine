@@ -68,11 +68,15 @@ public:
 	std::vector<Object*> debug_objects;
 #endif
 	void AddLight(Object* obj) { light_objects.push_back(obj); }
+
+	unsigned int m_frameCount;
 private:
 	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
 	int	m_nbSamples;
 
 	unsigned int* m_FramebufferArray;
+	andro::Vector3* m_FramebufferTemp;
+
 	int m_iWidth, m_iHeight;
 	Camera m_camera;
 	andro::ThreadPool<RenderSliceTask> thread_pool;

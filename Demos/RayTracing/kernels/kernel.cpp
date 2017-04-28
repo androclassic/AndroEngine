@@ -35,6 +35,11 @@ static Camera* cudaCamera = 0;
 static Vector3* g_BgColour = 0;
 static curandState_t* g_states = 0;
 
+Vector3* frameBuffer = NULL;
+unsigned int* intFrameBuffer = NULL;
+Object** objectsLightVec;
+int nbLights = 0;
+
 
 DEVICE afloat get_random_float()
 {
@@ -61,6 +66,9 @@ unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockS
 	height = h;
 	unsigned int* p;
 	cudaMalloc(&p, w*h*sizeof(int));
+	intFrameBuffer = p;
+	cudaMalloc(&frameBuffer, w*h*sizeof(Vector3));
+	cudaMalloc((void**)&objectsLightVec, (sizeof(Object*)* 1024));
 
 	int N = width * height;
 	int numBlocks = (N + blockSize - 1) / blockSize;
@@ -80,7 +88,7 @@ unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockS
 
 }
 
-DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** objects, int nbObjects, curandState_t* states)
+DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** objects, int nbObjects, curandState_t* states, Object** lights, int nLights)
 {
 	uint16_t nbBounce = depth;
 	andro::ray current_ray = ray;
@@ -110,7 +118,54 @@ DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** ob
 		if (hit && rec.t > 0)
 		{
 			andro::Vector3  color;
-			andro::Vector3  emited = current_mat->emitted(0, 0, rec.point);
+			andro::Vector3  emited;
+
+			emited = current_mat->emitted(0, 0, rec.point);
+
+			{
+				for (int l = 0; l < nLights; l++)
+				{
+
+					afloat light_closest_so_far = 99999.0f;
+					andro::hit_record lrec, ltemp_rec;
+					bool lhit = false;
+					Object*  lobject = NULL;
+
+
+					if (rec.object == lights[l]->m_shape)
+					{
+						emited = lights[l]->m_material->emitted(0, 0, rec.point);
+						continue;
+					}
+
+					andro::Vector3 toLightDir = lights[l]->GetBoundingSphere().center - rec.point;
+					float inv_rsq = 1.0 / toLightDir.LenghtSq();
+
+					toLightDir = toLightDir + random_in_unit_sphere() * 0.3;
+					toLightDir.NormalizeInto();
+					andro::ray lightRay(rec.point, toLightDir);
+
+
+					for (int k = 0; k < nbObjects; k++)
+					{
+						Object* obj_l = objects[k];
+						if (obj_l->m_shape->hit(lightRay, 0.0001f, light_closest_so_far, ltemp_rec))
+						{
+							lhit = true;
+							light_closest_so_far = ltemp_rec.t;
+							lrec = ltemp_rec;
+							lobject = obj_l;
+						}
+					}
+
+					if (lhit && lrec.t > 0 && lobject == lights[l])
+					{
+						float cos = toLightDir * rec.normal;
+						emited = emited + lobject->m_material->emitted(0, 0, rec.point) * inv_rsq * fmaxf(cos, 0);
+					}
+				}
+			}
+
 			final_colour = final_colour + attenuation.Multiply(emited);
 			andro::Vector3  new_att;
 			andro::ray new_ray;
@@ -136,47 +191,52 @@ DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** ob
 
 // Kernel function to add the elements of two arrays
 __global__
-void renderFrame(int n, unsigned int *p, int width, int height, const Camera * pCamera, Object** objects, int nbObjects, curandState_t* states,unsigned int nbSamples)
+void renderFrame(int n, andro::Vector3* frameBuffer, int width, int height, const Camera * pCamera, Object** objects, int nbObjects, curandState_t* states, Object** lights, int nLights)
 {
 
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;
-	unsigned int ns = nbSamples;
 
 	for (int i = index; i < n; i += stride)
 	{
 
-		andro::Vector3 color;
 		int x = i % width;
 		int y = i / width;
 
-		for (unsigned int s = 0; s < ns; s++)
-		{
-
-			afloat u = afloat(x + get_random_float() * 2 - 1 ) / width;
-			afloat v = afloat(y + get_random_float() * 2 - 1 ) / height;
-			andro::ray r = pCamera->getRay(u, v);
-			andro::Vector3 col = get_color(r, 10, objects, nbObjects, states);
-			color = color + col;
-		}
-		color = color * (1.0f / ns);
-
-		//gamma correction
-		color = andro::Vector3(sqrtf(color.x), sqrtf(color.y), sqrtf(color.z));
+		afloat u = afloat(x + get_random_float() * 2 - 1 ) / width;
+		afloat v = afloat(y + get_random_float() * 2 - 1 ) / height;
+		andro::ray r = pCamera->getRay(u, v);
+		andro::Vector3 color = get_color(r, 10, objects, nbObjects, states, lights, nLights);
 
 		__syncthreads();
-		p[i] = int(color.x * 255) << 16;
-		p[i] |= int(color.y * 255) << 8;
-		p[i] |= int(color.z * 255);
+		frameBuffer[i] = frameBuffer[i] + color;
+	}
+}
+
+
+__global__
+void copyFrame(int n, unsigned int* p, andro::Vector3* frameBuffer, int samples)
+{
+
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int stride = blockDim.x * gridDim.x;
+	for (int i = index; i < n; i += stride)
+	{
+		Vector3 currentCol = frameBuffer[i] * (1.0f/ samples);
+		//gamma correction
+		currentCol = andro::Vector3(sqrtf(currentCol.x), sqrtf(currentCol.y), sqrtf(currentCol.z));
+
+		p[i] = int(currentCol.x * 255) << 16;
+		p[i] |= int(currentCol.y * 255) << 8;
+		p[i] |= int(currentCol.z * 255);
 
 	}
 }
 
 
-
-int FrameUpdateCuda(unsigned int *p, const Camera * pCamera, Object** objects, int nbObjects,  unsigned long seed, unsigned int nbSamples, unsigned int blockSize)
+int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize)
 {
-
+	static int samples = 1;
 	
 	int N = width * height;
 	int numBlocks = (N + blockSize - 1) / blockSize;
@@ -187,8 +247,12 @@ int FrameUpdateCuda(unsigned int *p, const Camera * pCamera, Object** objects, i
 	setup_curand << <numBlocks, blockSize >> >(g_states, seed);
 	cudaDeviceSynchronize();
 
-	renderFrame << <numBlocks, blockSize >> >(N, p, width, height, cudaCamera, objects, nbObjects, g_states, nbSamples);
+	renderFrame << <numBlocks, blockSize >> >(N, frameBuffer, width, height, cudaCamera, objects, nbObjects, g_states, objectsLightVec, nbLights);
 	// Wait for GPU to finish before accessing on host
+	cudaDeviceSynchronize();
+
+
+	copyFrame << <numBlocks, blockSize >> >(N, intFrameBuffer, frameBuffer, samples++);
 	cudaDeviceSynchronize();
 
 	// Check for errors (all values should be 3.0f)
@@ -199,19 +263,30 @@ void cudaFreeOjects()
 {
 	cudaFree(g_states);
 	cudaFree(cudaCamera);
+	cudaFree(objectsLightVec);
+	cudaFree(intFrameBuffer);
+	cudaFree(frameBuffer);
+	cudaFree(g_BgColour);
+	
+
 }
 
 
-__global__ void init_kernel(Object** obj, ObjectDesc description)
+__global__ void init_kernel(Object** obj, ObjectDesc description, Object** lightObject)
 {
 	*obj = CreateFromObjectDesc(description);
+	if (description.m_material == MaterialType::M_LIGHT)
+		*lightObject = *obj;
 }
 
 
 int CreateCudaObject(Object** object, ObjectDesc& desc)
 {
-	init_kernel << <1, 1 >> > (object, desc);
+	init_kernel << <1, 1 >> > (object, desc, &objectsLightVec[nbLights]);
 	cudaDeviceSynchronize();
+	if (desc.m_material == MaterialType::M_LIGHT)
+		nbLights++;
+
 	return 0;
 }
 #endif //_USE_CUDA

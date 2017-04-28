@@ -21,13 +21,16 @@ CFrameBuffer::CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3 b
 , m_bgColour(bgColour)
 {
 	m_FramebufferArray = new unsigned int[iWidth*iHeight];
-	memset(m_FramebufferArray,0 ,iWidth*iHeight * sizeof(int));
+	m_FramebufferTemp = new andro::Vector3[iWidth*iHeight];
+	memset(m_FramebufferArray, 0, iWidth*iHeight * sizeof(int));
+	m_frameCount = 0;
 
 }
 
 CFrameBuffer::~CFrameBuffer()
 {
 	delete[] m_FramebufferArray;
+	delete[] m_FramebufferTemp;
 }
 
 void CFrameBuffer::Clear()
@@ -81,49 +84,51 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		{
 			andro::Vector3  color;
 			andro::Vector3  emited;
-
+//			emited = current_mat->emitted(0, 0, rec.point);
 			{
 				for (int l = 0; l < light_objects.size(); l++)
 				{
 
-					//if (rec.object == light_objects[l]->m_shape && bounce == 0)
-					//{
-					//	emited = current_mat->emitted(0, 0, rec.point);
-					//	continue;
-					//}
-
 					afloat light_closest_so_far = 99999.0f;
-					afloat light_distance_t = 99999.0f;
+					andro::hit_record lrec, ltemp_rec;
+					bool lhit = false;
+					Object*  lobject = NULL;
+
+
+					if (rec.object == light_objects[l]->m_shape )
+					{
+						emited = light_objects[l]->m_material->emitted(0, 0, rec.point);
+						continue;
+//						return final_colour + attenuation.Multiply(m_bgColour);
+					}
 
 					andro::Vector3 toLightDir = light_objects[l]->GetBoundingSphere().center - rec.point;
 					float inv_rsq = 1.0 / toLightDir.LenghtSq();
+
+					toLightDir = toLightDir + random_in_unit_sphere() * 0.3;
 					toLightDir.NormalizeInto();
 					andro::ray lightRay(rec.point, toLightDir);
-					andro::hit_record hit;
-					Vector3 emittedTemp;
+
 
 					unsigned int size2 = 0;
 					andro::ray_octree_traversal(octree, lightRay, objects2, size2);
 
 					for (int k = 0; k < size2; k++)
 					{
-						Object* obj = objects2[k];
-						if (obj->m_shape->hit(lightRay, 0.0001f, light_closest_so_far, hit))
+						Object* obj_l = objects2[k];
+						if (obj_l->m_shape->hit(lightRay, 0.0001f, light_closest_so_far, ltemp_rec))
 						{
-							light_closest_so_far = hit.t;
-							if (hit.object == light_objects[l]->m_shape)
-							{
-								emittedTemp = light_objects[l]->m_material->emitted(0, 0, rec.point);
-								light_distance_t = light_closest_so_far;
-							}
+							lhit = true;
+							light_closest_so_far = ltemp_rec.t;
+							lrec = ltemp_rec;
+							lobject = obj_l;
 						}
 					}
 
-					if (light_distance_t != light_closest_so_far)
+					if (lhit && lrec.t > 0 && lobject == light_objects[l])
 					{
-						emittedTemp = Vector3();
+						emited = emited + lobject->m_material->emitted(0,0,rec.point) * inv_rsq * max((toLightDir * rec.normal), 0);
 					}
-					emited = emited + emittedTemp * inv_rsq * (toLightDir * rec.normal);
 				}
 			}
 
@@ -155,9 +160,10 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 
 void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int numberOfSamples)
 {
-	m_nbSamples = numberOfSamples;
+	m_nbSamples = 1;
 	Clear();
 
+	m_frameCount++;
 
 	const int num_jobs = 1024;
 	std::thread t[num_jobs];
@@ -173,6 +179,7 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int num
 		thread_pool.Enqueue(slice_task);
 	}
 	thread_pool.FlushQueue();
+
 
 	//static Rect full_screen(0, 0, 1, 1);
 	//Render(octree, full_screen);
@@ -195,23 +202,21 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 		for (unsigned int x = start_x; x < end_x; x++)
 		{
 			andro::Vector3 color;
-			for (unsigned int s = 0; s < ns; s++)
-			{
-				afloat u = afloat(x + random_float(1)) / m_iWidth;
-				afloat v = (afloat(y + random_float(1)) / m_iHeight);
-				andro::ray r = m_camera.getRay(u, v);
-				andro::Vector3 col = get_color(r, octree, 10);
-				color = color + col;
+			afloat u = afloat(x + random_float(1)) / m_iWidth;
+			afloat v = (afloat(y + random_float(1)) / m_iHeight);
+			andro::ray r = m_camera.getRay(u, v);
+			andro::Vector3 col = get_color(r, octree, 10);
+			color = color + col;
 
-			}
-			color = color * (1.0f / ns);
 
+			m_FramebufferTemp[x + y * m_iWidth] = m_FramebufferTemp[x + y * m_iWidth] + color;
+			andro::Vector3 currentCol = m_FramebufferTemp[x + y * m_iWidth] * (1.0 / m_frameCount);
 			//gamma correction
-			color = andro::Vector3(sqrtf(color.x), sqrtf(color.y), sqrtf(color.z));
+			currentCol = andro::Vector3(sqrtf(currentCol.x), sqrtf(currentCol.y), sqrtf(currentCol.z));
 
-			m_FramebufferArray[x + y * m_iWidth] = int(color.x * 255) << 16;
-			m_FramebufferArray[x + y * m_iWidth] |= int(color.y * 255) << 8;
-			m_FramebufferArray[x + y * m_iWidth] |= int(color.z * 255);
+			m_FramebufferArray[x + y * m_iWidth]  = int(currentCol.x * 255) << 16;
+			m_FramebufferArray[x + y * m_iWidth] |= int(currentCol.y * 255) << 8;
+			m_FramebufferArray[x + y * m_iWidth] |= int(currentCol.z * 255);
 		}
 
 	}
