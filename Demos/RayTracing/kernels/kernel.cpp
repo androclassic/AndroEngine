@@ -34,6 +34,8 @@ DEVICE Vector3*		  g_BgColourDevice;
 static Camera* cudaCamera = 0;
 static Vector3* g_BgColour = 0;
 static curandState_t* g_states = 0;
+static int g_statesNumber = 10;
+DEVICE static int g_statesNumberDevice = 10;
 
 Vector3* frameBuffer = NULL;
 unsigned int* intFrameBuffer = NULL;
@@ -43,12 +45,16 @@ int nbLights = 0;
 
 DEVICE afloat get_random_float()
 {
-	return curand_uniform(&g_statesDevice[blockIdx.x *blockDim.x + blockIdx.y]);
+	int idx = (blockIdx.x *blockDim.x ) % g_statesNumberDevice;
+	return curand_uniform(&g_statesDevice[idx]);
 }
 
 __global__ void setup_curand(curandState_t* states, unsigned long seed)
 {
-	curand_init(seed, threadIdx.x + blockIdx.x * blockDim.x, 0, &states[threadIdx.x + blockIdx.x * blockDim.x]);
+	int idx = (threadIdx.x + blockIdx.x * blockDim.x);
+	
+	if (idx < g_statesNumberDevice)
+		curand_init(seed, idx, 0, &states[idx]);
 }
 
 
@@ -78,17 +84,22 @@ unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockS
 	cudaMemcpy(g_BgColour, &bgColour, sizeof(Vector3), cudaMemcpyHostToDevice);
 
 
-	cudaMalloc((void**)&g_states, numBlocks * blockSize * sizeof(curandState_t));
+	cudaMalloc((void**)&g_states,  g_statesNumber* sizeof(curandState_t));
 	setup_globals << <1, 1 >> >(g_states, g_BgColour);
 	cudaDeviceSynchronize();
 
+
+	int numBlocksReduced = (N/4 + blockSize - 1) / blockSize;
+
+	setup_curand << <numBlocksReduced, blockSize >> >(g_states, 0);
+	cudaDeviceSynchronize();
 
 
 	return p;
 
 }
 
-DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** objects, int nbObjects, curandState_t* states, Object** lights, int nLights)
+DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** objects, int nbObjects, Object** lights, int nLights)
 {
 	uint16_t nbBounce = depth;
 	andro::ray current_ray = ray;
@@ -191,13 +202,13 @@ DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** ob
 
 // Kernel function to add the elements of two arrays
 __global__
-void renderFrame(int n, andro::Vector3* frameBuffer, int width, int height, const Camera * pCamera, Object** objects, int nbObjects, curandState_t* states, Object** lights, int nLights)
+void renderFrame(int n, andro::Vector3* frameBuffer, int width, int height, const Camera * pCamera, Object** objects, int nbObjects, Object** lights, int nLights, int offsetSlice)
 {
 
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int index = offsetSlice + blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;
 
-	for (int i = index; i < n; i += stride)
+	for (int i = index; i < offsetSlice + n; i += stride)
 	{
 
 		int x = i % width;
@@ -206,7 +217,7 @@ void renderFrame(int n, andro::Vector3* frameBuffer, int width, int height, cons
 		afloat u = afloat(x + get_random_float() * 2 - 1 ) / width;
 		afloat v = afloat(y + get_random_float() * 2 - 1 ) / height;
 		andro::ray r = pCamera->getRay(u, v);
-		andro::Vector3 color = get_color(r, 10, objects, nbObjects, states, lights, nLights);
+		andro::Vector3 color = get_color(r, 10, objects, nbObjects, lights, nLights);
 		color.Min(Vector3(1, 1, 1));
 
 //		__syncthreads();
@@ -239,25 +250,26 @@ void copyFrame(int n, unsigned int* p, andro::Vector3* frameBuffer, int samples)
 
 int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize)
 {
+	static int slices = 4;
 	static int samples = 1;
-	
+
 	int N = width * height;
 	int numBlocks = (N + blockSize - 1) / blockSize;
+	int numBlocksSliced = (N/slices + blockSize - 1) / blockSize;
 
 	cudaMemcpy(cudaCamera, pCamera, sizeof(Camera), cudaMemcpyHostToDevice);
 
-
-	setup_curand << <numBlocks, blockSize >> >(g_states, seed);
-	cudaDeviceSynchronize();
-
-	renderFrame << <numBlocks, blockSize >> >(N, frameBuffer, width, height, cudaCamera, objects, nbObjects, g_states, objectsLightVec, nbLights);
-	// Wait for GPU to finish before accessing on host
-	cudaDeviceSynchronize();
+	for (int i = 0; i < slices; i++)
+	{
+		renderFrame << <numBlocksSliced, blockSize >> >(N / slices, frameBuffer, width, height, cudaCamera, objects, nbObjects, objectsLightVec, nbLights, i*N/slices);
+		// Wait for GPU to finish before accessing on host
+		cudaDeviceSynchronize();
+	}
 
 
 	copyFrame << <numBlocks, blockSize >> >(N, intFrameBuffer, frameBuffer, samples++);
+	cudaDeviceSynchronize();
 
-	// Check for errors (all values should be 3.0f)
 	return 0;
 }
 

@@ -268,7 +268,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	cudaMalloc((void**)&objectsVec, (sizeof(Object*) * 1024));
 #endif
 
-	Lua_State::GetInstance()->execute_program("data/raytracer/raytracer.lua");
+	Lua_State::GetInstance()->execute_program("data/raytracer/cornell_box.lua");
 
 
 	// Perform application initialization:
@@ -349,7 +349,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 		if (elapsedTime >= 100)		
 		{
-			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f", (UINT)(FPS * 1000.0 / elapsedTime), elapsedTime);
+			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f frame : %d", (UINT)(FPS * 1000.0 / elapsedTime), elapsedTime, g_Framebuffer->m_frameCount);
 			SetWindowText(g_hWnd, szTitle);
 			FPS = 0;
 			lastTime = currentTime;

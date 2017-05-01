@@ -8,14 +8,14 @@ end
 function init()
 --	math.randomseed( os.time() )
 	math.randomseed( 9741 )
-	local light_intensity = 7
+	local light_intensity = 1
 
-	local bgColour = vec3(0.32,0.25,0.3)
+	local bgColour = vec3(0.2,0.25,0.7)
 	local cameraPosition = vec3(-2.3,0.65,0)
 	local cameraLook = vec3(0,0,0)
 --	local width = 1980	local height = 1080	local samples = 1
 --	local width = 1280	local height = 640	local samples = 1
-	local width = 400	local height = 300	local samples = 1
+	local width = 1980	local height = 800	local samples = 300
 
 	InitFrame(vec3(width,height,samples), bgColour, cameraPosition, cameraLook)
 -- add lights to the scene		
@@ -58,7 +58,17 @@ function init()
 			
 		end
 
-
+			CreateObject
+			{
+			 Type = ObjectType.BOX_FROM_PLANES,
+			 Material=MaterialType.ISOTROPIC,
+			 Texture = Texture.CONSTANT,
+			 Colour = {r = 0, g = 1, b = 0 }, --not used
+			 Position = {x = 0, y = -1.5, z =  0 },
+			 Roughness = 0.7, --density
+			 Size = { x = 2.1, y = 0.1, z = 2.1 },
+			}
+			
 		for a = -2.1,  2.1, size  do
 		
 			local row_colour =  {r = 184 / 255, g=115 /255, b = 51/255 }
@@ -92,9 +102,9 @@ function init()
 				 Material=MaterialType.DIELECTRIC,
 				 Texture = Texture.CONSTANT,
 				 Colour = {r = 0.7, g = 0.6, b = 0.6 },
-				 Position = { x = -1.5, y = 0.5, z = 0 } ,
+				 Position = { x = -1.5, y = .75, z = 0 } ,
 				 Roughness = 1.5,
-				 Size = 0.1
+				 Size = 0.23
 				}
 
 			
