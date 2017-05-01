@@ -1,151 +1,153 @@
 
 
-require "data.raytracer.raytracer_inc"
 
+Texture =
+		{
+			CONSTANT = 0,
+			NOISE  	 = 1,
+		}
 
+ObjectType =
+		{
+			BOX = 0,
+			SPHERE = 1,
+			RECT_XY= 2,
+			RECT_YZ = 3,
+			RECT_XZ = 4,
+		}
+		
+MaterialType = 
+		{
+			LAMBERTIAN = 0,
+			DIELECTRIC = 1,
+			METAL = 2,
+			LIGHT = 3,
+		}		
+
+Length = function(v1)	
+	return  math.sqrt(v1.x*v1.x + v1.y * v1.y + v1.z * v1.z)
+end
 
 		
 function init()
 --	math.randomseed( os.time() )
 	math.randomseed( 9741 )
-	local light_intensity = 0.4
+	local light_intensity = 7
 
---	local bgColour = vec3(0.3,0.3,0.3)
-	local bgColour = vec3(0, 0, 0)
-	local cameraPosition = vec3(0,0, 1.5)
+	local bgColour = vec3(0.32,0.25,0.3)
+	local cameraPosition = vec3(-2.3,0.65,0)
 	local cameraLook = vec3(0,0,0)
---	local width = 190	local height = 1080	local samples = 1
-	local width = 1280	local height = 640	local samples = 1400
---	local width = 400	local height = 300	local samples = 1400
+--	local width = 1980	local height = 1080	local samples = 1
+--	local width = 1280	local height = 640	local samples = 1
+	local width = 400	local height = 300	local samples = 1
 
 	InitFrame(vec3(width,height,samples), bgColour, cameraPosition, cameraLook)
-
-
-	
-	-- light
-	
-			CreateObject
+-- add lights to the scene		
+		CreateObject
 			{
-			 Type = ObjectType.RECT_XZ,
+			 Type = ObjectType.SPHERE,
 			 Material=MaterialType.LIGHT,
 			 Texture = Texture.CONSTANT,
-			 Colour = {r = light_intensity, g = light_intensity, b = light_intensity/2 },
-			 Position = {x = 0, y = 0.999, z =  0 },
+			 Colour = {r = light_intensity, g = light_intensity, b = light_intensity },
+			 Position = {x = 6, y = 3, z = 17 },
 --			 Roughness = 0.32,
-			 Size = 0.25
+			 Size = 1
 			}
+		
+	
+		local size = 0.3
+	
+		local i = 1
+		for a = -2.1,  2.1, size  do
+		
+			local row_colour =  {r = 184 / 255, g=115 /255, b = 51/255 }
+			for b = -2.1, 2.1 , size do
 
--- ///////////////////////////////////////////////////////////////////////////
+				local position = { x = b , y = 0.2, z = a}
+				
+					CreateObject
+						{
+						 Type = ObjectType.BOX,
+						 Material=MaterialType.METAL,
+						 Texture = Texture.CONSTANT,
+--						Colour = {r = 1, g = 215/255, b = 0 },
+						 Colour = row_colour,
+						 Position = position,
+						 Roughness = 0.06,
+						 Size = { x = size*1.1/2, y = size*1.1/4 + (size*1.1/2) * math.random(), z = size*1.1/2 } 
+						}
 	
 
-
-			CreateObject
-			{
-			 Type = ObjectType.RECT_XZ,
-			 Material=MaterialType.LAMBERTIAN,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = .5, g = .5, b = .5 },
-			 Position = {x = 0, y = -1, z =  0 },
---			 Roughness = 0.32,
-			 Size = 1
-			}
+			end
 			
+		end
+
+
+		for a = -2.1,  2.1, size  do
+		
+			local row_colour =  {r = 184 / 255, g=115 /255, b = 51/255 }
+			for b = -2.1, 2.1 , size do
+
+				local position = { x = b , y = 1.5, z = a}
+				
+					CreateObject
+						{
+						 Type = ObjectType.BOX,
+						 Material=MaterialType.METAL,
+						 Texture = Texture.CONSTANT,
+--						Colour = {r = 1, g = 215/255, b = 0 },
+						 Colour = row_colour,
+						 Position = position,
+						 Roughness = 0.06,
+						 Size = { x = size*1.1/2, y = size*1.1/4 + (size/2) * math.random(), z = size*1.1/2 } 
+						}
+	
+
+			end
+			
+		end
+		
+		
+		--////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 			CreateObject
-			{
-			 Type = ObjectType.RECT_XZ,
-			 Material=MaterialType.LAMBERTIAN,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = .5, g = .5, b = .5 },
-			 Position = {x = 0, y = 1, z =  0 },
---			 Roughness = 0.32,
-			 FlipNormals = true,
-			 Size = 1
-			}
-
-			CreateObject
-			{
-			 Type = ObjectType.RECT_YZ,
-			 Material=MaterialType.LAMBERTIAN,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 0, g = 1, b = 0 },
-			 Position = {x = 1, y = 0, z =  0 },
---			 Roughness = 0.32,
-			 FlipNormals = true,
-			 Size = 1
-			}
-
-
-			CreateObject
-			{
-			 Type = ObjectType.RECT_YZ,
-			 Material=MaterialType.LAMBERTIAN,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 1, g = 0, b = 0 },
-			 Position = {x = -1, y = 0, z =  0 },
---			 Roughness = 0.32,
-			 Size = 1
-			}
-
-
-			CreateObject
-			{
-			 Type = ObjectType.RECT_XY,
-			 Material=MaterialType.LAMBERTIAN,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = .5, g = .5, b = .5 },
-			 Position = {x = 0, y = 0, z =  -1 },
---			 Roughness = 0.32,
-			 Size = 1
-			}
+				{
+				 Type = ObjectType.SPHERE,
+				 Material=MaterialType.DIELECTRIC,
+				 Texture = Texture.CONSTANT,
+				 Colour = {r = 0.7, g = 0.6, b = 0.6 },
+				 Position = { x = -1.5, y = 0.5, z = 0 } ,
+				 Roughness = 1.5,
+				 Size = 0.1
+				}
 
 			
--- /////////////////////////////////////////////////////////////////////////
-
-		CreateObject
-			{
-			 Type = ObjectType.BOX,
-			 Material=MaterialType.METAL,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 1, g = 1, b = 0.2 },
-			 Position = { x = -0.3, y = -0.7, z = 0 } ,
-			 Roughness = 0.8,
-			 Size = 0.3
-			}
-
-		CreateObject
-			{
-			 Type = ObjectType.SPHERE,
-			 Material=MaterialType.METAL,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 0.2, g = 0.2, b = 0.2 },
-			 Position = { x = -0.3, y = -.18, z = 0 },
-			 Roughness = 0.01,
-			 Size = 0.22
-			}
-
+			local cubeSize = 0.4
+			local spheres = 3
+			local sphereSize = cubeSize/spheres
 			
-			CreateObject
-			{
-			 Type = ObjectType.SPHERE,
-			 Material=MaterialType.DIELECTRIC,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 0, g = 0, b = 0 }, --not used
-			 Position = {x = 0.5, y = 0, z =  0 },
-			 Roughness = 1.4, --refractive index
-			 Size = 0.3
-			}
-			
-			CreateObject
-			{
-			 Type = ObjectType.BOX_FROM_PLANES,
-			 Material=MaterialType.ISOTROPIC,
-			 Texture = Texture.CONSTANT,
-			 Colour = {r = 1, g = 0, b = 1 }, --not used
-			 Position = {x = 0, y = -1.7, z =  0 },
-			 Roughness = 1.2, --density
-			 Size = { x = 1, y = 0.1, z = 1 },
-			}
-			
+			local center = { x = -1, y = 0.7, z = -1 } 
+			for i=-spheres/2, spheres/2 do
+				for j=-spheres/2, spheres/2 do
+					for k=-spheres/2, spheres/2 do
+
+						local offset = { x = i * sphereSize, y = j*sphereSize, z = k*sphereSize} 
+						local pos = {x = center.x + offset.x, y = center.y + offset.y, z = center.z + offset.z }
+						local colour =  {r =1, g = 0.9, b = 0 } 
+						
+						CreateObject
+							{
+							 Type = ObjectType.SPHERE,
+							 Material=MaterialType.METAL,
+							 Texture = Texture.CONSTANT,
+							 Colour = colour,
+							 Position = pos,
+							 Roughness = 0.03,
+							 Size = sphereSize * 0.5
+							}
+					end
+				end
+			end
 			
 end
 		

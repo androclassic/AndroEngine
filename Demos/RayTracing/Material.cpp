@@ -9,14 +9,6 @@ DEVICE bool Lambertian::scatter(const ray & ray_in, const hit_record & rec, Vect
 	return true;
 }
 
-DEVICE bool Isotropic::scatter(const ray & ray_in, const hit_record & rec, Vector3 & attenuation, ray & scattered) const
-{
-	scattered = ray(rec.point, random_in_unit_sphere());
-	attenuation = m_texture->sample(rec.uv.x, rec.uv.y, rec.point);
-	return true;
-}
-
-
 
 DEVICE_HOST Vector3 Reflect(const Vector3& vector, const Vector3& normal)
 {

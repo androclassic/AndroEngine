@@ -90,9 +90,8 @@ namespace andro
 		return uv;
 	}
 
-	DEVICE bool Mesh::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Mesh::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
-#ifndef _USE_CUDA
 		Triangle* objects[500];
 
 		ray _ray = r;
@@ -118,9 +117,6 @@ namespace andro
 		}
 
 		return hit;
-#else
-		return false;
-#endif
 	}
 
 
@@ -133,7 +129,7 @@ namespace andro
 		return uv;
 	}
 
-	DEVICE bool Triangle::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Triangle::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		static float eps = 0.000001f;
 
@@ -184,7 +180,7 @@ namespace andro
 		return uv;
 	}
 
-	DEVICE bool Sphere::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool Sphere::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 		// p(t) = (origin + t * dir)) - center)
@@ -227,74 +223,6 @@ namespace andro
 
 
 
-	DEVICE_HOST Box::Box()
-	{
-		list_ptr = nullptr;
-		min = andro::Vector3(99999.0f, 99999.0f, 99999.0f);
-		max = andro::Vector3(-99999.0f, -99999.0f, -99999.0f);
-	}
-
-	DEVICE_HOST Box::~Box()
-	{
-		if (list_ptr)
-			delete[] list_ptr;
-
-		list_ptr = nullptr;
-	}
-
-	DEVICE_HOST Box::Box(const Vector3& pCenter, const Vector3& pHalfSize)
-	{
-		list_ptr = nullptr;
-		min = pCenter - pHalfSize; max = pCenter + pHalfSize;
-		create();
-	}
-
-	DEVICE_HOST Vector3 Box::GetHalfSize() const
-	{
-		Vector3 halfSize = (min + max)*0.5f - min;
-		return halfSize;
-	}
-
-	DEVICE_HOST Vector3 Box::GetCenter() const
-	{
-		return (min + max)*0.5f;
-	}
-
-	DEVICE_HOST void Box::create()
-	{
-		if (list_ptr)
-			delete[] list_ptr;
-	
-		list_ptr = new Hitable*[6];
-		list_ptr[0] = new xy_rect(min.x, max.x, min.y, max.y, max.z);
-		list_ptr[1] = new xy_rect(min.x, max.x, min.y, max.y, min.z, -1);
-
-		list_ptr[2] = new xz_rect(min.x, max.x, min.z, max.z, max.y);
-		list_ptr[3] = new xz_rect(min.x, max.x, min.z, max.z, min.y, -1);
-
-		list_ptr[4] = new yz_rect(min.y, max.y, min.z, max.z, max.x);
-		list_ptr[5] = new yz_rect(min.y, max.y, min.z, max.z, min.x, -1);
-	}
-
-	DEVICE bool Box::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
-	{
-		hit_record temp_rec;
-		bool hit = false; 
-		float closest_so_far = t_max;
-		for (int i = 0; i < 6; i++)
-		{
-			if (list_ptr[i]->hit(r, t_min, closest_so_far, temp_rec))
-			{
-				hit = true;
-				closest_so_far = temp_rec.t;
-				rec = temp_rec;
-			}
-		}
-
-		return hit;
-	}
-
-
 
 	DEVICE_HOST BoundingBox::BoundingBox()
 	{
@@ -331,7 +259,7 @@ namespace andro
 		return bbx;
 	}
 
-	DEVICE bool BoundingBox::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool BoundingBox::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 
 
@@ -352,7 +280,7 @@ namespace andro
 
 		Vector3 hit_point = r.get_point_at(t_min);
 		Vector3 normal(0, 1, 1);
-		static afloat delta = 0.0005f;
+		static afloat delta = 0.005f;
 
 		if (fabs(hit_point.x - min.x) < delta)
 			normal = Vector3(-1, 0, 0);
@@ -366,10 +294,9 @@ namespace andro
 			normal = Vector3(0, -1, 0);
 		else if (fabs(hit_point.y - max.y) < delta)
 			normal = Vector3(0, 1, 0);
-#ifndef _USE_CUDA
 		else
 			ASSERT(false, "DELTA not good");
-#endif
+
 		rec.t = t_min;
 		rec.point = hit_point;
 		rec.normal = normal;
@@ -381,7 +308,7 @@ namespace andro
 
 
 //--------------------------------------------------------------------------------------------------
-	DEVICE bool xy_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool xy_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.z) / r.dir.z;
 		if (t < t_min || t > t_max)
@@ -396,7 +323,6 @@ namespace andro
 		rec.point = r.get_point_at(t);
 		rec.t = t;
 		rec.normal = Vector3(0, 0, n);
-
 		rec.uv = getUV(rec.point);
 		rec.object = this;
 		return true;
@@ -407,7 +333,7 @@ namespace andro
 		return Vector2((p.x - x0)/ (x1-x0), (p.y - y0)/(y1 - y0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	DEVICE bool xz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool xz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.y) / r.dir.y;
 		if (t < t_min || t > t_max)
@@ -422,9 +348,6 @@ namespace andro
 		rec.point = r.get_point_at(t);
 		rec.t = t;
 		rec.normal = Vector3(0, n, 0);
-
-		
-		
 		rec.uv = getUV(rec.point);
 		rec.object = this;
 		return true;
@@ -435,7 +358,7 @@ namespace andro
 		return Vector2((p.x - x0) / (x1 - x0), (p.z - z0) / (z1 - z0));
 	}
 	//--------------------------------------------------------------------------------------------------
-	DEVICE bool yz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
+	DEVICE_HOST bool yz_rect::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
 	{
 		afloat t = (k - r.origin.x) / r.dir.x;
 		if (t < t_min || t > t_max)
@@ -449,9 +372,7 @@ namespace andro
 
 		rec.point = r.get_point_at(t);
 		rec.t = t;
-
 		rec.normal = Vector3(n, 0, 0);
-
 		rec.uv = getUV(rec.point);
 		rec.object = this;
 		return true;
@@ -461,57 +382,6 @@ namespace andro
 	{
 		return Vector2((p.y - y0) / (y1 - y0), (p.z - z0) / (z1 - z0));
 	}
-
-
-
-
-
-
-	DEVICE_HOST Vector2 Constant_Medium::getUV(const Vector3& point) const
-	{
-		Vector2 uv;
-		return uv;
-	}
-
-	DEVICE bool Constant_Medium::hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const
-	{
-		hit_record rec1, rec2;
-		if (m_boundary->hit(r, -FLT_MAX, FLT_MAX, rec1))
-		{
-
-			if (m_boundary->hit(r, rec1.t + 0.0001f, FLT_MAX, rec2))
-			{
-
-				if (rec1.t < t_min)
-					rec1.t = t_min;
-				if (rec2.t > t_max)
-					rec2.t = t_max;
-				if (rec1.t >= rec2.t)
-					return false;
-
-				if (rec1.t < 0)
-					rec1.t = 0;
-
-				afloat distance_inside_boundary = (r.dir.Lenght() * (rec2.t - rec1.t));
-				afloat hit_distance = (-1.0f / m_density) * log(random_float());
-				if (hit_distance < distance_inside_boundary)
-				{
-					rec.t = rec1.t + hit_distance ;
-					rec.point = r.get_point_at(rec.t);
-					rec.normal = Vector3(0, 1, 0);// random_in_unit_sphere(); //arbitrary
-					rec.object = this;
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-
-
-
-
 
 	//------------------------------------------------------------------
 	//intersections

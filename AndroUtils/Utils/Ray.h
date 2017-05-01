@@ -53,7 +53,7 @@ namespace andro
 	{
 		public:
 			DEVICE_HOST	Hitable() {};
-			DEVICE virtual bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const = 0;
+			DEVICE_HOST virtual bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const = 0;
 			DEVICE_HOST virtual Vector2 getUV(const Vector3& point) const = 0;
 
 	};

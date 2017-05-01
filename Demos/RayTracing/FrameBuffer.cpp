@@ -163,6 +163,7 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int num
 	m_nbSamples = 1;
 	Clear();
 
+	m_frameCount++;
 
 	const int num_jobs = 1024;
 	std::thread t[num_jobs];
@@ -206,14 +207,12 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 			andro::ray r = m_camera.getRay(u, v);
 			andro::Vector3 col = get_color(r, octree, 10);
 			color = color + col;
-			color.Min(Vector3(1, 1, 1));
 
 
 			m_FramebufferTemp[x + y * m_iWidth] = m_FramebufferTemp[x + y * m_iWidth] + color;
 			andro::Vector3 currentCol = m_FramebufferTemp[x + y * m_iWidth] * (1.0 / m_frameCount);
 			//gamma correction
 			currentCol = andro::Vector3(sqrtf(currentCol.x), sqrtf(currentCol.y), sqrtf(currentCol.z));
-
 
 			m_FramebufferArray[x + y * m_iWidth]  = int(currentCol.x * 255) << 16;
 			m_FramebufferArray[x + y * m_iWidth] |= int(currentCol.y * 255) << 8;

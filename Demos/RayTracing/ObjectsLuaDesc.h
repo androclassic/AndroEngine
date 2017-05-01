@@ -15,7 +15,6 @@ enum ObjectType
 	OBJ_RectObjectXY,
 	OBJ_RectObjectYZ,
 	OBJ_RectObjectXZ,
-	OBJ_BoxFromPlanes,
 	ObjectType_SIZE
 };
 
@@ -32,7 +31,6 @@ enum MaterialType
 	M_Dielectric,
 	M_Metal,
 	M_LIGHT,
-	M_Isotropic,
 	MaterialType_SIZE
 };
 
@@ -47,7 +45,6 @@ struct ObjectDesc
 	andro::Vector3 m_size;
 
 	float m_roughness;
-	bool  m_flipNormals;
 
 	static void FromLua(lua_State * L, int index, Variable * ref)
 	{
@@ -59,7 +56,6 @@ struct ObjectDesc
 		lua_getfield(L, index, "Material");
 		lua_getfield(L, index, "Texture");
 		lua_getfield(L, index, "Roughness");
-		lua_getfield(L, index, "FlipNormals");
 		lua_getfield(L, index, "Size");
 		lua_getfield(L, index, "Position");
 		lua_getfield(L, index, "Colour");
@@ -126,9 +122,6 @@ struct ObjectDesc
 
 		ref_objectDesc->m_colour = andro::Vector3(r, g, b);
 		ref_objectDesc->m_position = andro::Vector3(x, y, z);
-
-		ref_objectDesc->m_flipNormals = lua_toboolean(L, -1);
-		lua_pop(L, 1);
 
 		ref_objectDesc->m_roughness = lua_tonumber(L, -1);
 		lua_pop(L, 1);

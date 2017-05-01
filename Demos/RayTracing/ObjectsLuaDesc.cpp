@@ -7,8 +7,6 @@ DEVICE_HOST Object* CreateFromObjectDesc(ObjectDesc& desc)
 	material* mat = nullptr;
 	CTexture* tex = nullptr;
 
-	bool isMediumObject = false; 
-
 	if (desc.m_material == MaterialType::M_Lambertian)
 	{
 
@@ -36,52 +34,32 @@ DEVICE_HOST Object* CreateFromObjectDesc(ObjectDesc& desc)
 	{
 		mat = new Dielectric(desc.m_roughness); //refractive index
 	}
-
-	else if (desc.m_material == MaterialType::M_Isotropic)
-	{
-		mat = new Isotropic(new constant_texture(desc.m_colour));
-		isMediumObject = true;
-		ASSERT(desc.m_type == ObjectType::OBJ_Sphere || desc.m_type == ObjectType::OBJ_BoxFromPlanes);
-
-	}
-
 	else
 		ASSERT(false);
 
 	//------------------------------------------------------------
-
 	if (desc.m_type == ObjectType::OBJ_Sphere)
 	{
-		if (isMediumObject)
-			object = new SphereMedium(mat, desc.m_position, desc.m_size.x, desc.m_roughness); //density
-		else
-	 		object = new SphereObject(mat, desc.m_position, desc.m_size.x);
+		object = new SphereObject(mat, desc.m_position, desc.m_size.x);
 	}
 	else if (desc.m_type == ObjectType::OBJ_Box)
 	{
-			object = new BoxObject(mat, desc.m_position, desc.m_size);
+		object = new BoxObject(mat, desc.m_position, desc.m_size);
 	}
 	else if (desc.m_type == ObjectType::OBJ_RectObjectXY)
 	{
 		Vector2 size(desc.m_size.x, desc.m_size.y);
-		object = new RectObject(mat, desc.m_position, size, RectObjectType::XY, desc.m_flipNormals);
+		object = new RectObject(mat, desc.m_position, size, RectObjectType::XY);
 	}
 	else if (desc.m_type == ObjectType::OBJ_RectObjectYZ)
 	{
 		Vector2 size(desc.m_size.x, desc.m_size.y);
-		object = new RectObject(mat, desc.m_position, size, RectObjectType::YZ, desc.m_flipNormals);
+		object = new RectObject(mat, desc.m_position, size, RectObjectType::YZ);
 	}
 	else if (desc.m_type == ObjectType::OBJ_RectObjectXZ)
 	{
 		Vector2 size(desc.m_size.x, desc.m_size.y);
-		object = new RectObject(mat, desc.m_position, size, RectObjectType::XZ, desc.m_flipNormals);
-	}
-	else if (desc.m_type == ObjectType::OBJ_BoxFromPlanes)
-	{
-		if (isMediumObject)
-			object = new BoxMediumFromPlanes(mat, desc.m_position, desc.m_size.x, desc.m_roughness); //density
-		else
-			object = new BoxObjectFromPlanes(mat, desc.m_position, desc.m_size);
+		object = new RectObject(mat, desc.m_position, size, RectObjectType::XZ);
 	}
 	else
 		ASSERT(false);

@@ -120,7 +120,8 @@ DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** ob
 			andro::Vector3  color;
 			andro::Vector3  emited;
 
-//			emited = current_mat->emitted(0, 0, rec.point);
+			emited = current_mat->emitted(0, 0, rec.point);
+
 			{
 				for (int l = 0; l < nLights; l++)
 				{
@@ -165,7 +166,6 @@ DEVICE andro::Vector3 get_color(andro::ray& ray, unsigned int depth, Object** ob
 				}
 			}
 
-
 			final_colour = final_colour + attenuation.Multiply(emited);
 			andro::Vector3  new_att;
 			andro::ray new_ray;
@@ -207,9 +207,8 @@ void renderFrame(int n, andro::Vector3* frameBuffer, int width, int height, cons
 		afloat v = afloat(y + get_random_float() * 2 - 1 ) / height;
 		andro::ray r = pCamera->getRay(u, v);
 		andro::Vector3 color = get_color(r, 10, objects, nbObjects, states, lights, nLights);
-		color.Min(Vector3(1, 1, 1));
 
-//		__syncthreads();
+		__syncthreads();
 		frameBuffer[i] = frameBuffer[i] + color;
 	}
 }
@@ -226,8 +225,6 @@ void copyFrame(int n, unsigned int* p, andro::Vector3* frameBuffer, int samples)
 		Vector3 currentCol = frameBuffer[i] * (1.0f/ samples);
 		//gamma correction
 		currentCol = andro::Vector3(sqrtf(currentCol.x), sqrtf(currentCol.y), sqrtf(currentCol.z));
-
-
 
 		p[i] = int(currentCol.x * 255) << 16;
 		p[i] |= int(currentCol.y * 255) << 8;
@@ -256,6 +253,7 @@ int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, uns
 
 
 	copyFrame << <numBlocks, blockSize >> >(N, intFrameBuffer, frameBuffer, samples++);
+	cudaDeviceSynchronize();
 
 	// Check for errors (all values should be 3.0f)
 	return 0;

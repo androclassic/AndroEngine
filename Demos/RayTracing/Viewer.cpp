@@ -306,7 +306,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 		InvalidateRect(g_hWnd,0,FALSE);
 
-		if (g_Framebuffer->m_frameCount++ > s_numberOfSamples)
+		if (g_Framebuffer->m_frameCount > s_numberOfSamples)
 		{
 
 			// write image to log
