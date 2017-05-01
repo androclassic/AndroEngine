@@ -13,7 +13,7 @@ namespace andro
 {
 	struct Triangle : public Hitable
 	{
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		Vector3 P1, P2, P3;
@@ -24,7 +24,7 @@ namespace andro
 	{
 		DEVICE_HOST Sphere() {}
 		DEVICE_HOST Sphere(const Vector3& c, afloat r) :center(c), radius(r) {}
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		afloat radius;
@@ -39,7 +39,7 @@ namespace andro
 		DEVICE_HOST inline void SetExtents(const Vector3& pMin, const  Vector3&  pMax) { min = pMin; max = pMax; }
 		DEVICE_HOST Vector3 GetHalfSize() const;
 		DEVICE_HOST Vector3 GetCenter() const;
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const
 		{
 			return Vector2(); //todo
@@ -49,11 +49,30 @@ namespace andro
 		Vector3		max;
 	};
 
+	struct Box : public Hitable
+	{
+		DEVICE_HOST Box();
+		DEVICE_HOST ~Box();
+		DEVICE_HOST Box(const Vector3& pCenter, const Vector3& pHalfSize);
+		DEVICE_HOST inline void SetExtents(const Vector3& pMin, const  Vector3&  pMax) { min = pMin; max = pMax; }
+		DEVICE_HOST Vector3 GetHalfSize() const;
+		DEVICE_HOST Vector3 GetCenter() const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE_HOST Vector2 getUV(const Vector3& point) const
+		{
+			return Vector2(); //todo
+		}
+		DEVICE_HOST void create();
+
+		Vector3		min;
+		Vector3		max;
+		Hitable** list_ptr;
+	};
 
 	struct Mesh : public Hitable
 	{
 		DEVICE_HOST Mesh(const Vector3& c, const char* filename);
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		Vector3 center;
@@ -69,7 +88,7 @@ namespace andro
 		DEVICE_HOST xy_rect(afloat _x0, afloat _x1, afloat _y0, afloat _y1, afloat _k, afloat normal = 1.0)
 			: x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), n(normal) {}
 
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		afloat x0, x1, y0, y1, k, n;
@@ -81,7 +100,7 @@ namespace andro
 		DEVICE_HOST xz_rect(afloat _x0, afloat _x1, afloat _z0, afloat _z1, afloat _k, afloat normal = 1.0)
 			: x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), n(normal) {}
 
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		afloat x0, x1, z0, z1, k, n;
@@ -93,10 +112,24 @@ namespace andro
 		DEVICE_HOST yz_rect(afloat _y0, afloat _y1, afloat _z0, afloat _z1, afloat _k, afloat normal = 1.0)
 			: y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), n(normal) {}
 
-		DEVICE_HOST bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
 		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
 
 		afloat y0, y1, z0, z1, k, n;
+	};
+
+	struct Constant_Medium : public Hitable
+	{
+		DEVICE_HOST Constant_Medium(){}
+		DEVICE_HOST Constant_Medium(Hitable* boundary, float density)
+			: m_boundary(boundary), m_density(density){}
+
+		DEVICE bool hit(const ray& r, afloat t_min, afloat t_max, hit_record& rec) const;
+		DEVICE_HOST Vector2 getUV(const Vector3& point) const;
+
+		float m_density;
+		Hitable* m_boundary;
+
 	};
 
 

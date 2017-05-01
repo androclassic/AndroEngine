@@ -1,32 +1,8 @@
 
 
 
-Texture =
-		{
-			CONSTANT = 0,
-			NOISE  	 = 1,
-		}
+require "data.raytracer.raytracer_inc"
 
-ObjectType =
-		{
-			BOX = 0,
-			SPHERE = 1,
-			RECT_XY= 2,
-			RECT_YZ = 3,
-			RECT_XZ = 4,
-		}
-		
-MaterialType = 
-		{
-			LAMBERTIAN = 0,
-			DIELECTRIC = 1,
-			METAL = 2,
-			LIGHT = 3,
-		}		
-
-Length = function(v1)	
-	return  math.sqrt(v1.x*v1.x + v1.y * v1.y + v1.z * v1.z)
-end
 
 		
 function init()

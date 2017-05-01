@@ -111,6 +111,79 @@ struct BoxObject : public Object
 	Vector3 m_HalfSize;
 };
 
+struct BoxObjectFromPlanes : public Object
+{
+	DEVICE_HOST BoxObjectFromPlanes(material* p_material, const Vector3& c, const Vector3& half_size)
+	: m_center(c)
+	, m_HalfSize(half_size)
+	{
+		m_material = p_material;
+		m_shape = new andro::Box(c, half_size);
+	}
+
+	DEVICE_HOST ~BoxObjectFromPlanes()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
+	{
+		return  andro::Sphere(m_center, m_HalfSize.Lenght());
+	}
+
+	Vector3 m_center;
+	Vector3 m_HalfSize;
+};
+
+
+struct SphereMedium : public Object
+{
+	DEVICE_HOST SphereMedium(material* p_material, const Vector3& c, afloat r, float density)
+	{
+		m_material = p_material;
+		m_shape = new Constant_Medium(new andro::Sphere(c, r), density);
+	}
+
+	DEVICE_HOST ~SphereMedium()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
+	{
+		return *(andro::Sphere*)((Constant_Medium*)m_shape)->m_boundary;
+	}
+
+};
+
+struct BoxMediumFromPlanes : public Object
+{
+	DEVICE_HOST BoxMediumFromPlanes(material* p_material, const Vector3& c, const Vector3& half_size, float density)
+	: m_center(c)
+	, m_HalfSize(half_size)
+	{
+		m_material = p_material;
+		m_shape = new Constant_Medium(new andro::Box(c, half_size), density);
+	}
+
+	DEVICE_HOST ~BoxMediumFromPlanes()
+	{
+		delete m_shape;
+		m_shape = nullptr;
+	}
+
+	DEVICE_HOST inline andro::Sphere GetBoundingSphere() const
+	{
+		return  andro::Sphere(m_center, m_HalfSize.Lenght());
+	}
+
+	Vector3 m_center;
+	Vector3 m_HalfSize;
+};
+
+
 enum RectObjectType
 {
 	XY,
@@ -120,17 +193,17 @@ enum RectObjectType
 struct RectObject : public Object
 {
 
-	DEVICE_HOST RectObject(material* p_material, const Vector3& c, const Vector2& half_size, RectObjectType type)
+	DEVICE_HOST RectObject(material* p_material, const Vector3& c, const Vector2& half_size, RectObjectType type, bool flip)
 	{
 		m_material = p_material;
 		m_center = c;
 		m_halfSize = half_size;
 		if (type == RectObjectType::XY)
-			m_shape = new andro::xy_rect(c.x - half_size.x, c.x + half_size.x, c.y - half_size.y, c.y + half_size.y, c.z);
+			m_shape = new andro::xy_rect(c.x - half_size.x, c.x + half_size.x, c.y - half_size.y, c.y + half_size.y, c.z, flip ? -1 : 1);
 		else if (type == RectObjectType::XZ)
-			m_shape = new andro::xz_rect(c.x - half_size.x, c.x + half_size.x, c.z - half_size.y, c.z + half_size.y, c.y);
+			m_shape = new andro::xz_rect(c.x - half_size.x, c.x + half_size.x, c.z - half_size.y, c.z + half_size.y, c.y, flip ? -1 : 1);
 		else
-			m_shape = new andro::yz_rect(c.y - half_size.y, c.y + half_size.y, c.z - half_size.x, c.z + half_size.x, c.x);
+			m_shape = new andro::yz_rect(c.y - half_size.y, c.y + half_size.y, c.z - half_size.x, c.z + half_size.x, c.x, flip ? -1 : 1);
 	}
 
 	DEVICE_HOST ~RectObject()

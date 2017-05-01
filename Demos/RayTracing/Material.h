@@ -25,6 +25,17 @@ class Lambertian : public material
 		CTexture* m_texture;
 };
 
+
+class Isotropic : public material
+{
+public:
+	DEVICE_HOST Isotropic() {}
+	DEVICE_HOST Isotropic(CTexture* pTexture) : m_texture(pTexture) {}
+	DEVICE_HOST virtual void Destroy()  { if (m_texture){ delete m_texture; m_texture = NULL; } }
+	DEVICE bool scatter(const ray& ray_in, const hit_record& rec, Vector3& attenuation, ray& scattered) const;
+	CTexture* m_texture;
+};
+
 class Metal : public material
 {
 public:
