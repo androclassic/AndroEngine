@@ -15,113 +15,28 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "ObjectsLuaDesc.h"
-
+#include "Scene.h"
 
 #ifdef _USE_CUDA
-#include "cuda_device_runtime_api.h"
-#include <cuda_runtime.h>
-#include <curand.h>
-#include <curand_kernel.h>
-
-extern int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize);
-extern unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockSize, const Vector3& bgColour);
-extern int CreateCudaObject(Object** object, ObjectDesc& desc);
 extern void cudaFreeOjects();
 #endif
 
 
-std::vector<Object*> m_objects;
-andro::OctreeNode<Object*>* m_octree;
-andro::BoundingBox m_scene_bbx;
 int m_nFrame = 0;
 HDC hdcMem = 0;
 HBITMAP hbmMem = 0;
 unsigned int s_numberOfSamples;
 
-CFrameBuffer* g_Framebuffer = NULL;
-
-#ifdef _USE_CUDA
-Object** objectsVec;
-static int sBlockSize = 256;
-unsigned int* cudaFrameBuffer = 0;
-#endif
-
 //#define ONE_FRAME 1
-//////////////////////////////////////////////////////////////////////////////////
-	void DestroyObjects()
-	{
-		delete g_Framebuffer;
 
-		for (auto obj : m_objects)
-		{
-			obj->m_material->Destroy();
-			delete obj->m_material;
-			delete obj;
-		}
-		delete m_octree;
-	}
 ///////////////////////////////////////////////////////////////////////////////////
 
 	void InitFrame(andro::Vector3 frameWHZ, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook) //TODO CHECK FOR MEM LEAKS
 	{
-#ifdef _USE_CUDA
-		cudaFrameBuffer = AllocateBuffer(frameWHZ.x, frameWHZ.y, sBlockSize, bgColour);
-#endif
-		g_Framebuffer = new CFrameBuffer(frameWHZ.x, frameWHZ.y, bgColour, cameraPos, cameraLook);
+		CFrameBuffer::GetInstance()->Init(frameWHZ.x, frameWHZ.y, bgColour, cameraPos, cameraLook);
 		s_numberOfSamples = frameWHZ.z;
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////////////
-
-	void BuildSceneOctree()
-	{ 
-		// build octree of the scene
-		m_octree = andro::BuildOctree<Object*>(m_objects, m_scene_bbx, 21, [](const andro::BoundingBox& box, Object* t)
-		{
-			// check in sphere is enclosed
-			andro::Sphere bsphere = t->GetBoundingSphere();
-
-			andro::Vector3 v = (bsphere.center - box.GetCenter());
-			andro::Vector3 halfsize = box.GetHalfSize();
-
-			if ((halfsize.x > std::fabs(v.x) + bsphere.radius) &&
-				(halfsize.y > std::fabs(v.y) + bsphere.radius) &&
-				(halfsize.z > std::fabs(v.z) + bsphere.radius))
-				return true;
-
-			return false;
-
-		}, true);
-
-	}
-	//////////////////////////////////////////////////////////////////////////////////
-	void InitScene()
-	{
-
-		// buid scene bbx
-		afloat min_radius = 10000;
-
-		int i = 0;
-		for (auto object : m_objects)
-		{
-#ifdef OBJECT_LIST_DEBUG_TEST
-			g_Framebuffer->debug_objects.push_back(object);
-#endif
-
-			andro::Sphere bsphere = object->GetBoundingSphere();
-
-			min_radius = fminf(min_radius, bsphere.radius);
-			for (int a = 0; a < 3; a++)
-			{
-
-				m_scene_bbx.min[a] = fminf(m_scene_bbx.min[a], bsphere.center[a] - bsphere.radius);
-				m_scene_bbx.max[a] = fmaxf(m_scene_bbx.max[a], bsphere.center[a] + bsphere.radius);
-			}
-		}
-
-		BuildSceneOctree();
-	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	
@@ -131,19 +46,8 @@ unsigned int* cudaFrameBuffer = 0;
 		ObjectRef<Object> ref;
 		ref.object = CreateFromObjectDesc(desc);
 
-		if(desc.m_material == MaterialType::M_LIGHT)
-		{
-			g_Framebuffer->AddLight(ref.object);
-		}
-
-
-#ifdef _USE_CUDA
-		CreateCudaObject(&objectsVec[m_objects.size()], desc);
-#endif
-		m_objects.push_back(ref.object);
-
+		CScene::GetInstance()->AddObject(ref.object, desc);
 		return ref;
-
 	}
 
 
@@ -152,8 +56,8 @@ unsigned int* cudaFrameBuffer = 0;
 	{
 		m_nFrame++;
 
-		int iWidth = g_Framebuffer->GetWidth();
-		int iHeight = g_Framebuffer->GetHeight();
+		int iWidth = CFrameBuffer::GetInstance()->GetWidth();
+		int iHeight = CFrameBuffer::GetInstance()->GetHeight();
 
 		// Create an off-screen DC for double-buffering
 		if (!hbmMem)
@@ -162,7 +66,7 @@ unsigned int* cudaFrameBuffer = 0;
 			hbmMem = CreateCompatibleBitmap(hdc, iWidth, iHeight);
 		}
 
-		const unsigned int *p = g_Framebuffer->GetFrameBuffer();
+		const unsigned int *p = CFrameBuffer::GetInstance()->GetFrameBuffer();
 
 		// Draw back buffer
 		HANDLE hOld = SelectObject(hdcMem, hbmMem);
@@ -182,10 +86,6 @@ unsigned int* cudaFrameBuffer = 0;
 		PaintFrameBuffer(hdc);
 	}
 
-//////////////////////////////////////////////////////////////////////////////////
-
-
-	
 
 //////////////////////////////////////////////////////////////////////////////////
 #define MAX_LOADSTRING 100
@@ -264,17 +164,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	lua_bind(L, InitFrame);
 
 
-#ifdef _USE_CUDA
-	cudaMalloc((void**)&objectsVec, (sizeof(Object*) * 1024));
-#endif
-
 	Lua_State::GetInstance()->execute_program("data/raytracer/cornell_box.lua");
 
 
 	// Perform application initialization:
 	if (!InitInstance(hInstance, nCmdShow))
 	{
-		DestroyObjects();
 		return FALSE;
 	}
 	HDC hdc = GetDC(g_hWnd);
@@ -282,7 +177,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 /*	Object* obj = new MeshObject(new Metal(andro::Vector3(184.0 / 255, 115.0 / 255, 51.0 / 255), 0.3), "data/catmark_torus_creases0.obj", andro::Vector3(0, 0.0, -1));
 	m_objects.push_back(obj);*/
 
-	InitScene();
+	CScene::GetInstance()->InitScene();
 
 
 	bool should_close = false;
@@ -306,23 +201,24 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 		InvalidateRect(g_hWnd,0,FALSE);
 
-		if (g_Framebuffer->m_frameCount++ > s_numberOfSamples)
+		CFrameBuffer* frameBuffer = CFrameBuffer::GetInstance();
+		if (frameBuffer->m_frameCount++ > s_numberOfSamples)
 		{
 
 			// write image to log
-			const unsigned int* f = g_Framebuffer->GetFrameBuffer();
+			const unsigned int* f = frameBuffer->GetFrameBuffer();
 			std::ofstream out("ray_log.ppm");
 
 			out << "P3" << std::endl;
-			out << g_Framebuffer->GetWidth() << " " << g_Framebuffer->GetHeight() << std::endl;
+			out << frameBuffer->GetWidth() << " " << frameBuffer->GetHeight() << std::endl;
 			out << "255 " << std::endl;
 
-			for (int j = 0; j < g_Framebuffer->GetHeight(); j++)
-				for (int i = 0; i < g_Framebuffer->GetWidth(); i++)
+			for (int j = 0; j < frameBuffer->GetHeight(); j++)
+				for (int i = 0; i < frameBuffer->GetWidth(); i++)
 				{
-					int r = int(f[j* g_Framebuffer->GetWidth() + i]) >> 16;
-					int g = (int(f[j* g_Framebuffer->GetWidth() + i]) & 0xff00) >> 8;
-					int b = int(f[j* g_Framebuffer->GetWidth() + i]) & 0xff;
+					int r = int(f[j* frameBuffer->GetWidth() + i]) >> 16;
+					int g = (int(f[j* frameBuffer->GetWidth() + i]) & 0xff00) >> 8;
+					int b = int(f[j* frameBuffer->GetWidth() + i]) & 0xff;
 					out << r << " " << g << " " << b << std::endl;
 				}
 
@@ -333,13 +229,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		}
 
 
-#ifdef _USE_CUDA
-		FrameUpdateCuda( g_Framebuffer->GetCamera(), objectsVec, m_objects.size(), (afloat)GetTickCount() / 1000.0f, s_numberOfSamples, sBlockSize);
-		cudaMemcpy(g_Framebuffer->GetFrameBuffer(), cudaFrameBuffer, sizeof(unsigned int) * g_Framebuffer->GetHeight() * g_Framebuffer->GetWidth(), cudaMemcpyDeviceToHost);
-
-#else
-		g_Framebuffer->Update(m_octree, s_numberOfSamples);
-#endif
+		frameBuffer->Update(CScene::GetInstance(), s_numberOfSamples);
 
 
 		FPS++;
@@ -349,7 +239,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 		if (elapsedTime >= 100)		
 		{
-			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f frame : %d", (UINT)(FPS * 1000.0 / elapsedTime), elapsedTime, g_Framebuffer->m_frameCount);
+			sprintf(szTitle, (LPCSTR)"FPS = %u MS = %.2f frame : %d", (UINT)(FPS * 1000.0 / elapsedTime), elapsedTime, frameBuffer->m_frameCount);
 			SetWindowText(g_hWnd, szTitle);
 			FPS = 0;
 			lastTime = currentTime;
@@ -420,8 +310,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
 
-	 int width = g_Framebuffer->GetWidth() + 20;
-	 int height = g_Framebuffer->GetHeight() + 50;
+	 int width = CFrameBuffer::GetInstance()->GetWidth() + 20;
+	 int height = CFrameBuffer::GetInstance()->GetHeight() + 50;
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT, width,height, 0, NULL, hInstance, NULL);
 
@@ -492,8 +382,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_DESTROY:
-		DestroyObjects();
-
 		PostQuitMessage(0);
 		break;
 	default:

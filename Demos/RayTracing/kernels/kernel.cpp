@@ -294,7 +294,7 @@ __global__ void init_kernel(Object** obj, ObjectDesc description, Object** light
 }
 
 
-int CreateCudaObject(Object** object, ObjectDesc& desc)
+int CreateCudaObject(Object** object,const ObjectDesc& desc)
 {
 	init_kernel << <1, 1 >> > (object, desc, &objectsLightVec[nbLights]);
 	cudaDeviceSynchronize();

@@ -18,6 +18,15 @@ namespace andro
 	{
 		m_listenersMap[id].push_back(listener);
 	}
+
+	void EventManager::UnregisterEventListener(u32 id, EventListener* listner)
+	{
+		auto it = std::find(m_listenersMap[id].begin(), m_listenersMap[id].end(), listner);
+		if (it != m_listenersMap[id].end())
+			m_listenersMap[id].erase(it);
+	}
+
+
 	void EventManager::Update(f32 dt)
 	{
 		

@@ -7,10 +7,13 @@
 #include "Camera.h"
 #include "RayObjects.h"
 #include "AndroUtils/Utils/ThreadPool.h"
+#include "AndroUtils/Utils/Singleton.h"
 
 //#define OBJECT_LIST_DEBUG_TEST 1
 
 class CFrameBuffer;
+class CScene;
+
 struct Rect
 {
 	Rect()
@@ -31,30 +34,29 @@ struct Rect
 struct RenderSliceTask
 {
 	RenderSliceTask() {};
-	RenderSliceTask(CFrameBuffer &fb, const andro::OctreeNode<Object*>const* octree, const Rect& subRect)
+	RenderSliceTask(CFrameBuffer &fb, const CScene* pScene, const Rect& subRect)
 	{
 		mfb = &fb;
-		m_octree = octree;
+		m_scene = pScene;
 		mRect = subRect;
 	}
 	void operator()();
 
 	CFrameBuffer* mfb;
-	const andro::OctreeNode<Object*>const* m_octree;
+	const CScene* m_scene;
 	Rect mRect;
 
 };
-//#define OBJECT_LIST_DEBUG_TEST 1
 
 class CFrameBuffer
 {
 public:
-	CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3  bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook);
-	~CFrameBuffer();
+	SINGLETON(CFrameBuffer);
+		void Init(const int iWidth, const int iHeight, andro::Vector3  bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook);
 
 	void Clear();
-	void Update(const andro::OctreeNode<Object*>const* octree, int numberOfSamples);
-	void Render(const andro::OctreeNode<Object*>const* octree, Rect& rect);
+	void Update(const CScene* pScene, int numberOfSamples);
+	void Render(const CScene* pScene, Rect& rect);
 
 
 	unsigned int* GetFrameBuffer() const;
@@ -64,14 +66,10 @@ public:
 	int GetValue(int index) { return m_FramebufferArray[index]; }
 	const Camera* GetCamera() const { return &m_camera;  }
 
-#ifdef OBJECT_LIST_DEBUG_TEST
-	std::vector<Object*> debug_objects;
-#endif
-	void AddLight(Object* obj) { light_objects.push_back(obj); }
 
 	unsigned int m_frameCount;
 private:
-	andro::Vector3 get_color( andro::ray& ray, const andro::OctreeNode<Object*>const* octree, unsigned int depth = 0);
+	andro::Vector3 get_color( andro::ray& ray, const CScene* pScene, unsigned int depth = 0);
 	int	m_nbSamples;
 
 	unsigned int* m_FramebufferArray;
@@ -79,10 +77,12 @@ private:
 
 	int m_iWidth, m_iHeight;
 	Camera m_camera;
-	andro::ThreadPool<RenderSliceTask> thread_pool;
+	andro::ThreadPool<RenderSliceTask>* thread_pool;
 	andro::Vector3 m_bgColour;
 
-	std::vector<Object*> light_objects;
+#ifdef _USE_CUDA
+	unsigned int* cudaFrameBuffer = 0;
+#endif
 
 };
 

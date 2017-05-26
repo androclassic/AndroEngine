@@ -30,6 +30,13 @@ Camera::Camera(andro::Vector3& position, andro::Vector3& lookat, afloat vfov, af
 	UpdateCamera();
 }
 
+Camera::~Camera()
+{
+	UNREGISTER_LISTENER(KeyPressedEvent::ID(), this);
+	UNREGISTER_LISTENER(MouseMove::ID(), this);
+	UNREGISTER_LISTENER(MouseLButtonUp::ID(), this);
+	UNREGISTER_LISTENER(MouseLButtonPressed::ID(), this);
+}
 
 void  Camera::Move(afloat dx, afloat dz)
 {
@@ -120,6 +127,9 @@ void Camera::OnEvent(andro::Event *e)
 	UpdateCamera();
 
 }
+
+
+
 DEVICE andro::Vector3 random_in_unit_disk()
 {
 #ifdef _USE_CUDA

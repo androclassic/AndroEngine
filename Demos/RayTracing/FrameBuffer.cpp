@@ -4,33 +4,62 @@
 #include <algorithm>
 #include "AndroUtils/Utils/MMath.h"
 #include "AndroUtils/Utils/Ray.h"
+#include "Scene.h"
+
+
+#ifdef _USE_CUDA
+#include "cuda_device_runtime_api.h"
+#include <cuda_runtime.h>
+#include <curand.h>
+#include <curand_kernel.h>
+
+extern int FrameUpdateCuda(const Camera * pCamera, Object** objects, int nbObjects, unsigned long seed, unsigned int nbSamples, unsigned int blockSize);
+extern unsigned int* AllocateBuffer(unsigned int w, unsigned int h, unsigned int blockSize, const Vector3& bgColour);
+
+static int sBlockSize = 512;//todo
+#endif
 
 
 void RenderSliceTask::operator()()
 {
-	mfb->Render(m_octree, mRect);
+	mfb->Render(m_scene, mRect);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-CFrameBuffer::CFrameBuffer(const int iWidth, const int iHeight, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook)
-:m_iWidth(iWidth)
-, m_iHeight(iHeight)
-, m_camera(cameraPos, cameraLook, 90, afloat(iWidth) / iHeight, 2, 0.05f, 0, 0)
-, thread_pool(8)
-, m_bgColour(bgColour)
+void CFrameBuffer::Init(const int iWidth, const int iHeight, andro::Vector3 bgColour, andro::Vector3 cameraPos, andro::Vector3 cameraLook)
 {
+
+
+	m_iWidth = iWidth;
+	m_iHeight = iHeight;
+	m_camera = Camera(cameraPos, cameraLook, 90, afloat(iWidth) / iHeight, 2, 0.05f, 0, 0);
+	m_bgColour = bgColour;
+
 	m_FramebufferArray = new unsigned int[iWidth*iHeight];
 	m_FramebufferTemp = new andro::Vector3[iWidth*iHeight];
+	thread_pool = new andro::ThreadPool<RenderSliceTask>(8);
+
+
 	memset(m_FramebufferArray, 0, iWidth*iHeight * sizeof(int));
 	m_frameCount = 0;
 
-}
 
+#ifdef _USE_CUDA
+	cudaFrameBuffer = AllocateBuffer(iWidth, iHeight, sBlockSize, m_bgColour);
+#endif
+
+}
+CFrameBuffer::CFrameBuffer()
+:m_camera (Vector3(), Vector3(), 90, afloat(640) / 480, 2, 0.05f, 0, 0)
+{
+
+}
 CFrameBuffer::~CFrameBuffer()
 {
 	delete[] m_FramebufferArray;
 	delete[] m_FramebufferTemp;
+	delete thread_pool;
 }
 
 void CFrameBuffer::Clear()
@@ -42,7 +71,7 @@ void CFrameBuffer::Clear()
 
 
 
-andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<Object*>const * octree, unsigned int depth)
+andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const CScene* pScene, unsigned int depth)
 {
 
 	Object* objects[50000];
@@ -61,11 +90,13 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 		const material* current_mat = nullptr;
 		unsigned int size = 0;
 		current_ray.dir.NormalizeInto();
-		andro::ray_octree_traversal(octree, current_ray, objects, size);
+		andro::ray_octree_traversal(pScene->GetOctree(), current_ray, objects, size);
 
 
 #ifdef OBJECT_LIST_DEBUG_TEST
-		for (auto obj : debug_objects){
+		for (std::vector<Object*>::const_iterator it = pScene->GetObjectsBegin(); it != pScene->GetObjectsEnd(); it++)
+		{
+			const Object* obj = *it;
 #else
 		for (int i = 0; i < size; i++)
 		{
@@ -85,6 +116,8 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 			andro::Vector3  color;
 			andro::Vector3  emited;
 //			emited = current_mat->emitted(0, 0, rec.point);
+			const std::vector<const Object*>& light_objects = pScene->GetLights();
+
 			{
 				for (int l = 0; l < light_objects.size(); l++)
 				{
@@ -111,7 +144,7 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
 
 
 					unsigned int size2 = 0;
-					andro::ray_octree_traversal(octree, lightRay, objects2, size2);
+					andro::ray_octree_traversal(pScene->GetOctree(), lightRay, objects2, size2);
 
 					for (int k = 0; k < size2; k++)
 					{
@@ -158,8 +191,16 @@ andro::Vector3 CFrameBuffer::get_color(andro::ray& ray, const andro::OctreeNode<
  }
 
 
-void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int numberOfSamples)
+void CFrameBuffer::Update(const CScene* pScene, int numberOfSamples)
 {
+
+#ifdef _USE_CUDA
+	FrameUpdateCuda(&m_camera, pScene->objectsVec, pScene->GetObjectsCount(), (afloat)GetTickCount() / 1000.0f, numberOfSamples, sBlockSize);
+	cudaMemcpy(m_FramebufferArray, cudaFrameBuffer, sizeof(unsigned int) * m_iWidth * m_iHeight, cudaMemcpyDeviceToHost);
+
+#else
+
+
 	m_nbSamples = 1;
 	Clear();
 
@@ -173,18 +214,19 @@ void CFrameBuffer::Update(const andro::OctreeNode<Object*>const* octree, int num
 		Rect rect(0,0,1,1);
 		rect.top = (1.0f / num_jobs) * (i);
 		rect.bottom = (1.0f / num_jobs) * (i + 1);
-		RenderSliceTask slice_task(*this, octree, rect);
+		RenderSliceTask slice_task(*this, pScene, rect);
 
-		thread_pool.Enqueue(slice_task);
+		thread_pool->Enqueue(slice_task);
 	}
-	thread_pool.FlushQueue();
+	thread_pool->FlushQueue();
 
 
 	//static Rect full_screen(0, 0, 1, 1);
 	//Render(octree, full_screen);
+#endif
 
 }
-void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& rect)
+void CFrameBuffer::Render(const CScene* pScene, Rect& rect)
 {
 #ifndef _USE_CUDA
 	afloat ratio = m_iWidth / m_iHeight;
@@ -204,7 +246,7 @@ void CFrameBuffer::Render(const andro::OctreeNode<Object*>const* octree, Rect& r
 			afloat u = afloat(x + random_float(1)) / m_iWidth;
 			afloat v = (afloat(y + random_float(1)) / m_iHeight);
 			andro::ray r = m_camera.getRay(u, v);
-			andro::Vector3 col = get_color(r, octree, 10);
+			andro::Vector3 col = get_color(r, pScene, 10);
 			color = color + col;
 			color.Min(Vector3(1, 1, 1));
 

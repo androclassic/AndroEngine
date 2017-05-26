@@ -25,6 +25,11 @@ namespace andro
 	#define REGISTER_LISTENER(ID,LISTENER)  andro::EventManager::GetInstance()->RegisterEventListener(ID,LISTENER)
 	#endif
 
+#ifndef UNREGISTER_LISTENER
+#define UNREGISTER_LISTENER(ID,LISTENER)  andro::EventManager::GetInstance()->UnregisterEventListener(ID,LISTENER)
+#endif
+
+	
 
 
 	class EventListener
@@ -40,6 +45,7 @@ namespace andro
 	public:
 	void AddEvent(Event* rhs);
 	void RegisterEventListener(u32 EventID,EventListener* newListner);
+	void UnregisterEventListener(u32 EventID, EventListener* listner);
 	private:
 		std::map<u32, std::vector<EventListener*> > m_listenersMap;
 		std::vector<Event*>    m_newEvents;

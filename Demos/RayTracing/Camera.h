@@ -13,6 +13,7 @@ private:
 
 public:
 	Camera(andro::Vector3& position, andro::Vector3& lookat, afloat vfov, afloat aspect_ratio, afloat focus_dist, afloat aperture, afloat t0, afloat t1);
+	~Camera();
 	void OnEvent(andro::Event *e);
 	void Move(afloat dx, afloat dz);
 	void UpdateCamera();
