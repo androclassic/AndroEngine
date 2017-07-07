@@ -108,6 +108,11 @@ TakeTwo::Node* TakeTwo::Node::GetNextInHierarchy()
 	return nullptr;
 }
 
+void TakeTwo::Node::SetTransformMatrix(const glm::mat4 & pTransform)
+{
+	mWorldTransform = pTransform;
+}
+
 
 
 glm::mat4 TakeTwo::Node::GetTransformMatrix()

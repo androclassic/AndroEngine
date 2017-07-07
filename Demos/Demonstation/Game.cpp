@@ -77,6 +77,16 @@ void Game::Initialise()
 
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptInit.lua");
 
+	//temporary here
+	static shared_ptr<force::Plane> ground;
+	ground = make_shared<force::Plane>();
+	ground->rigidBody = new force::RigidBody();
+	ground->rigidBody->SetPosition(0, -10, 0);
+	((force::Plane*)ground.get())->normal = force::Vector3(0,1,0);
+	((force::Plane*)ground.get())->offset = -10;
+
+	force::World::GetInstance()->AddPlane(ground.get());
+
 }
 
 
@@ -88,6 +98,13 @@ void Game::Update(afloat deltaTime)
 	TakeTwo::Engine::GetInstance()->Update();
 	mWindow->Update(deltaTime);
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptUpdate.lua");
+	force::World::GetInstance()->runPhysics(deltaTime);
+
+	//temporary here
+	for (auto& obj : GameObject::m_gameObjects)
+	{
+		obj->UpdateVisualObjectTransformMatrix();
+	}
 
 }
 

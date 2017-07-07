@@ -41,19 +41,15 @@ int main(int argc, char** argv)
 		currentTime =andro::GetTimeMS();
 		elapsedTime = currentTime - lastTime;
 
-		deltaTime = (currentTime - lastframeTime) / 1000;
+		deltaTime = (currentTime - lastframeTime) / 1000.0f;
 
 		game.Update(deltaTime);
-
-		if (deltaTime < 0.1)
-		{
-			andro::EventManager::GetInstance()->Update(deltaTime);
-		}
+		andro::EventManager::GetInstance()->Update(deltaTime);
 
 		if (elapsedTime >= 1000)
 		{
 		#ifdef _WIN32
-			wsprintf(szFPS, (LPCSTR)"Andro Engine  FPS = %u", (UINT)(FPS * 1000.0 / elapsedTime));
+			wsprintf(szFPS, (LPCSTR)"Andro Engine  FPS = %u", (UINT)(FPS));
 		#endif	
 			game.GetWindow().SetTitle(szFPS);
 			FPS = 0;

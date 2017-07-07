@@ -44,6 +44,8 @@ namespace TakeTwo
 
 		Node* GetNextInHierarchy();
 
+
+		void SetTransformMatrix(const glm::mat4& pTransform);
 	protected:
 		std::string mName;
 

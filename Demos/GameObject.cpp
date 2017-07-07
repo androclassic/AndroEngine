@@ -32,6 +32,9 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 	mNode.AddChild(&mOctreeNode);
 
 
+
+
+
 }
 
 GameObject::~GameObject()
@@ -42,6 +45,23 @@ GameObject::~GameObject()
 void GameObject::SetPosition(afloat x, afloat y, afloat z)
 {
 	mNode.SetPosition(glm::vec3(x, y, z));
+
+	//temporary here
+	if (m_physicObject == nullptr)
+	{
+		m_physicObject = make_shared<force::Box>(force::Vector3(1,1,1));
+
+		m_physicObject->rigidBody = new force::RigidBody();
+		m_physicObject->rigidBody->SetPosition(force::Vector3(x, y, z));
+//		m_physicObject->rigidBody->orientation = orientation;
+		m_physicObject->rigidBody->SetMass((double)1);
+		m_physicObject->rigidBody->SetAwake(true);
+		static std::unique_ptr<force::ParticleGravity> gravity_generator = make_unique<force::ParticleGravity>(force::Vector3(0, -9.8, 0));
+
+		force::World::GetInstance()->registry.add(m_physicObject->rigidBody, gravity_generator.get());
+		force::World::GetInstance()->AddBox((force::Box*)(m_physicObject.get()));
+	}
+
 }
 void GameObject::SetScale(afloat scale)
 {
@@ -74,3 +94,20 @@ bool GameObject::DestroyGameObject(ObjectRef<GameObject>  pObject)
 	return false;
 }
 
+
+void GameObject::UpdateVisualObjectTransformMatrix()
+{
+	if (m_physicObject != NULL )
+	{
+		force::Matrix4 m = m_physicObject->rigidBody->transformMatrix;
+
+		force::Vector3 v(m.data[0], m.data[1], m.data[2]);
+		glm::mat4 mat;
+		for (unsigned int i = 0; i < 12; i++)
+			mat[i/3][i%4] = m.data[i];
+
+		force::Vector3 pos = m_physicObject->rigidBody->GetPosition();
+		mNode.SetRotation(glm::quat_cast(mat));
+		mNode.SetPosition(glm::vec3(pos.x, pos.y, pos.z));
+	}
+}

@@ -19,6 +19,7 @@
 #include "../../Renderer/Node.h"
 
 #include ".././AndroUtils/Introspection/LuaState.h"
+#include "../Force/core/Force.h"
 
 #include "../../AndroSDK/glm/glm/glm.hpp"
 
@@ -33,10 +34,15 @@ public:
 
 	static ObjectRef<GameObject> CreateGameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
+	force::Primitive* GetPhysicObject() const {		return  m_physicObject.get();  }
 
+	void UpdateVisualObjectTransformMatrix();
+
+	static std::vector<GameObject*> m_gameObjects;
 private:
 	TakeTwo::Node mNode;
 	TakeTwo::Node mOctreeNode;
-	static std::vector<GameObject*> m_gameObjects;
+	shared_ptr<force::Primitive>	m_physicObject;
+
 
 };

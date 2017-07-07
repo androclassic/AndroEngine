@@ -27,17 +27,16 @@ radius =  15;
 		local x = radius * math.cos(angle * o.index)
 		local y = radius * math.sin(angle * o.index)
 
-		o:SetPosition(x ,-10 , y)
+		o:SetPosition(0 ,o.index * 5, 0)
 		o:SetScale(0.08)
 	end,
 	
 	OnUpdate = function( o )
 		o.timestep = o.timestep + 0.0001
 
-		local x = radius * math.cos(angle * (o.index + o.timestep))
-		local y = radius * math.sin(angle * (o.index + o.timestep))
---		o:SetPosition(x ,(o.index - 35) / 2 , y)
-		o:SetPosition(x , 0 , y)
+		-- local x = radius * math.cos(angle * (o.index + o.timestep))
+		-- local y = radius * math.sin(angle * (o.index + o.timestep))
+		-- o:SetPosition(x , 0 , y)
 	end,
 	
 	OnDestroy = function( o )
