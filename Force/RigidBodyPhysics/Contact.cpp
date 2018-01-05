@@ -62,7 +62,7 @@ void Contact::calculateContactBasis()
 
 Vector3 Contact::calculateLocalVelocity(unsigned bodyIndex, real duration)
 {
-    RigidBody *thisBody = body[bodyIndex];
+    const RigidBody *thisBody = body[bodyIndex].get();
 
     // Work out the velocity of the contact point.
     Vector3 velocity =
@@ -419,7 +419,7 @@ void Contact::swapBodies()
 {
     contactNormal *= -1;
 
-    RigidBody *temp = body[0];
+	std::shared_ptr<RigidBody> temp = body[0];
     body[0] = body[1];
     body[1] = temp;
 }

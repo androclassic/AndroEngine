@@ -1,9 +1,12 @@
 #include "GameObject.h"
+
+using namespace GameBindings;
+
 std::vector<GameObject*> GameObject::m_gameObjects;
 
 
-GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, force::Primitive* physicsObj)
-	:m_physicObject(physicsObj)
+GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, PrimitiveDesc pPrimitiveDesc)
+
 {
 	std::stringstream resource_key;
 	resource_key << pModelName << "_" << pMaterialFormat.programName << "_" << pMaterialFormat.textureName;
@@ -32,16 +35,31 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 	renderObjectOctree->SetFlags(ITEM_POLYGON); //todo
 	mNode.AddChild(&mOctreeNode);
 
-	// physic
-	if (physicsObj != nullptr)
+	// physics
+	switch (pPrimitiveDesc.type)
 	{
-		//		m_physicObject->rigidBody->orientation = orientation;
+	case force::PrimitiveType::BOX:
+		m_physicObject = std::make_unique<force::Box>(vecToForce3(pPrimitiveDesc.halfSize));
+		break;
+	case force::PrimitiveType::SPHERE:
+		m_physicObject = std::make_unique<force::Sphere>(pPrimitiveDesc.radius);
+		break;
+	case force::PrimitiveType::CYLINDER:
+		assert(false);
+		break;
+	case force::PrimitiveType::PLANE:
+		m_physicObject = std::make_unique<force::Plane>(vecToForce3(pPrimitiveDesc.normal), pPrimitiveDesc.offset);
+		break;
+	}
+	if (m_physicObject)
+	{
+		m_physicObject->rigidBody->SetMass(pPrimitiveDesc.mass);
+
 		static std::unique_ptr<force::ParticleGravity> gravity_generator = make_unique<force::ParticleGravity>(force::Vector3(0, -9.8, 0));
-		force::World::GetInstance()->registry.add(m_physicObject->rigidBody, gravity_generator.get());
+		force::World::GetInstance()->registry.add(m_physicObject->rigidBody.get(), gravity_generator.get());
+
 		force::World::GetInstance()->AddPrimitive(m_physicObject.get());
 	}
-
-
 
 }
 
@@ -54,7 +72,7 @@ void GameObject::SetPosition(afloat x, afloat y, afloat z)
 {
 	mNode.SetPosition(glm::vec3(x, y, z));
 
-	if (m_physicObject.get() != nullptr)
+	if (m_physicObject != nullptr)
 	{
 		m_physicObject->rigidBody->SetPosition(force::Vector3(x, y, z));
 	}
@@ -66,9 +84,9 @@ void GameObject::SetScale(afloat scale)
 }
 
 
-ObjectRef<GameObject> GameObject::CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, ObjectRef<force::Primitive> primitiveRef)
+ObjectRef<GameObject> GameObject::CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, PrimitiveDesc pPrimitiveDesc)
 {
-	GameObject* new_obj = new GameObject(pMaterialFormat, pModelName, primitiveRef.object);
+	GameObject* new_obj = new GameObject(pMaterialFormat, pModelName, pPrimitiveDesc);
 	m_gameObjects.push_back(new_obj);
 
 	ObjectRef<GameObject> ref;
@@ -104,7 +122,8 @@ void GameObject::NativeUpdate()
 			mat[i/3][i%4] = m.data[i];
 
 		force::Vector3 pos = m_physicObject->rigidBody->GetPosition();
-		mNode.SetRotation(glm::quat_cast(mat));
+		glm::quat orientation = glm::quat_cast(mat);
+		mNode.SetRotation(glm::normalize(orientation));
 		mNode.SetPosition(glm::vec3(pos.x, pos.y, pos.z));
 	}
 }

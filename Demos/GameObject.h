@@ -22,26 +22,37 @@
 #include "../Force/core/Force.h"
 
 #include "../../AndroSDK/glm/glm/glm.hpp"
+#include "GameBindings.h"
+
+#ifndef vecToForce3
+#define vecToForce3(v) force::Vector3(v.x, v.y, v.z)
+#endif
+#ifndef vecToglm
+#define vecToglm(v) glm::vec3(v.x, v.y, v.z)
+#endif
+
+
+using namespace GameBindings;
 
 class GameObject
 {
 
 public:
-	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, force::Primitive* physicsObj = NULL);
+	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, PrimitiveDesc pPrimitiveFormat);
 	~GameObject();
 	void SetPosition(afloat x, afloat y, afloat z);
 	void SetScale(afloat scale);
 
-	static ObjectRef<GameObject> CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, ObjectRef<force::Primitive> primitiveRef);
+	static ObjectRef<GameObject> CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, PrimitiveDesc pPrimitiveFormat);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
-	force::Primitive* GetPhysicObject() const {		return  m_physicObject.get();  }
+	const force::Primitive* GetPhysicObject() const {return  m_physicObject.get();  }
 
 	void NativeUpdate();
 
 private:
 	TakeTwo::Node mNode;
 	TakeTwo::Node mOctreeNode;
-	shared_ptr<force::Primitive>	m_physicObject;
+	std::unique_ptr<force::Primitive> m_physicObject;
 	static std::vector<GameObject*> m_gameObjects;
 
 

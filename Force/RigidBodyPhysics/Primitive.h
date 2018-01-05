@@ -2,6 +2,7 @@
 #define _PRIMITIVE_H
 
 #include"RigidBody.h"
+#include <memory>
 
 namespace force
 {
@@ -17,18 +18,19 @@ namespace force
 	class Primitive
 	{
 		public:
-			Primitive() : rigidBody(&data), primitiveType(UNKNOWN) {}
+			Primitive() :  primitiveType(UNKNOWN)
+			{
+				rigidBody = std::make_shared<RigidBody>();
+			}
 
 	        Vector3 getAxis(unsigned index) const
 				{
 					return rigidBody->transformMatrix.getAxisVector(index);
 				}
 
-			RigidBody* rigidBody;
+			std::shared_ptr<RigidBody> rigidBody;
 			PrimitiveType primitiveType;
 
-			private:
-				RigidBody data; // ugly but avoids code changes
 	};
 
 	class Sphere : public Primitive

@@ -15,7 +15,7 @@ namespace force {
         /**
          * Holds the two rigid bodies that are connected by this joint.
          */
-        RigidBody* body[2];
+        std::shared_ptr<RigidBody> body[2];
 
         /**
          * Holds the relative location of the connection for each
@@ -36,8 +36,8 @@ namespace force {
          * Configures the joint in one go.
          */
         void set(
-            RigidBody *a, const Vector3& a_pos,
-            RigidBody *b, const Vector3& b_pos,
+            std::shared_ptr<RigidBody> a, const Vector3& a_pos,
+            std::shared_ptr<RigidBody> b, const Vector3& b_pos,
             real error
             );
 

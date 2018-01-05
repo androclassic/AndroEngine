@@ -37,3 +37,33 @@ function Vector3(x,y,z) --Vector3MT is implicitly assigned to a variable self
     return setmetatable({x=x or 0,y=y or 0,z=z or 0},getmetatable(Vector3MT)); --create a new table and give it the metatable of Vector3
 end 
 
+		
+-- physics primitives
+PrimitiveType = 
+	{
+		BOX		 	= 0,
+		SPHERE	 	= 1,
+		PLANE	 	= 2,
+		CYLINDER 	= 3,
+		UNKNOWN 	= 4,
+	};
+
+PRIM_MAX_MASS = 1001	
+
+function Primitive( t ) 
+
+	local primitive = t or {}
+	
+	local primitiveConstruct = 
+	{
+		primitiveType = primitive.primitiveType or PrimitiveType.UNKNOWN, -- all
+		halfSize = primitive.halfSize or Vector3(1,1,1) , --box
+		radius = primitive.radius or 1, -- sphere , cylinder
+		normal = primitive.normal or Vector3(0,1,0) , --plane
+		offset =primitive.offset or 0,	-- plane
+		height =primitive.height or 1, -- cylinder
+		mass = primitive.mass or 1,
+	}
+	return primitiveConstruct
+end 
+

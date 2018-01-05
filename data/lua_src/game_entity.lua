@@ -46,7 +46,7 @@ GameManager.CreateEntity= function (o, name )
 	local model = class.Model
 	local material = class.Material
 	local name = class.Name
-    local physics = class.Physics
+    local physics = Primitive(class.Physics)
 	
 	local entity = CreateGameObject(model, material, physics)
 	

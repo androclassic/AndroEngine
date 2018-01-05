@@ -26,19 +26,6 @@ namespace force
 
 	}
 
-	
-	void World::AddRigidBody(RigidBody* rigidbody, unsigned int count)
-	{
-		for(unsigned int i = 0 ; i < count;i++)
-		{
-			if(rigidbody==NULL)
-				break;
-
-			rigidBodies.push_back(rigidbody);
-			rigidbody++;
-		}
-	}
-	
 
 
 void World::AddPrimitive(Primitive* prim)
@@ -60,7 +47,7 @@ void World::AddPrimitive(Primitive* prim)
 	}
  
 	if(prim->rigidBody != NULL)
-		AddRigidBody(prim->rigidBody, 1);
+		rigidBodies.push_back(prim->rigidBody);
 }
 
 

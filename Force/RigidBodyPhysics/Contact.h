@@ -1,7 +1,9 @@
 #ifndef _CONTACT_H
 #define _CONTACT_H
+#include <memory>
 #include "RigidBody.h"
 #include "Matrix3.h"
+
 namespace force
 {
 
@@ -16,7 +18,7 @@ class Contact
 			body[0] = body[1] = NULL;
 		}
 	
-		RigidBody* body[2];
+		std::shared_ptr<RigidBody>  body[2];
 		Vector3 linearMovement[2];
 
 		/**

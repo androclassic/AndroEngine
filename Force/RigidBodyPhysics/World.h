@@ -27,7 +27,7 @@ namespace force
 
 		SINGLETON_(World)
 
-		std::vector<RigidBody*> rigidBodies;
+		std::vector<std::shared_ptr<RigidBody>> rigidBodies;
 		std::vector<ContactGenerator*> contactGenerators;
 		ContactResolver resolver;
 
@@ -62,7 +62,6 @@ namespace force
 
 		
 	private:
-		void AddRigidBody(RigidBody *rigidBody, unsigned int count);
 		std::vector<Sphere*> spheres;
 		std::vector<Box*> boxes;
 		std::vector<Plane*> planes;

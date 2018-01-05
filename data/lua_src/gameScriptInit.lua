@@ -8,7 +8,10 @@ require "data.lua_src.dwarf"
 -- GameManager:CreateEntity("CubeDiffuse")
 -- GameManager:CreateEntity("CubeSpecular")
 
+GameManager:CreateEntity("GroundPlane")
+
 for i=1, dwarfNumbers do
+	GameManager:CreateEntity("Dwarf")
 	GameManager:CreateEntity("Dwarf2")
 end
 	
