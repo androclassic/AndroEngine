@@ -1,6 +1,5 @@
 #include "RenderObject.h"
 #include "MaterialHelper.h"
-#include "Log.h"
 #include <sstream>
 #include "Engine.h"
 #include "../AndroUtils/Utils/Trace.h"
@@ -39,7 +38,7 @@ bool TakeTwo::RenderObject::LoadModel(const char* pFilename)
 	bool ret = tinyobj::LoadObj(shapes, materials, err, pFilename, NULL, TRUE);
 
 	if (!err.empty()) {
-		LOG_MSG(err);
+		TRACE(err.c_str());
 	}
 
 	if (!ret) {

@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include "Texture.h"
-#include "Log.h"
+#include "../../AndroUtils/Utils/Trace.h"
 #include "../../External/SOIL/SOIL.h"
 
 std::unordered_map<std::string, std::pair<int, int>> TakeTwo::Texture::mUsedTextures;
@@ -72,7 +72,7 @@ void TakeTwo::Texture::LoadFromBuffer(const unsigned char* const pBuffer, int pS
 
     if(!mTextureId)
     {
-        LOG_MSG(LL"Failed to load texture from memory.");
+        TRACE(L"Failed to load texture from memory.");
     }
 }
 
@@ -128,7 +128,7 @@ void TakeTwo::Texture::Load(unsigned int pTextureId)
                 );
         if(!mTextureId)
         {
-            LOG_MSG(L"Failed to load texture \"%s\".", mTexturePath.c_str());
+            TRACE(L"Failed to load texture \"%s\".", mTexturePath.c_str());
         }
 
         mUsedTextures[mTexturePath] = std::make_pair(mTextureId, 1);

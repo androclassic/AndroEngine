@@ -1,6 +1,6 @@
 #include "Shader.h"
-#include "Log.h"
 #include "GL/glew.h"
+#include "../../AndroUtils/Utils/Trace.h"
 
 TakeTwo::Shader::Shader(const std::string &pShaderCode, ShaderType pShaderType)
         : mShaderType(pShaderType), mShaderId(0)
@@ -67,11 +67,12 @@ void TakeTwo::Shader::Compile(const std::string& pShaderSource)
         std::string errorMessage;
         errorMessage.reserve(static_cast<unsigned long>(infoLogLength));
         glGetShaderInfoLog(mShaderId, infoLogLength, NULL, &errorMessage[0]);
-        LOG_MSG(L"%s\n", errorMessage.c_str());
+		TRACE(L"%S\n", errorMessage.c_str());
     }
     if(!result)
     {
-        LOG_MSG(L"Shader did not compile!");
-    }
+        TRACE(L"Shader did not compile!");
+		ASSERT(FALSE);
+	}
 }
 

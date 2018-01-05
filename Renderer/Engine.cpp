@@ -1,7 +1,7 @@
 #include "Engine.h"
-#include "Log.h"
 #include "GL/glew.h"
 #include "../../AndroUtils/Introspection/LuaState.h"
+#include "../../AndroUtils/Utils/Trace.h"
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ bool TakeTwo::Engine::Init(int pWidth, int pHeight, std::string pTitle)
 	if (GLEW_OK != err)
 	{
 		// Problem: glewInit failed, something is seriously wrong.
-		LOG_MSG(L"Error: %s\n", glewGetErrorString(err));
+		TRACE(L"Error: %s\n", glewGetErrorString(err));
 	}
 
 	glEnable(GL_BLEND);

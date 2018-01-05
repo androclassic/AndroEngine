@@ -1,7 +1,7 @@
 #include "GL/glew.h"
-#include "Log.h"
 #include "Mesh.h"
 #include "Engine.h"
+#include "../../AndroUtils/Utils/Trace.h"
 #include <fstream>
 
 TakeTwo::Mesh::Mesh() :

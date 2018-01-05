@@ -4,7 +4,7 @@
 #include "Trace.h"
 #include "AndroUtils.h"
 #include "../../External/tinyOBJ/tiny_obj_loader.h"
-#include "../../Renderer/Log.h"
+#include "../../AndroUtils/Utils/Trace.h"
 
 namespace andro
 {
@@ -20,7 +20,8 @@ namespace andro
 		bool ret = tinyobj::LoadObj(shapes, materials, err, filename, NULL, TRUE);
 
 		if (!err.empty()) {
-			LOG_MSG(err);
+			TRACE(err.c_str());
+			ASSERT(FALSE);
 		}
 
 		if (!ret) {

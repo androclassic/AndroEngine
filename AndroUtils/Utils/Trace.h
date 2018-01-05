@@ -44,8 +44,23 @@ namespace andro
 		template<typename... Args>
 		auto operator()(char const* format, Args... args) const -> void
 		{
+			const int buffer_size = 1024;
+			char buffer[buffer_size];
+#ifdef _WIN32
+			auto count = sprintf_s(buffer,
+				buffer_size,
+				"[ANDRO]%s(%d)", m_filename, m_line);
 
-			printf("%s \n", format);
+			VERIFY(-1 != _snprintf_s(buffer + count,
+				_countof(buffer) - count,
+				_countof(buffer) - count - 1,
+				format,
+				args...));
+
+			OutputDebugStringA(buffer);
+#else			
+			printf("%S \n", format);
+#endif
 		}
 
 

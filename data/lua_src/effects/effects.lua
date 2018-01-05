@@ -159,8 +159,7 @@ fullscreen_quad = [[
 		int x = gl_VertexID &  1;
 		int y = gl_VertexID >> 1;
 
-		vec4 output = vec4( x * 2 - 1, y * 2 - 1, 0.5, 1 );
-		gl_Position = output;
+		gl_Position = vec4( x * 2 - 1, y * 2 - 1, 0.5, 1 );;
 	}
 ]]
 

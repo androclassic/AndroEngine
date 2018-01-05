@@ -1,5 +1,5 @@
 #include "Program.h"
-#include "Log.h"
+#include "../../AndroUtils/Utils/Trace.h"
 #include "GL/glew.h"
 
 unsigned int TakeTwo::Program::sLoadCounter = 0;
@@ -78,11 +78,12 @@ void TakeTwo::Program::Link()
         std::string errorMessage;
         errorMessage.reserve(static_cast<unsigned long>(infoLogLength));
         glGetProgramInfoLog(mProgramId, infoLogLength, NULL, &errorMessage[0]);
-        LOG_MSG(L"%s\n", errorMessage.c_str());
+		TRACE(L"%S\n", errorMessage.c_str());
     }
     if(!result)
     {
-        LOG_MSG(L"Program did not link!");
+		TRACE(L"Program did not link!");
+		ASSERT(FALSE);
     }
 }
 
