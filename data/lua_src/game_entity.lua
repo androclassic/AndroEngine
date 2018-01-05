@@ -19,6 +19,7 @@ GameManager.game_loop = function( o )
 		for _k,entity in pairs(entities) do
 			if entity.OnUpdate ~= nil then
 				entity:OnUpdate()
+				entity:NativeUpdate()
 			end	
 		end
 	end

@@ -5,9 +5,16 @@
 
 void Print_C(const char* msg)
 {
-	printf(msg);
+	TRACE(msg);
 }
 
+
+
+void Print_ERROR(const char* msg)
+{
+	TRACE("[LUA_ERROR] %s \n", msg);
+	ASSERT(FALSE);
+}
 
 Game::Game()
 	: mWindow( nullptr )
@@ -15,9 +22,6 @@ Game::Game()
 	, mMainLight( nullptr )
 {
 }
-
-
-
 
 void Game::Initialise()
 {
@@ -53,27 +57,35 @@ void Game::Initialise()
 	REGISTER_TYPE_EXPLCIT(TakeTwo::BlendDesc, BlendDesc, TakeTwo::BlendDesc::ToLua, TakeTwo::BlendDesc::FromLua);
 	REGISTER_TYPE_EXPLCIT(TakeTwo::DepthStencilDesc, DepthStencilDesc, TakeTwo::DepthStencilDesc::ToLua, TakeTwo::DepthStencilDesc::FromLua);
 
+//-----------------------------------------------------------
+//------ physcis types
+//-----------------------------------------------------------
 
 //-----------------------------------------------------------
 //------ game types
 //-----------------------------------------------------------
-
-
 	REGISTER_USER_TYPE(GameObject);
-	REGISTER_USER_TYPE_REF(GameObject);
 //-----------------------------------------------------------
 
 
 	//initialise Lua
 	Lua_State::GetInstance()->Init();
 	lua_State* L = *Lua_State::GetInstance();
-
+	
+	//game bindings
 	lua_bind_member(L, GameObject, CreateGameObject);
 	lua_bind_member(L, GameObject, DestroyGameObject);
+	lua_bind_member(L, GameObject, NativeUpdate);
 	lua_bind_member(L, GameObject, SetPosition);
 	lua_bind_member(L, GameObject, SetScale);
-	lua_bind(L, Print_C);
+
+	// render bindings
 	lua_bind_explicit(L, TakeTwo::EffectLibrary::AddEffect, AddEffectLib);
+
+	//debug bindings
+	lua_bind(L, Print_C);
+	lua_bind(L, Print_ERROR);
+
 
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptInit.lua");
 
@@ -82,6 +94,7 @@ void Game::Initialise()
 	ground = make_shared<force::Plane>();
 	ground->rigidBody = new force::RigidBody();
 	ground->rigidBody->SetPosition(0, -10, 0);
+	ground->rigidBody->SetMass(MAX_MASS);
 	((force::Plane*)ground.get())->normal = force::Vector3(0,1,0);
 	((force::Plane*)ground.get())->offset = -10;
 
@@ -99,13 +112,6 @@ void Game::Update(afloat deltaTime)
 	mWindow->Update(deltaTime);
 	Lua_State::GetInstance()->execute_program("data/lua_src/gameScriptUpdate.lua");
 	force::World::GetInstance()->runPhysics(deltaTime);
-
-	//temporary here
-	for (auto& obj : GameObject::m_gameObjects)
-	{
-		obj->UpdateVisualObjectTransformMatrix();
-	}
-
 }
 
 void Game::End()

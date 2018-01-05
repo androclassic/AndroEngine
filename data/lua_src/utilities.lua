@@ -12,3 +12,7 @@ function shallowcopy(orig)
     end
     return copy
 end
+
+function LUA_ERROR( msg )
+	Print_ERROR( tostring(msg))
+end

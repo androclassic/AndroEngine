@@ -57,8 +57,13 @@ unsigned CollisionDetector::sphereAndHalfSpace(const Sphere &sphere, const Plane
 	contact->penetration = -ballDistance;
 	contact->contactPoint =	position - plane.normal * (ballDistance + sphere.radius);
 	// Write the appropriate data.
+
 	contact->body[0] = sphere.rigidBody;
-	contact->body[1] = NULL;
+	contact->body[1] = plane.rigidBody;;
+	//check if plane is movable
+	if (!plane.rigidBody->isMovable())
+		contact->body[1] = NULL;
+
 	contact->restitution = data->restitution;
 	contact->friction = data->friction;
 	return 1;
@@ -69,7 +74,7 @@ unsigned CollisionDetector::boxAndHalfSpace(const Box &box, const Plane &plane, 
 	unsigned int contactsUsed =  0;
 
 	//check if box is movable
-	if(box.rigidBody->GetMass() >= MAX_MASS )
+	if(!box.rigidBody->isMovable() )
 		return 0;
 
 	Contact* contact = data->contacts + data->contactsNr;
@@ -108,7 +113,10 @@ unsigned CollisionDetector::boxAndHalfSpace(const Box &box, const Plane &plane, 
 		contact->restitution = data->restitution;
 
 		contact->body[0]		= box.rigidBody;
-		contact->body[1]		= NULL;
+		contact->body[1]		= plane.rigidBody;;
+		//check if plane is movable
+		if (!plane.rigidBody->isMovable())
+			contact->body[1] = NULL;
 
 
 		 contact++;
@@ -171,7 +179,7 @@ unsigned CollisionDetector::boxAndSphere(const Box &box, const Sphere &sphere, C
 	contact->friction = data->friction;
 
 	//check if box is movable
-	if(box.rigidBody->GetMass() >= MAX_MASS)
+	if(!box.rigidBody->isMovable())
 		contact->body[0] = NULL;
 
 	return 1;
@@ -244,7 +252,7 @@ unsigned CollisionDetector::CylinderAndSphere(const Cylinder &cylinder, const Sp
 	contact->friction = data->friction;
 
 	//check if cylinder is movable
-	if(cylinder.rigidBody->GetMass() >= MAX_MASS)
+	if(!cylinder.rigidBody->isMovable())
 		contact->body[0] = NULL;
 
 	return 1;
@@ -436,10 +444,10 @@ void fillPointFaceBoxBox(
 	contact->restitution = data->restitution;
 
 		//do not update the box if is unmovable
-	if(one.rigidBody->GetMass() >= MAX_MASS)
+	if(!one.rigidBody->isMovable())
 		contact->body[0] = NULL;
 
-	if(two.rigidBody->GetMass() >= MAX_MASS)
+	if(!two.rigidBody->isMovable())
 		contact->body[1] = NULL;
 	
 }
@@ -550,7 +558,7 @@ unsigned CollisionDetector::boxAndBox( const Box &one, const Box &two, Collision
 
     
 	//check if at least one box is movable
-	if(one.rigidBody->GetMass() >= MAX_MASS && two.rigidBody->GetMass() >= MAX_MASS )
+	if(!one.rigidBody->isMovable() && !two.rigidBody->isMovable())
 		return 0;
 
 
@@ -668,10 +676,10 @@ unsigned CollisionDetector::boxAndBox( const Box &one, const Box &two, Collision
 		contact->restitution = data->restitution;
 
 		//do not update the box if is unmovable
-		if(one.rigidBody->GetMass() >= MAX_MASS)
+		if(!one.rigidBody->isMovable())
 			contact->body[0] = NULL;
 
-		if(two.rigidBody->GetMass() >= MAX_MASS)
+		if(!two.rigidBody->isMovable())
 			contact->body[1] = NULL;
 		
 

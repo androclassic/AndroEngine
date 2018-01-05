@@ -95,7 +95,7 @@ bool GameObject::DestroyGameObject(ObjectRef<GameObject>  pObject)
 }
 
 
-void GameObject::UpdateVisualObjectTransformMatrix()
+void GameObject::NativeUpdate()
 {
 	if (m_physicObject != NULL )
 	{

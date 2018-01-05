@@ -30,7 +30,8 @@ namespace force
 
 	bool Particle::isMovable()
 	{
-		return (inverseMass>0);
+		static const real inversMinMass = 1.0f / MAX_MASS;
+		return (inverseMass > inversMinMass);
 	}
 
 

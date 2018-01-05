@@ -36,13 +36,13 @@ public:
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
 	force::Primitive* GetPhysicObject() const {		return  m_physicObject.get();  }
 
-	void UpdateVisualObjectTransformMatrix();
+	void NativeUpdate();
 
-	static std::vector<GameObject*> m_gameObjects;
 private:
 	TakeTwo::Node mNode;
 	TakeTwo::Node mOctreeNode;
 	shared_ptr<force::Primitive>	m_physicObject;
+	static std::vector<GameObject*> m_gameObjects;
 
 
 };
