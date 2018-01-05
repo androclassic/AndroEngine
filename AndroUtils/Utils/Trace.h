@@ -95,4 +95,8 @@ namespace andro
 	};
 }
 
+#ifdef _DEBUG
 #define TRACE andro::Tracer(__FILE__, __LINE__)
+#else
+#define TRACE 
+#endif

@@ -2,7 +2,8 @@
 std::vector<GameObject*> GameObject::m_gameObjects;
 
 
-GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName)
+GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, force::Primitive* physicsObj)
+	:m_physicObject(physicsObj)
 {
 	std::stringstream resource_key;
 	resource_key << pModelName << "_" << pMaterialFormat.programName << "_" << pMaterialFormat.textureName;
@@ -31,7 +32,14 @@ GameObject::GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const 
 	renderObjectOctree->SetFlags(ITEM_POLYGON); //todo
 	mNode.AddChild(&mOctreeNode);
 
-
+	// physic
+	if (physicsObj != nullptr)
+	{
+		//		m_physicObject->rigidBody->orientation = orientation;
+		static std::unique_ptr<force::ParticleGravity> gravity_generator = make_unique<force::ParticleGravity>(force::Vector3(0, -9.8, 0));
+		force::World::GetInstance()->registry.add(m_physicObject->rigidBody, gravity_generator.get());
+		force::World::GetInstance()->AddPrimitive(m_physicObject.get());
+	}
 
 
 
@@ -46,20 +54,9 @@ void GameObject::SetPosition(afloat x, afloat y, afloat z)
 {
 	mNode.SetPosition(glm::vec3(x, y, z));
 
-	//temporary here
-	if (m_physicObject == nullptr)
+	if (m_physicObject.get() != nullptr)
 	{
-		m_physicObject = make_shared<force::Box>(force::Vector3(1,1,1));
-
-		m_physicObject->rigidBody = new force::RigidBody();
 		m_physicObject->rigidBody->SetPosition(force::Vector3(x, y, z));
-//		m_physicObject->rigidBody->orientation = orientation;
-		m_physicObject->rigidBody->SetMass((double)1);
-		m_physicObject->rigidBody->SetAwake(true);
-		static std::unique_ptr<force::ParticleGravity> gravity_generator = make_unique<force::ParticleGravity>(force::Vector3(0, -9.8, 0));
-
-		force::World::GetInstance()->registry.add(m_physicObject->rigidBody, gravity_generator.get());
-		force::World::GetInstance()->AddBox((force::Box*)(m_physicObject.get()));
 	}
 
 }
@@ -69,9 +66,9 @@ void GameObject::SetScale(afloat scale)
 }
 
 
-ObjectRef<GameObject> GameObject::CreateGameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName)
+ObjectRef<GameObject> GameObject::CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, ObjectRef<force::Primitive> primitiveRef)
 {
-	GameObject* new_obj = new GameObject(pMaterialFormat, pModelName);
+	GameObject* new_obj = new GameObject(pMaterialFormat, pModelName, primitiveRef.object);
 	m_gameObjects.push_back(new_obj);
 
 	ObjectRef<GameObject> ref;

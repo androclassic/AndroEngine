@@ -1,5 +1,5 @@
 #include "World.h"
-
+#include <cassert>
 namespace force
 {
 	
@@ -41,29 +41,28 @@ namespace force
 	
 
 
-void World::AddSphere(Sphere* sphere)
+void World::AddPrimitive(Primitive* prim)
 {
-	spheres.push_back(sphere);
+	switch (prim->primitiveType)
+	{
+	case PrimitiveType::BOX:
+		boxes.push_back((Box*)prim);
+		break;
+	case PrimitiveType::SPHERE:
+		spheres.push_back((Sphere*)prim);
+		break;
+	case PrimitiveType::CYLINDER:
+		assert(false);
+		break;
+	case PrimitiveType::PLANE:
+		planes.push_back((Plane*)prim);
+		break;
+	}
  
-	if(sphere->rigidBody != NULL)
-		AddRigidBody(sphere->rigidBody, 1);	
+	if(prim->rigidBody != NULL)
+		AddRigidBody(prim->rigidBody, 1);
 }
 
-void World::AddBox(Box* box)
-{
-  boxes.push_back(box);
-  
-  if(box->rigidBody != NULL)
-	  AddRigidBody(box->rigidBody, 1);	
-
-}
-
-void World::AddPlane(Plane* plane)
-{
-   planes.push_back(plane);
-   if(plane->rigidBody != NULL)
-	   AddRigidBody(plane->rigidBody, 1);
-}
 
 void World::generateContacts()
 {

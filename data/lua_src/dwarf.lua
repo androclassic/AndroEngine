@@ -18,6 +18,7 @@ radius =  15;
 					Texture = "dwarf2.jpg",
 					Shader  = "Deferred",
 				},
+	Physics = Box(Vector3(1,1,1), 1),
 				
 	OnInit = function( o )			
 		o:SetScale(1)

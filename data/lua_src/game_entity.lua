@@ -46,8 +46,9 @@ GameManager.CreateEntity= function (o, name )
 	local model = class.Model
 	local material = class.Material
 	local name = class.Name
+    local physics = class.Physics
 	
-	local entity = CreateGameObject(material, model)
+	local entity = CreateGameObject(model, material, physics)
 	
 	local entity_lua = shallowcopy(class)
 	entity_lua.__userdata = entity

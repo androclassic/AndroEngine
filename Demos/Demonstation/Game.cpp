@@ -1,14 +1,12 @@
 #include "Game.h"
-
+#include "PrimitivesFormat.h"
 
 
 
 void Print_C(const char* msg)
 {
-	TRACE(msg);
+	TRACE("[LUA_Print] %s \n", msg);
 }
-
-
 
 void Print_ERROR(const char* msg)
 {
@@ -16,12 +14,42 @@ void Print_ERROR(const char* msg)
 	ASSERT(FALSE);
 }
 
+
+void glmVec3FromLua(lua_State * L, int index, Variable * ref)
+{
+	ASSERT(lua_istable(L, index));
+
+	glm::vec3 *ref_vec = new ((glm::vec3*)ref->GetVoidPtr())glm::vec3();
+
+	lua_getfield(L, index, "x");
+	lua_getfield(L, index, "y");
+	lua_getfield(L, index, "z");
+
+	ref_vec->x = lua_tonumber(L, -3);
+	ref_vec->y = lua_tonumber(L, -2);
+	ref_vec->z = lua_tonumber(L, -1);
+}
+void glmVec3ToLua(lua_State * L, Variable & var)
+{
+	glm::vec3 vec = var.GetValue<glm::vec3 >();
+
+	lua_newtable(L); //{*table is now in - 1 * }
+	lua_pushnumber(L, vec.x); //{*table is now in - 2 * }
+	lua_setfield(L, -2, "x");
+	lua_pushnumber(L, vec.y); //{*table is now in - 2 * }
+	lua_setfield(L, -2, "y");
+	lua_pushnumber(L, vec.z); //{*table is now in - 2 * }
+	lua_setfield(L, -2, "z");
+}
+
+
 Game::Game()
 	: mWindow( nullptr )
 	, mCamera( nullptr )
 	, mMainLight( nullptr )
 {
 }
+
 
 void Game::Initialise()
 {
@@ -48,6 +76,9 @@ void Game::Initialise()
 
 	engine.RegisterLight(mMainLight.get());
 	engine.RegisterCamera(mCamera->GetCamera().get());
+
+	REGISTER_TYPE_EXPLCIT(glm::vec3, nativeVector3, glmVec3ToLua, glmVec3FromLua);
+
 //-----------------------------------------------------------
 //------ render types
 //-----------------------------------------------------------
@@ -60,6 +91,8 @@ void Game::Initialise()
 //-----------------------------------------------------------
 //------ physcis types
 //-----------------------------------------------------------
+	REGISTER_USER_TYPE(force::Primitive);
+
 
 //-----------------------------------------------------------
 //------ game types
@@ -82,6 +115,12 @@ void Game::Initialise()
 	// render bindings
 	lua_bind_explicit(L, TakeTwo::EffectLibrary::AddEffect, AddEffectLib);
 
+	// physics bindings
+	lua_bind_explicit(L, Primitives::Box, Box);
+	lua_bind_explicit(L, Primitives::Plane, Plane);
+	lua_bind_explicit(L, Primitives::Cylinder, Cylinder);
+	lua_bind_explicit(L, Primitives::Sphere, Sphere);
+
 	//debug bindings
 	lua_bind(L, Print_C);
 	lua_bind(L, Print_ERROR);
@@ -91,19 +130,13 @@ void Game::Initialise()
 
 	//temporary here
 	static shared_ptr<force::Plane> ground;
-	ground = make_shared<force::Plane>();
-	ground->rigidBody = new force::RigidBody();
+	ground = make_shared<force::Plane>(force::Vector3(0, 1, 0), -10);
 	ground->rigidBody->SetPosition(0, -10, 0);
 	ground->rigidBody->SetMass(MAX_MASS);
-	((force::Plane*)ground.get())->normal = force::Vector3(0,1,0);
-	((force::Plane*)ground.get())->offset = -10;
 
-	force::World::GetInstance()->AddPlane(ground.get());
+	force::World::GetInstance()->AddPrimitive(ground.get());
 
 }
-
-
-
 
 void Game::Update(afloat deltaTime)
 {

@@ -58,9 +58,8 @@ namespace force
 		*/
 		void runPhysics(real duration);
 	
-		void AddSphere(Sphere* sphere);
-		void AddBox(Box* box);
-		void AddPlane(Plane* plane);
+		void AddPrimitive(Primitive* prim);
+
 		
 	private:
 		void AddRigidBody(RigidBody *rigidBody, unsigned int count);

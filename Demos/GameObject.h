@@ -27,12 +27,12 @@ class GameObject
 {
 
 public:
-	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, force::Primitive* physicsObj = NULL);
 	~GameObject();
 	void SetPosition(afloat x, afloat y, afloat z);
 	void SetScale(afloat scale);
 
-	static ObjectRef<GameObject> CreateGameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName);
+	static ObjectRef<GameObject> CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, ObjectRef<force::Primitive> primitiveRef);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
 	force::Primitive* GetPhysicObject() const {		return  m_physicObject.get();  }
 
