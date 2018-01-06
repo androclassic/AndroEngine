@@ -77,7 +77,9 @@ void TakeTwo::Texture::LoadFromBuffer(const unsigned char* const pBuffer, int pS
 }
 
 void TakeTwo::Texture::Bind() const
+
 {
+	glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
 

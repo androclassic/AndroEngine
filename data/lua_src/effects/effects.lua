@@ -134,7 +134,7 @@ deferred_ps = [[
 			surfaceColor = texture(u_texture, fragTexCoord);
 			
 		out_diffuse = surfaceColor;
-		out_specular = vec4(surfacePos,1);
+		out_specular = vec4(0,0,0,1);
 		out_normals = vec4(normal,1);;
 	}
 ]]

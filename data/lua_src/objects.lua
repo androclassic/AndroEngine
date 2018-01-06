@@ -4,9 +4,9 @@ require "data.lua_src.game_entity"
  Entity
  {
 	Name  = "GroundPlane",
-	Model = "data/cube.obj",
+	Model = "data/cube2.obj",
 	Material = 	{
-					Texture = "dwarf2.jpg",
+					Texture = "doza.jpg",
 					Shader  = "Deferred",
 				},
 	Physics = 	{
@@ -17,8 +17,8 @@ require "data.lua_src.game_entity"
 				},
 			
 	OnInit = function( o )			
-		o:SetPosition(0, -10, 0)
-		o:SetScale(0.00001)
+		o:SetPosition(-50, -10, -50)
+		o:SetScale(100, 0.1, 100)
 	end,
 }	
 
@@ -34,7 +34,7 @@ require "data.lua_src.game_entity"
 				},
 	OnInit = function( o )			
 		o:SetPosition(0, -10, 0)
-		o:SetScale(5)
+		o:SetScale(5,5,5)
 	end,
 	
 	OnDestroy = function( o )
@@ -55,7 +55,7 @@ require "data.lua_src.game_entity"
 				},
 	OnInit = function( o )			
 		o:SetPosition(5, -10, 0)
-		o:SetScale(5)
+		o:SetScale(5,5,5)
 	end,
 	
 	OnDestroy = function( o )
@@ -76,7 +76,7 @@ require "data.lua_src.game_entity"
 				},
 	OnInit = function( o )			
 		o:SetPosition(10, -10, 0)
-		o:SetScale(5)
+		o:SetScale(5,5,5)
 	end,
 	
 	OnDestroy = function( o )

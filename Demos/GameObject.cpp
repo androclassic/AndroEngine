@@ -78,9 +78,9 @@ void GameObject::SetPosition(afloat x, afloat y, afloat z)
 	}
 
 }
-void GameObject::SetScale(afloat scale)
+void GameObject::SetScale(afloat x, afloat y, afloat z)
 {
-	mNode.SetScale(glm::vec3(scale, scale, scale));
+	mNode.SetScale(glm::vec3(x, y, z));
 }
 
 

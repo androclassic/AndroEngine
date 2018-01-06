@@ -41,7 +41,7 @@ public:
 	GameObject(TakeTwo::Material::MaterialFormat pMaterialFormat, const char* pModelName, PrimitiveDesc pPrimitiveFormat);
 	~GameObject();
 	void SetPosition(afloat x, afloat y, afloat z);
-	void SetScale(afloat scale);
+	void SetScale(afloat x, afloat y, afloat z);
 
 	static ObjectRef<GameObject> CreateGameObject(const char* pModelName, TakeTwo::Material::MaterialFormat pMaterialFormat, PrimitiveDesc pPrimitiveFormat);
 	static bool DestroyGameObject(ObjectRef<GameObject> pObject);
