@@ -28,9 +28,21 @@ setmetatable(Vector3MT,
     __add = function(a,b)
                 return Vector3(a.x+b.x,a.y+b.y,a.z+b.z)
             end;
-    __tostring = function(a) 
-                    return "("..a.x..','..a.y..','..a.z..")"
-                end;
+     __sub = function(a,b)
+            return Vector3(a.x-b.x,a.y-b.y,a.z-b.z)
+        end;
+     __mul = function(a,b)
+            if(type(a) == "number")then
+                return Vector3(a*b.x,a*b.y,a*b.z)
+             elseif(type(b) == "number")then
+                return Vector3(b*a.x,b*a.y,b*a.z)
+             else
+                return Vector3(a.x*b.x,a.y*b.y,a.z*b.z)
+             end
+      end,
+      __tostring  = function (v)
+            return "["..tostring(v.x)..", "..tostring(v.y)..", "..tostring(v.z).."]"
+      end
 }
 ); --this metatable defines the overloads for tables with this metatable
 function Vector3(x,y,z) --Vector3MT is implicitly assigned to a variable self

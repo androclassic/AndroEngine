@@ -4,7 +4,7 @@
 #include "core/core.h"
 #include "ParticlePhysics/Particle.h"
 
-static real  sleepEpsilon = ((real)6.9);
+static real  sleepEpsilon = ((real)0.0001);
 
 namespace force
 {

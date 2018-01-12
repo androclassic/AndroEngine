@@ -142,12 +142,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 
 	REGISTER_USER_TYPE(Object);
-	REGISTER_USER_TYPE_REF(Object);
 	REGISTER_USER_TYPE(BoxObject);
-	REGISTER_USER_TYPE_REF(BoxObject);
-
 	REGISTER_USER_TYPE(Vector3);
-	REGISTER_USER_TYPE_REF(Vector3);
 
 	REGISTER_TYPE_EXPLCIT(ObjectDesc, ObjectDesc, ObjectDesc::ToLua, ObjectDesc::FromLua);
 

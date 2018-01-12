@@ -114,16 +114,12 @@ void GameObject::NativeUpdate()
 {
 	if (m_physicObject != NULL )
 	{
-		force::Matrix4 m = m_physicObject->rigidBody->transformMatrix;
-
-		force::Vector3 v(m.data[0], m.data[1], m.data[2]);
-		glm::mat4 mat;
-		for (unsigned int i = 0; i < 12; i++)
-			mat[i/3][i%4] = m.data[i];
+		force::Quaternion o = m_physicObject->rigidBody->orientation;
+		o.normalise();
+		const glm::quat orientation(o.i, o.j, o.k, o.r);
 
 		force::Vector3 pos = m_physicObject->rigidBody->GetPosition();
-		glm::quat orientation = glm::quat_cast(mat);
-		mNode.SetRotation(glm::normalize(orientation));
+		mNode.SetRotation(orientation);
 		mNode.SetPosition(glm::vec3(pos.x, pos.y, pos.z));
 	}
 }
